@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+	<title></title>
+
+    <meta name="description" content="">
+
+    <meta name="author" content="Daniel Strong">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/nebula.css">
+	<link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+
+<div id="options-menu">
+    <div>
+        <h6>Sound</h6>
+        <input type="checkbox" id="soundfx" />
+        <label for="soundfx"><span></span></label>
+        <input type="checkbox" id="music" />
+        <label for="music"><span></span></label>
+    </div>
+    <div>
+        <h6>Thanks</h6>
+        <p>Game Art: <a href="#" onclick="window.open('http://www.oryxdesignlab.com', '_system');">Oryx Design Lab</a></p>
+        <p>GUI Art: <a href="#" onclick="window.open('https://gameartpartners.com/downloads/gui-collection-stone-age/', '_system');">Zuhria</a></p>
+    </div>
+    <div>
+        <h6>Credits</h6>
+        <p>Developed by</p>
+        <p>Daniel Strong &copy;<span id="year">2016</span></p>
+        <a href="#" onclick="window.open('http://www.vermiliongiant.com', '_system');">www.VermilionGiant.com</a>
+    </div>
+    <div class="row">
+        <button class="return-to-main-menu">Main Menu</button>
+        <button class="btn-options"></button>
+    </div>
+</div>
+
+<div class="flip-container">
+    <div class="flipper">
+        <div id="title-screen">
+            <h5>Number Knight</h5>
+            <div>
+                <button id="btn-new-game">New Game</button>
+                <button id="btn-continue">Continue</button>
+            </div>
+            <div class="row">
+                <button id="btn-fallen-heroes"></button>
+                <button class="btn-options"></button>
+            </div>
+        </div>
+        <div id="new-game">
+            <h5>New Game</h5>
+            <div>
+                <input id="name-input" type="text" placeholder="What is your name?" onfocus="this.placeholder=''" onblur="this.placeholder='What is your name?'" />
+            </div>
+            <div>
+                <p>Game Modes</p>
+                <input type="checkbox" name="multiples" id="multiples" checked />
+                <label for="multiples"><span></span>Multiples</label>
+                <input type="checkbox" name="factors" id="factors" checked />
+                <label for="factors"><span></span>Factors</label>
+                <input type="checkbox" name="primes" id="primes" checked />
+                <label for="primes"><span></span>Primes</label>
+                <input type="checkbox" name="equality" id="equality" checked />
+                <label for="equality"><span></span>Equality</label>
+            </div>
+            <div id="math-difficulty">
+                <p>Math Difficulty</p>
+                <div class="row">
+                    <input type="radio" name="mathradio" id="math1" value="1" checked />
+                    <label for="math1"><span></span></label>
+                    <input type="radio" name="mathradio" id="math2" value="2" />
+                    <label for="math2"><span></span></label>
+                    <input type="radio" name="mathradio" id="math3" value="3" />
+                    <label for="math3"><span></span></label>
+                </div>
+            </div>
+            <div id="monster-difficulty">
+                <p>Monster Difficulty</p>
+                <div class="row">
+                    <input type="radio" name="monsterradio" id="monster1" value="1" checked />
+                    <label for="monster1"><span></span></label>
+                    <input type="radio" name="monsterradio" id="monster2" value="2" />
+                    <label for="monster2"><span></span></label>
+                    <input type="radio" name="monsterradio" id="monster3" value="3" />
+                    <label for="monster3"><span></span></label>
+                </div>
+            </div>
+            <div class="row">
+                <button id="btn-main-menu"></button>
+                <button id="btn-play">Play</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fade-to-black"></div>
+
+<div id="main-container">
+    <div id="top-bar"><span id="game-mode"></span><img id="warning" src="img/gui/warning.svg"><span class="btn-options"></span></div>
+    <div id="level-container">
+        <div id="hero-container">
+            <div class="hero-spacer"></div>
+            <div id="move-up"></div>
+            <div class="hero-spacer"></div>
+
+            <div id="move-left"></div>
+            <div id="hero"></div>
+            <div id="move-right"></div>
+
+            <div class="hero-spacer"></div>
+            <div id="move-down"></div>
+            <div class="hero-spacer"></div>
+        </div>
+    </div>
+    <div id="bottom-bar" class="row">
+        <span id="player-name">Player</span>
+        <span id="level">Level 1</span>
+    </div>
+    <div id="healthbar">
+        <div id="health"></div>
+    </div>
+    <div id="xpbar">
+        <div id="xp"></div>
+    </div>
+</div>
+
+<div id="game-over"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

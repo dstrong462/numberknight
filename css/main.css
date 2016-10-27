@@ -1,0 +1,569 @@
+@font-face {
+    font-family: 'Silkscreen';
+    src: url(../fonts/slkscr.ttf);
+    font-weight: normal;
+}
+
+body {
+    color: #fff;
+    font-family: 'Silkscreen';
+    font-weight: normal;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-image: url('../img/backgrounds/background-01.png');
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+}
+
+/* GUI ELEMENTS
+================================== */
+
+a {
+    color: #bbb;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+    margin: 5px;
+}
+
+a:hover,
+a:active {
+    border-bottom-color: #149ce0;
+}
+
+#new-game h5 {
+    border-bottom: 2px solid #149ce0;
+}
+
+#new-game p {
+    color: #149ce0;
+    margin-bottom: 0;
+}
+
+#name-input {
+    color: #666;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+button {
+    width: 150px;
+    height: 60px;
+    color: #262626;
+    font-weight: bold;
+    text-shadow: 1px 1px #ececee;
+    background-color: transparent;
+    outline: none;
+    border-style: none;
+    background-image: url('../img/gui/button-lg.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    margin: 10px;
+}
+
+.btn-options,
+#btn-fallen-heroes,
+#music + label span,
+#soundfx + label span,
+#math-difficulty input + label span,
+#monster-difficulty input + label span,
+#fallen-heroes button,
+#btn-main-menu {
+    width: 60px;
+    height: 60px;
+    background-color: transparent;
+    outline: none;
+    border-style: none;
+    background-image: url('../img/gui/button-options.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin: 10px;
+}
+
+#btn-fallen-heroes {
+    background-image: url('../img/gui/button-fallen.svg');
+}
+
+#music + label span {
+    background-image: url('../img/gui/music-off.svg');
+}
+#music:checked + label span {
+    background-image: url('../img/gui/music-on.svg');
+}
+
+#soundfx + label span {
+    background-image: url('../img/gui/soundfx-off.svg');
+}
+#soundfx:checked + label span {
+    background-image: url('../img/gui/soundfx-on.svg');
+}
+
+#math-difficulty input + label span,
+#monster-difficulty input + label span {
+    width: 30px;
+    height: 30px;
+    background-image: url('../img/gui/star-off.svg');
+}
+
+#math-difficulty input + label:first-of-type span,
+#monster-difficulty input + label:first-of-type span {
+    background-image: url('../img/gui/star-on.svg');
+}
+
+#btn-main-menu {
+    background-image: url('../img/gui/button-back.svg');
+}
+
+.flipper .row {
+    align-items: center;
+}
+
+
+/* TITLE SCREEN
+================================== */
+
+.flip-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    perspective: 1000px;
+    background-image: url('../img/backgrounds/background-01.png');
+    z-index: 50;
+}
+
+.flipper {
+    transition: .75s ease-in-out;
+    transform-style: preserve-3d;
+}
+
+#title-screen,
+#new-game {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    backface-visibility: hidden;
+    padding: 20px;
+}
+
+#title-screen {
+    transform: rotateY(0deg);
+    z-index: 2;
+}
+
+#new-game {
+    transform: rotateY(-180deg);
+}
+
+#new-game label {
+    display: inline-block;
+}
+
+#fallen-heroes {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 100vh;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    color: #fff;
+    text-align: center;
+    background-color: #262626;
+    padding: 25px 15px;
+    overflow-y: scroll;
+    z-index: 60;
+}
+
+#fallen-heroes h5 {
+    color: #149ce0;
+}
+
+#fallen-heroes p {
+    color: #bbb;
+    font-size: .92em;
+    font-style: italic;
+    line-height: 1.2em;
+    margin: 0 auto 0 0;
+}
+
+#fallen-heroes .row {
+    flex-shrink: 0;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.25);
+    padding: 10px;
+    margin-bottom: 10px;
+    opacity: 0;
+}
+
+#fallen-heroes button {
+    background-image: url('../img/gui/button-back.svg');
+    flex-shrink: 0;
+    align-self: center;
+}
+
+#fallen-heroes .row div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#fallen-heroes span:first-child {
+    font-weight: bold;
+}
+
+#fallen-heroes div:last-child {
+    padding-top: 25px;
+    margin-bottom: 0;
+    margin-top: auto;
+}
+
+#clearlist {
+    background-image: url('../img/gui/button-trash.svg') !important;
+}
+
+
+/* OPTIONS MENU
+================================== */
+
+#options-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    align-content: center;
+    text-align: center;
+    background-image: url('../img/backgrounds/background-01.png');
+    background-color: #777;
+    transition: .5s;
+    z-index: 80;
+}
+
+#options-menu h6 {
+    color: #149ce0;
+}
+
+#options-menu .row {
+    align-items: center;
+}
+
+#options-menu input[type='checkbox']:checked + label span:after {
+    display: none;
+}
+
+#options-menu label {
+    margin: 0;
+}
+
+#options-menu .btn-options {
+    background-image: url('../img/gui/button-back.svg');
+}
+
+
+/* GAME LEVELS
+================================== */
+
+#fade-to-black {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    animation: fade-out 1s 1;
+    z-index: 1000;
+}
+
+@keyframes fade-out {
+    0%   { background-color: transparent; }
+    90%  { background-color: #000; }
+}
+
+@keyframes fade-in {
+    0%   { background-color: #000; }
+    90%  { background-color: transparent; }
+}
+
+#main-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+#top-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: #fff;
+    font-size: 1.25em;
+    line-height: 15vw;
+    text-align: center;
+    padding: 0 20px;
+    z-index: 20;
+}
+
+#warning {
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    margin: auto 15px auto auto;
+}
+
+@keyframes warning {
+    0%   { opacity: 0; }
+    6%  { opacity: 1; }
+    94%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes saving {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+#main-container .btn-options {
+    width: 35px;
+    height: 35px;
+    margin: 0;
+}
+
+#level-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    overflow: hidden;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.cell {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    font-size: .95em;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px rgba(0,0,0,.9);
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    transition: .5s;
+    padding: 0;
+    margin: 0;
+}
+
+.cell img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    transition: .5s;
+    width: 65%;
+}
+
+/*#level-container .row div:first-child {
+    box-shadow: 18px 0 5px rgba(0,0,0,.4) inset;
+}
+
+#level-container .row div:last-child {
+    box-shadow: -18px 0 5px rgba(0,0,0,.4) inset;
+}
+
+#shadow-top div {
+    box-shadow: 0 20px 5px rgba(0,0,0,.45) inset;
+}
+
+#shadow-top div:first-child {
+    box-shadow: 18px 20px 5px rgba(0,0,0,.45) inset !important;
+}
+
+#shadow-top div:last-child {
+    box-shadow: -18px 20px 5px rgba(0,0,0,.45) inset !important;
+}*/
+
+#bottom-bar {
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+#level {
+    color: #fff;
+    padding: 5px;
+}
+
+#health:after,
+#xp:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-color: rgba(0,0,0,.15);
+    border-radius: 0 0 6px 6px;
+}
+
+#health:before,
+#xp:before {
+    content: 'xp';
+    position: absolute;
+    left: 5px;
+    font-size: .9em;
+    font-weight: bold;
+    line-height: 20px;
+    text-shadow: 1px 1px rgba(0,0,0,.5);
+}
+
+#health:before {
+    content: 'hp';
+}
+
+#healthbar,
+#xpbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 5px;
+}
+
+#health,
+#xp {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background-color: #E22727;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,.5);
+    transition: .5s;
+}
+
+#xp {
+    background-color: #EFCE2B;
+}
+
+.enemy {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 65% 65%;
+    z-index: 10;
+}
+
+@keyframes img-fade-in {
+    0%   { opacity: 0; }
+    100%  { opacity: 1; }
+}
+
+@keyframes img-fade-out {
+    0%   { opacity: 1; }
+    100%  { opacity: 0; }
+}
+
+#game-over {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    align-content: center;
+    background-color: #353535;
+    border: 8px solid rgba(255,0,0,.75);
+    opacity: 0;
+    transition: 1s;
+    z-index: 100;
+}
+
+
+/* THE HERO
+================================== */
+
+#hero-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    width: 150px;
+    height: 150px;
+    padding: 0;
+    margin: 0;
+    transition: 0.35s ease;
+    z-index: 15;
+}
+
+#hero-container div {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    margin: 0;
+}
+
+#hero {
+    background-image: url('../img/hero.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 80% 80%;
+}
