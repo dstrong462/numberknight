@@ -339,8 +339,8 @@ button {
 }
 
 #warning {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     opacity: 0;
     margin: auto 15px auto auto;
 }
@@ -501,6 +501,17 @@ button {
     background-position: center;
     background-size: 65% 65%;
     z-index: 10;
+}
+
+.hit:after {
+    content: url('../img/hit.gif');
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    margin: auto;
 }
 
 @keyframes img-fade-in {

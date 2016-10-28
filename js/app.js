@@ -29,24 +29,24 @@ var bestiary = [
     {
         type: 'Gelatinous Cube',
         image: 'cube-green.gif',
-        damage: 15,
+        damage: 10,
         health: 50,
         weight: 25,
-        moveInterval: 4000,
-        moveSpeed: 1,
+        moveInterval: 2100,
+        moveSpeed: 2,
         ability: 'acid',
         abilityImage: 'acid.png',
-        abilityDamge: 10,
-        abilityDuration: 4500,
+        abilityDamge: 5,
+        abilityDuration: 5500,
         abilityChance: 100
     },
     {
         type: 'Giant Spider',
         image: 'spider.gif',
-        damage: 20,
+        damage: 15,
         health: 65,
         weight: 35,
-        moveInterval: 2500,
+        moveInterval: 2000,
         moveSpeed: 0.35,
         ability: 'web',
         abilityImage: 'web.gif',
@@ -133,7 +133,6 @@ function awardXp(source) {
     // Add xp for slaying a monster
     else {
         hero.xp += Math.floor(100 / (source.weight * (0.5 / hero.level)));
-        console.log(hero.xp);
         xpBar.style.width = hero.xp + '%';
     }
 }
@@ -183,6 +182,7 @@ var totalCells = numberOfColumns * numberOfRows;
 
 var optionsPosition = 'closed';
 var levelContainer = document.getElementById('level-container');
+    levelContainer.style.width = numberOfColumns * cellSize + 'px';
 var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
@@ -741,7 +741,7 @@ function addHero() {
     heroContainer.style.width = cellSize * 3 + 'px';
     heroContainer.style.height = cellSize * 3 + 'px';
     heroContainer.style.top = '-' + cellSize + 'px';
-    heroContainer.style.left = '-' + (cellSize - reservedSides) + 'px';
+    heroContainer.style.left = '-' + cellSize + 'px';
     // Size each cell to match the map cell size
     var heroGrid = document.querySelectorAll('#hero-container div');
     for (var i = 0; i < heroGrid.length; i++) {
@@ -1134,7 +1134,7 @@ function moveHero(e) {
                 var target = enemies.filter(function(target) {
                     return target.id === name;
                 })[0];
-                checkForAttack('up',target,hero);
+                checkForAttack('down',target,hero);
             }
             else if (hero.canMove && hero.top <= (numberOfRows - 2) * cellSize && mapLocation.contents !== 'blocked') {
                 map[hero.row - 1][hero.col - 1].hero = false;
@@ -1160,7 +1160,7 @@ function moveHero(e) {
                 var target = enemies.filter(function(target) {
                     return target.id === name;
                 })[0];
-                checkForAttack('up',target,hero);
+                checkForAttack('left',target,hero);
             }
             else if (hero.canMove && hero.left >= cellSize && mapLocation.contents !== 'blocked') {
                 map[hero.row - 1][hero.col - 1].hero = false;
@@ -1186,7 +1186,7 @@ function moveHero(e) {
                 var target = enemies.filter(function(target) {
                     return target.id === name;
                 })[0];
-                checkForAttack('up',target,hero);
+                checkForAttack('right',target,hero);
             }
             else if (hero.canMove && hero.left <= (numberOfColumns - 2) * cellSize && mapLocation.contents !== 'blocked') {
                 map[hero.row - 1][hero.col - 1].hero = false;
@@ -1287,7 +1287,6 @@ function restoreHealth(amount) {
 // Deal damage depending on what healing method is passed to the function
 function dealDamage(amount,source) {
     amount *= hero.armorRating;
-    console.log(amount);
     hero.health -= amount;
     if (hero.health <= 0) {
         // Determine the cause of death
@@ -1402,9 +1401,8 @@ function fadeToMainMenu() {
 
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
-    console.log('let the games begin!');
     if (hero.difficultyMonster == 1) {
-        maxWeight = 25;
+        maxWeight = 60;
     }
     else if (hero.difficultyMonster == 2) {
         maxWeight = 100;
@@ -1412,7 +1410,28 @@ function letTheGamesBegin() {
     else if (hero.difficultyMonster == 3) {
         maxWeight = 180;
     }
-    // Select a random location on the outside of the map
+    var warning = document.getElementById('warning');
+        warning.src = 'img/gui/warning.svg';
+        warning.style.animation = 'warning 7s 1';
+    function spawnSpeed() {
+        var speed = 5000;
+        var interval = setTimeout(function() {
+            if (map.length === 0) {
+                clearTimeout(interval);
+            }
+            else if (totalWeight < maxWeight) {
+                var spawn = randomMonsterSpawn();
+                getEnemy(spawn.row,spawn.col);
+            }
+            spawnSpeed();
+        }, speed);
+    }
+    spawnSpeed();
+}
+
+
+// Select a random location on the outside of the map
+function randomMonsterSpawn() {
     var randomRow = randomNumber(1,numberOfRows);
     if (randomRow === 1 || randomRow === numberOfRows) {
         var randomCol = randomNumber(1,numberOfColumns);
@@ -1426,21 +1445,11 @@ function letTheGamesBegin() {
             var randomCol = numberOfColumns;
         }
     }
-    var warning = document.getElementById('warning');
-        warning.src = 'img/gui/warning.svg';
-        warning.style.animation = 'warning 6s 1';
-    // var monsterEntrance = document.getElementById(map[randomRow][randomCol].location);
-    var interval = setInterval(function() {
-        if (map.length === 0) {
-            clearInterval(interval);
-        }
-        else if (totalWeight < maxWeight) {
-            getEnemy(randomRow,randomCol);
-        }
-    }, 1000);
+    return { row: randomRow, col: randomCol }
 }
 
 
+// Select a random enemy from the bestiary
 function getEnemy(row,col) {
     var monster = bestiary[randomNumber(0,bestiary.length - 1)];
     if (monster.weight + totalWeight <= maxWeight) {
@@ -1495,11 +1504,11 @@ function addEnemy(row,col,monster) {
         createEnemy.style.height = cellSize + 'px';
         createEnemy.style.backgroundImage = 'url("img/enemies/' + enemy.image + '")';
         createEnemy.style.top = '0';
-        createEnemy.style.left = 0 + reservedSides + 'px';
+        createEnemy.style.left = '0';
         createEnemy.style.transitionDuration = '0';
-        createEnemy.style.opacity = '0';
         levelContainer.appendChild(createEnemy);
     var enemyContainer = document.getElementById(enemy.id);
+    // Insert the enemy onto one of the outside squares
     if (enemy.row === 1) {
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + '-' + cellSize + 'px)';
         enemyContainer.style.transition = enemy.moveSpeed + 's ease';
@@ -1518,41 +1527,41 @@ function addEnemy(row,col,monster) {
             enemyContainer.style.transition = enemy.moveSpeed + 's ease';
         }
     }
-    enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
-    actionInterval();
+    setTimeout(function() {
+        enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        actionInterval();
+    }, 2000);
 
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
-        var i = 0;
-        if (enemy.health <= 0) {
-            i++;
-            awardXp(enemy);
-            totalWeight -= enemy.weight;
-            delete enemy;
-            delete enemyContainer;
-        }
-        else if (optionsPosition === 'open') {
+        var interval = setTimeout(function() {
+            if (enemy.health <= 0) {
+                awardXp(enemy);
+                totalWeight -= enemy.weight;
+                delete enemy;
+                delete enemyContainer;
+                clearTimeout(interval);
+            }
+            // If options menu open, pause movement
+            else if (optionsPosition === 'open') {
 
-        }
-        else if (enemies.length === 0) {
-            i++;
-            totalWeight = 0;
-            delete enemy;
-            delete enemyContainer;
-        }
-        else {
-            var useAbility = randomNumber(1,100);
-            if (useAbility <= enemy.abilityChance) {
-                if (enemy.ability === 'acid' || enemy.ability === 'web') {
-                    layTrap(enemy);
+            }
+            else if (enemies.length === 0) {
+                totalWeight = 0;
+                delete enemy;
+                delete enemyContainer;
+                clearTimeout(interval);
+            }
+            else {
+                var useAbility = randomNumber(1,100);
+                if (useAbility <= enemy.abilityChance) {
+                    if (enemy.ability === 'acid' || enemy.ability === 'web') {
+                        layTrap(enemy);
+                    }
                 }
+                moveEnemyPassive(enemy,enemyContainer);
             }
-            moveEnemyPassive(enemy,enemyContainer);
-        }
-        setTimeout(function() {
-            if (i === 0) {
-                actionInterval();
-            }
+            actionInterval();
         }, enemy.moveInterval);
     }
 }
