@@ -267,7 +267,7 @@ button {
     align-items: center;
 }
 
-#options-menu input[type='checkbox']:checked + label span:after {
+#options-menu div:first-of-type input[type='checkbox']:checked + label span:after {
     display: none;
 }
 
@@ -496,6 +496,7 @@ button {
 }
 
 .enemy {
+    display: flex;
     position: absolute;
     background-repeat: no-repeat;
     background-position: center;
@@ -505,13 +506,16 @@ button {
 
 .hit:after {
     content: url('../img/hit.gif');
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    opacity: 0;
+    transform: scale(2,2);
+    animation: strike .25s 1;
     margin: auto;
+}
+
+@keyframes strike {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 @keyframes img-fade-in {
@@ -573,6 +577,7 @@ button {
 }
 
 #hero {
+    display: flex;
     background-image: url('../img/hero.png');
     background-repeat: no-repeat;
     background-position: center;

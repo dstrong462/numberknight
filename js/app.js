@@ -142,7 +142,11 @@ function awardXp(source) {
 // Check if there is already an options file
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
-    options = { soundfx: true, music: true };
+    options = {
+        soundfx: true,
+        music: true,
+        doubleclick: false
+    };
 }
 else {
     // Otherwise, retrieve and parse it
@@ -185,7 +189,12 @@ var levelContainer = document.getElementById('level-container');
     levelContainer.style.width = numberOfColumns * cellSize + 'px';
 var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
-    player.addEventListener('click', checkMath);
+    if (options.doubleclick) {
+        player.addEventListener('dblclick', checkMath);
+    }
+    else {
+        player.addEventListener('click', checkMath);
+    }
 var healthBar = document.getElementById('health');
 var xpBar = document.getElementById('xp');
 var gameMode = ['multiples','factors','primes','equality'];
@@ -260,6 +269,7 @@ var optionsButton = document.querySelectorAll('.btn-options');
                 optionsPosition = 'open';
             }
             else {
+                setOptions();
                 menu.style.transform = 'translateX(-100%)';
                 optionsPosition = 'closed';
             }
@@ -332,8 +342,10 @@ function titleButtons() {
 
 var soundfx = document.getElementById('soundfx');
 var music = document.getElementById('music');
-    soundfx.addEventListener('click', setSoundOptions);
-    music.addEventListener('click', setSoundOptions);
+var doubleclick = document.getElementById('doubleclick');
+    soundfx.addEventListener('click', setOptions);
+    music.addEventListener('click', setOptions);
+    doubleclick.addEventListener('click', setOptions);
     // Set correct display of buttons based on saved options
     if (options.soundfx) {
         soundfx.checked = true;
@@ -347,9 +359,15 @@ var music = document.getElementById('music');
     else {
         music.checked = false;
     }
+    if (options.doubleclick) {
+        doubleclick.checked = true;
+    }
+    else {
+        doubleclick.checked = false;
+    }
 
 // Set sound options in local storage
-function setSoundOptions() {
+function setOptions() {
     // Change in local storage if needed
     if (soundfx.checked) {
         options.soundfx = true;
@@ -363,8 +381,21 @@ function setSoundOptions() {
     else {
         options.music = false;
     }
+    if (doubleclick.checked) {
+        options.doubleclick = true;
+        player.removeEventListener('click', checkMath);
+        player.removeEventListener('dblclick', checkMath);
+        player.addEventListener('dblclick', checkMath);
+    }
+    else {
+        options.doubleclick = false;
+        player.removeEventListener('click', checkMath);
+        player.removeEventListener('dblclick', checkMath);
+        player.addEventListener('click', checkMath);
+    }
     localStorage.setItem('options', JSON.stringify(options));
 }
+
 
 var mathradio = document.querySelectorAll('#math-difficulty input');
     for (var i = 0; i < mathradio.length; i++) {
@@ -516,9 +547,9 @@ var enemies = [];
 
 // Reset anything from the previous level
 function resetAll() {
-    delete map;
+    map = null;
     map = [];
-    delete enemies;
+    enemies = null;
     enemies = [];
     numberOfEnemies = 0;
     totalWeight = 0;
@@ -730,6 +761,8 @@ function addHero() {
         hero.primesWrong = 0;
         hero.equalsRight = 0;
         hero.equalsWrong = 0;
+        hero.enemiesSlain = 0;
+        hero.squaresMoved = 0;
         hero.hero = true;
         hero.name = document.getElementById('name-input').value;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
@@ -1115,6 +1148,7 @@ function moveHero(e) {
                 hero.top -= cellSize;
                 heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
                 hero.row--;
+                hero.squaresMoved++;
                 map[hero.row - 1][hero.col - 1].hero = true;
                 checkForTraps();
             }
@@ -1141,6 +1175,7 @@ function moveHero(e) {
                 hero.top += cellSize;
                 heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
                 hero.row++;
+                hero.squaresMoved++;
                 map[hero.row - 1][hero.col - 1].hero = true;
                 checkForTraps();
             }
@@ -1167,6 +1202,7 @@ function moveHero(e) {
                 hero.left -= cellSize;
                 heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
                 hero.col--;
+                hero.squaresMoved++;
                 map[hero.row - 1][hero.col - 1].hero = true;
                 checkForTraps();
             }
@@ -1193,6 +1229,7 @@ function moveHero(e) {
                 hero.left += cellSize;
                 heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
                 hero.col++;
+                hero.squaresMoved++;
                 map[hero.row - 1][hero.col - 1].hero = true;
                 checkForTraps();
             }
@@ -1217,6 +1254,15 @@ function checkForAttack(direction,victim,attacker) {
     if (victim.hasOwnProperty('health')) {
         if (victim.health > 0) {
             var victimContainer = document.getElementById(victim.id);
+            if (victim.hero) {
+                victimContainer = player;
+            }
+            if (victim.hasOwnProperty('id')) {
+                victimContainer.classList.add('hit');
+                setTimeout(function() {
+                    victimContainer.classList.remove('hit');
+                }, 250);
+            }
             var attackerContainer = document.getElementById(attacker.id);
             var attackerTop = attacker.top;
             var attackerLeft = attacker.left;
@@ -1380,7 +1426,7 @@ function youDied(deathBy) {
         setTimeout(function() {
             gameOverScreen.style.opacity = '1';
         }, 200);
-        delete hero;
+        hero = null;
         var mainMenuButton = document.querySelector('.main-menu-button');
             mainMenuButton.addEventListener('click', fadeToMainMenu);
 }
@@ -1410,23 +1456,16 @@ function letTheGamesBegin() {
     else if (hero.difficultyMonster == 3) {
         maxWeight = 180;
     }
-    var warning = document.getElementById('warning');
-        warning.src = 'img/gui/warning.svg';
-        warning.style.animation = 'warning 7s 1';
-    function spawnSpeed() {
-        var speed = 5000;
-        var interval = setTimeout(function() {
-            if (map.length === 0) {
-                clearTimeout(interval);
-            }
-            else if (totalWeight < maxWeight) {
-                var spawn = randomMonsterSpawn();
-                getEnemy(spawn.row,spawn.col);
-            }
-            spawnSpeed();
-        }, speed);
-    }
-    spawnSpeed();
+    // Spawn enemies at an interval
+    var interval = setInterval(function() {
+        if (map.length === 0) {
+            clearTimeout(interval);
+        }
+        else if (totalWeight < maxWeight) {
+            var spawn = randomMonsterSpawn();
+            getEnemy(spawn.row,spawn.col);
+        }
+    }, 5000);
 }
 
 
@@ -1464,8 +1503,20 @@ function getEnemy(row,col) {
 }
 
 
+// Flash the warning icon when an enemy is spawning
+function enemyWarning() {
+    var warning = document.getElementById('warning');
+        warning.src = 'img/gui/warning.svg';
+        warning.style.animation = 'warning 2.5s 1';
+        setTimeout(function() {
+            warning.style.animation = '';
+        }, 2500);
+}
+
+
 // Spawn an enemy and apply some data to it
 function addEnemy(row,col,monster) {
+    enemyWarning();
     numberOfEnemies++;
     totalWeight += monster.weight;
     // Create new enemy object and push to array of enemies
@@ -1479,6 +1530,7 @@ function addEnemy(row,col,monster) {
     enemy.row = row;
     enemy.col = col;
     enemy.location = 'r' + row + 'c' + col;
+    enemy.gameLevel = hero.gameLevel;
     enemy.canMove = true;
     enemy.health = monster.health;
     enemy.armorRating = 1;
@@ -1534,10 +1586,18 @@ function addEnemy(row,col,monster) {
 
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
-        var interval = setTimeout(function() {
-            if (enemy.health <= 0) {
+        var interval = setInterval(function() {
+            // Destroy any stowaways trying to sneak into the next level
+            if (enemy.gameLevel !== hero.gameLevel) {
+                enemy = null;
+                clearTimeout(interval);
+            }
+            // Award XP on death, then destroy
+            else if (enemy.health <= 0 && enemy.gameLevel === hero.gameLevel) {
                 awardXp(enemy);
                 totalWeight -= enemy.weight;
+                hero.enemiesSlain++;
+                enemy = null;
                 delete enemy;
                 delete enemyContainer;
                 clearTimeout(interval);
@@ -1546,13 +1606,8 @@ function addEnemy(row,col,monster) {
             else if (optionsPosition === 'open') {
 
             }
-            else if (enemies.length === 0) {
-                totalWeight = 0;
-                delete enemy;
-                delete enemyContainer;
-                clearTimeout(interval);
-            }
-            else {
+            // Roll chance to use special ability, then perform an action
+            else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel) {
                 var useAbility = randomNumber(1,100);
                 if (useAbility <= enemy.abilityChance) {
                     if (enemy.ability === 'acid' || enemy.ability === 'web') {
@@ -1561,7 +1616,13 @@ function addEnemy(row,col,monster) {
                 }
                 moveEnemyPassive(enemy,enemyContainer);
             }
-            actionInterval();
+            else {
+                totalWeight = 0;
+                enemy = null;
+                delete enemy;
+                delete enemyContainer;
+                clearTimeout(interval);
+            }
         }, enemy.moveInterval);
     }
 }
