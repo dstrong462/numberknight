@@ -73,16 +73,16 @@ var bestiary = [
 // Allow enemies to lay temporary traps
 function layTrap(enemy) {
     var mapLocation = map[enemy.row - 1][enemy.col - 1];
+    var cell = document.getElementById(enemy.location);
     if (mapLocation.contents === 'trap') {
 
     }
-    else {
+    else if (mapLocation.contents !== 'trap') {
         var original = mapLocation.contents;
         var originalDmg = mapLocation.trapDamage;
             mapLocation.contents = 'trap';
             mapLocation.trapType = enemy.ability;
             mapLocation.trapDamage = enemy.abilityDamge;
-        var cell = document.getElementById(enemy.location);
         var trap = document.createElement('img');
             trap.src = 'img/objects/' + enemy.abilityImage;
             trap.opacity = '0';
@@ -144,8 +144,7 @@ if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
         soundfx: true,
-        music: true,
-        doubleclick: false
+        music: true
     };
 }
 else {
@@ -189,12 +188,7 @@ var levelContainer = document.getElementById('level-container');
     levelContainer.style.width = numberOfColumns * cellSize + 'px';
 var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
-    if (options.doubleclick) {
-        player.addEventListener('dblclick', checkMath);
-    }
-    else {
-        player.addEventListener('click', checkMath);
-    }
+    player.addEventListener('click', checkMath, true);
 var healthBar = document.getElementById('health');
 var xpBar = document.getElementById('xp');
 var gameMode = ['multiples','factors','primes','equality'];
@@ -342,10 +336,8 @@ function titleButtons() {
 
 var soundfx = document.getElementById('soundfx');
 var music = document.getElementById('music');
-var doubleclick = document.getElementById('doubleclick');
     soundfx.addEventListener('click', setOptions);
     music.addEventListener('click', setOptions);
-    doubleclick.addEventListener('click', setOptions);
     // Set correct display of buttons based on saved options
     if (options.soundfx) {
         soundfx.checked = true;
@@ -359,12 +351,7 @@ var doubleclick = document.getElementById('doubleclick');
     else {
         music.checked = false;
     }
-    if (options.doubleclick) {
-        doubleclick.checked = true;
-    }
-    else {
-        doubleclick.checked = false;
-    }
+
 
 // Set sound options in local storage
 function setOptions() {
@@ -380,18 +367,6 @@ function setOptions() {
     }
     else {
         options.music = false;
-    }
-    if (doubleclick.checked) {
-        options.doubleclick = true;
-        player.removeEventListener('click', checkMath);
-        player.removeEventListener('dblclick', checkMath);
-        player.addEventListener('dblclick', checkMath);
-    }
-    else {
-        options.doubleclick = false;
-        player.removeEventListener('click', checkMath);
-        player.removeEventListener('dblclick', checkMath);
-        player.addEventListener('click', checkMath);
     }
     localStorage.setItem('options', JSON.stringify(options));
 }
@@ -548,9 +523,7 @@ var enemies = [];
 // Reset anything from the previous level
 function resetAll() {
     map = null;
-    map = [];
     enemies = null;
-    enemies = [];
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
@@ -590,6 +563,8 @@ function fadeIn() {
 function buildMap() {
     levelContainer.innerHTML = '';
     levelContainer.appendChild(heroContainer);
+    map = [];
+    enemies = [];
     // Pick a random tileset
     tilesetNumber = randomNumber(1,tilesets);
     // Cycle through each row
@@ -644,7 +619,7 @@ function randomizeColumns(number) {
         object.object = 'junk-' + randomNumber(1,junk);
         object.tile = 'empty';
         object.contents = 'blocked';
-        object.health = 60;
+        object.health = 40;
     }
 }
 
@@ -1083,7 +1058,15 @@ function checkMath() {
         hero.answers++;
         restoreHealth(healthRestoreFromCapture);
         munchLocation.answer = 'captured';
-        document.getElementById(munchLocation.location).innerHTML = '';
+        var square = document.getElementById(munchLocation.location);
+        setTimeout(function() {
+            if (square === null) {
+                console.log('null square');
+            }
+            else {
+                square.innerHTML = '';
+            }
+        }, 250);
         if (hero.answers === hero.answersNeeded) {
             var exitCover = document.querySelector('#' + levelExit.id + ' img');
                 exitCover.style.transition = '2.25s ease-in-out';
@@ -1126,125 +1109,214 @@ function checkMath() {
     }
 }
 
+var taps = [];
+
+// Move hero with screen swipes
+(function swipe() {
+
+    var xStart;
+    var xEnd;
+    var yStart;
+    var yEnd;
+    var xDistance;
+    var yDistance;
+    var minDistance = 75;
+    var tolerance = 75;
+    var startTime;
+    var totalTime;
+    var timeLimit = 250;
+
+    levelContainer.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        xStart = e.changedTouches[0].clientX;
+        yStart = e.changedTouches[0].clientY;
+        startTime = new Date().getTime();
+    });
+
+    levelContainer.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    });
+
+    levelContainer.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        xEnd = e.changedTouches[0].clientX;
+        yEnd = e.changedTouches[0].clientY;
+        totalTime = new Date().getTime() - startTime;
+
+        xDistance = xEnd - xStart;
+        yDistance = yEnd - yStart;
+
+        // Weird method I came up with to check for a double tap
+        if (totalTime <= timeLimit && Math.abs(xDistance) < 50 && Math.abs(yDistance) < 50) {
+            var tap = new Date().getTime();
+                taps.push(tap);
+            setTimeout(function() {
+                taps = [];
+            }, timeLimit);
+            if (taps.length === 2) {
+                if (taps[1] - taps[0] < timeLimit) {
+                    checkMath();
+                }
+            }
+        }
+
+
+        // Make sure swipe is fast enough, and prevent swiping the hero
+        else if (totalTime <= timeLimit && e.target.id !== 'hero') {
+
+            // Check for LEFT or RIGHT movement
+            if (Math.abs(xDistance) > minDistance && Math.abs(yDistance) < tolerance) {
+                // Move RIGHT
+                if (xEnd - xStart > 0) {
+                    e.target.id = 'move-right';
+                    moveHero(e);
+                }
+                // Move LEFT
+                else if (xEnd - xStart < 0) {
+                    e.target.id = 'move-left';
+                    moveHero(e);
+                }
+            }
+            // Check for UP or DOWN movement
+            else if (Math.abs(yDistance) > minDistance && Math.abs(xDistance) < tolerance) {
+                // Move DOWN
+                if (yEnd - yStart > 0) {
+                    e.target.id = 'move-down';
+                    moveHero(e);
+                }
+                // Move UP
+                else if (yEnd - yStart < 0) {
+                    e.target.id = 'move-up';
+                    moveHero(e);
+                }
+            }
+        }
+
+    });
+
+}());
+
 
 // Check collision of movement, and move accordingly
 function moveHero(e) {
-    var munchLocation = map[hero.row - 1][hero.col - 1];
-    if (e.target.id === 'move-up' || e.keyCode == '38') {
-        if (hero.row === 1) {
+    if (hero.canMove) {
+        var munchLocation = map[hero.row - 1][hero.col - 1];
+        if (e.target.id === 'move-up' || e.keyCode == '38') {
+            if (hero.row === 1) {
 
-        }
-        else {
-            var mapLocation = map[hero.row - 2][hero.col - 1];
-            if (mapLocation.enemy !== false) {
-                var name = mapLocation.enemy;
-                var target = enemies.filter(function(target) {
-                    return target.id === name;
-                })[0];
-                checkForAttack('up',target,hero);
-            }
-            else if (hero.canMove && hero.top >= cellSize && mapLocation.contents !== 'blocked') {
-                map[hero.row - 1][hero.col - 1].hero = false;
-                hero.top -= cellSize;
-                heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
-                hero.row--;
-                hero.squaresMoved++;
-                map[hero.row - 1][hero.col - 1].hero = true;
-                checkForTraps();
             }
             else {
-                checkForAttack('up',mapLocation,hero);
+                var mapLocation = map[hero.row - 2][hero.col - 1];
+                if (mapLocation.enemy !== false) {
+                    var name = mapLocation.enemy;
+                    var target = enemies.filter(function(target) {
+                        return target.id === name;
+                    })[0];
+                    checkForAttack('up',target,hero);
+                }
+                else if (hero.top >= cellSize && mapLocation.contents !== 'blocked') {
+                    map[hero.row - 1][hero.col - 1].hero = false;
+                    hero.top -= cellSize;
+                    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
+                    hero.row--;
+                    hero.squaresMoved++;
+                    map[hero.row - 1][hero.col - 1].hero = true;
+                    checkForTraps();
+                }
+                else {
+                    checkForAttack('up',mapLocation,hero);
+                }
             }
         }
-    }
-    else if (e.target.id === 'move-down' || e.keyCode == '40') {
-        if (hero.row === numberOfRows) {
+        else if (e.target.id === 'move-down' || e.keyCode == '40') {
+            if (hero.row === numberOfRows) {
 
-        }
-        else {
-            var mapLocation = map[hero.row][hero.col - 1];
-            if (mapLocation.enemy !== false) {
-                var name = mapLocation.enemy;
-                var target = enemies.filter(function(target) {
-                    return target.id === name;
-                })[0];
-                checkForAttack('down',target,hero);
-            }
-            else if (hero.canMove && hero.top <= (numberOfRows - 2) * cellSize && mapLocation.contents !== 'blocked') {
-                map[hero.row - 1][hero.col - 1].hero = false;
-                hero.top += cellSize;
-                heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
-                hero.row++;
-                hero.squaresMoved++;
-                map[hero.row - 1][hero.col - 1].hero = true;
-                checkForTraps();
             }
             else {
-                checkForAttack('down',mapLocation,hero);
+                var mapLocation = map[hero.row][hero.col - 1];
+                if (mapLocation.enemy !== false) {
+                    var name = mapLocation.enemy;
+                    var target = enemies.filter(function(target) {
+                        return target.id === name;
+                    })[0];
+                    checkForAttack('down',target,hero);
+                }
+                else if (hero.top <= (numberOfRows - 2) * cellSize && mapLocation.contents !== 'blocked') {
+                    map[hero.row - 1][hero.col - 1].hero = false;
+                    hero.top += cellSize;
+                    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
+                    hero.row++;
+                    hero.squaresMoved++;
+                    map[hero.row - 1][hero.col - 1].hero = true;
+                    checkForTraps();
+                }
+                else {
+                    checkForAttack('down',mapLocation,hero);
+                }
             }
         }
-    }
-    else if (e.target.id === 'move-left' || e.keyCode == '37') {
-        if (hero.col === 1) {
+        else if (e.target.id === 'move-left' || e.keyCode == '37') {
+            if (hero.col === 1) {
 
-        }
-        else {
-            var mapLocation = map[hero.row - 1][hero.col - 2];
-            if (mapLocation.enemy !== false) {
-                var name = mapLocation.enemy;
-                var target = enemies.filter(function(target) {
-                    return target.id === name;
-                })[0];
-                checkForAttack('left',target,hero);
-            }
-            else if (hero.canMove && hero.left >= cellSize && mapLocation.contents !== 'blocked') {
-                map[hero.row - 1][hero.col - 1].hero = false;
-                hero.left -= cellSize;
-                heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
-                hero.col--;
-                hero.squaresMoved++;
-                map[hero.row - 1][hero.col - 1].hero = true;
-                checkForTraps();
             }
             else {
-                checkForAttack('left',mapLocation,hero);
+                var mapLocation = map[hero.row - 1][hero.col - 2];
+                if (mapLocation.enemy !== false) {
+                    var name = mapLocation.enemy;
+                    var target = enemies.filter(function(target) {
+                        return target.id === name;
+                    })[0];
+                    checkForAttack('left',target,hero);
+                }
+                else if (hero.left >= cellSize && mapLocation.contents !== 'blocked') {
+                    map[hero.row - 1][hero.col - 1].hero = false;
+                    hero.left -= cellSize;
+                    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
+                    hero.col--;
+                    hero.squaresMoved++;
+                    map[hero.row - 1][hero.col - 1].hero = true;
+                    checkForTraps();
+                }
+                else {
+                    checkForAttack('left',mapLocation,hero);
+                }
             }
         }
-    }
-    else if (e.target.id === 'move-right' || e.keyCode == '39') {
-        if (hero.col === numberOfColumns) {
+        else if (e.target.id === 'move-right' || e.keyCode == '39') {
+            if (hero.col === numberOfColumns) {
 
-        }
-        else {
-            var mapLocation = map[hero.row - 1][hero.col];
-            if (mapLocation.enemy !== false) {
-                var name = mapLocation.enemy;
-                var target = enemies.filter(function(target) {
-                    return target.id === name;
-                })[0];
-                checkForAttack('right',target,hero);
-            }
-            else if (hero.canMove && hero.left <= (numberOfColumns - 2) * cellSize && mapLocation.contents !== 'blocked') {
-                map[hero.row - 1][hero.col - 1].hero = false;
-                hero.left += cellSize;
-                heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
-                hero.col++;
-                hero.squaresMoved++;
-                map[hero.row - 1][hero.col - 1].hero = true;
-                checkForTraps();
             }
             else {
-                checkForAttack('right',mapLocation,hero);
+                var mapLocation = map[hero.row - 1][hero.col];
+                if (mapLocation.enemy !== false) {
+                    var name = mapLocation.enemy;
+                    var target = enemies.filter(function(target) {
+                        return target.id === name;
+                    })[0];
+                    checkForAttack('right',target,hero);
+                }
+                else if (hero.left <= (numberOfColumns - 2) * cellSize && mapLocation.contents !== 'blocked') {
+                    map[hero.row - 1][hero.col - 1].hero = false;
+                    hero.left += cellSize;
+                    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
+                    hero.col++;
+                    hero.squaresMoved++;
+                    map[hero.row - 1][hero.col - 1].hero = true;
+                    checkForTraps();
+                }
+                else {
+                    checkForAttack('right',mapLocation,hero);
+                }
             }
         }
-    }
-    hero.location = 'r' + hero.row + 'c' + hero.col;
-    if (hero.location == levelExit.id && hero.answers === hero.answersNeeded) {
-        hero.gameLevel++;
-        // Save game to local storage
-        localStorage.setItem('savedGame', JSON.stringify(hero));
-        awardXp('level');
-        startGame();
+        hero.location = 'r' + hero.row + 'c' + hero.col;
+        if (hero.location == levelExit.id && hero.answers === hero.answersNeeded) {
+            hero.gameLevel++;
+            // Save game to local storage
+            localStorage.setItem('savedGame', JSON.stringify(hero));
+            awardXp('level');
+            startGame();
+        }
     }
 }
 
@@ -1458,7 +1530,10 @@ function letTheGamesBegin() {
     }
     // Spawn enemies at an interval
     var interval = setInterval(function() {
-        if (map.length === 0) {
+        if (map === null) {
+            clearTimeout(interval);
+        }
+        else if (map.length === 0) {
             clearTimeout(interval);
         }
         else if (totalWeight < maxWeight) {
@@ -1607,7 +1682,7 @@ function addEnemy(row,col,monster) {
 
             }
             // Roll chance to use special ability, then perform an action
-            else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel) {
+            else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel && map !== null) {
                 var useAbility = randomNumber(1,100);
                 if (useAbility <= enemy.abilityChance) {
                     if (enemy.ability === 'acid' || enemy.ability === 'web') {
