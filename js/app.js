@@ -32,10 +32,10 @@ var bestiary = [
         damage: 10,
         health: 50,
         weight: 25,
+        evasion: 0,
         moveInterval: 2100,
         moveSpeed: 2,
         ability: 'acid',
-        abilityImage: 'acid.png',
         abilityDamge: 5,
         abilityDuration: 5500,
         abilityChance: 100
@@ -46,10 +46,10 @@ var bestiary = [
         damage: 15,
         health: 65,
         weight: 35,
+        evasion: 0,
         moveInterval: 2000,
         moveSpeed: 0.35,
         ability: 'web',
-        abilityImage: 'web.gif',
         abilityDamge: 0,
         abilityDuration: 12000,
         abilityChance: 10
@@ -60,9 +60,9 @@ var bestiary = [
         damage: 40,
         health: 85,
         weight: 65,
+        evasion: 0,
         moveInterval: 2500,
         ability: 'acid',
-        abilityImage: 'acid.png',
         abilityDamge: 10,
         abilityDuration: 5000,
         abilityChance: 100
@@ -84,7 +84,7 @@ function layTrap(enemy) {
             mapLocation.trapType = enemy.ability;
             mapLocation.trapDamage = enemy.abilityDamge;
         var trap = document.createElement('img');
-            trap.src = 'img/objects/' + enemy.abilityImage;
+            trap.src = 'img/objects/' + enemy.ability + '-' + randomNumber(1,2) + '.png';
             trap.opacity = '0';
             trap.style.animation = 'img-fade-in 1s 1';
             cell.appendChild(trap);
@@ -122,6 +122,7 @@ var deathText = {
 }
 
 
+// Award that sweet xp
 function awardXp(source) {
     // Add xp for completing a level
     if (source === 'level') {
@@ -135,7 +136,107 @@ function awardXp(source) {
         hero.xp += Math.floor(100 / (source.weight * (0.5 / hero.level)));
         xpBar.style.width = hero.xp + '%';
     }
+    // Level up and overflow xp
+    if (hero.xp >= 100) {
+        hero.xp -= 100;
+        hero.level++;
+        xpBar.style.width = hero.xp + '%';
+        var level = document.getElementById('level');
+            level.innerHTML = 'Level Up!';
+            level.classList.add('level-up');
+            level.addEventListener('click', levelUp);
+    }
 }
+
+
+// Allocate 1 skill point for the player to use and change stat accordingly
+function levelUp() {
+    hero.pause = true;
+    var str = [0,0,.25,.35,.5];
+    var dex = [0,0,5,7,9];
+    var end = [0,0,.1,.15,.2];
+    var selection = '';
+    var menu = document.getElementById('level-up-menu');
+        menu.style.display = 'flex';
+        menu.style.animation = 'img-fade-in 1s 1 forwards';
+    var strLvl = document.querySelector('.strength div span');
+        strLvl.innerHTML = 'lvl ' + hero.strength;
+    var dexLvl = document.querySelector('.dexterity div span');
+        dexLvl.innerHTML = 'lvl ' + hero.dexterity;
+    var endLvl = document.querySelector('.endurance div span');
+        endLvl.innerHTML = 'lvl ' + hero.endurance;
+    var choices = document.querySelectorAll('#level-up-menu .row');
+
+    var changeStr = document.getElementById('add-str');
+        changeStr.innerHTML = Math.round((hero.baseDamage * hero.attackRating)) + ' -> ' + Math.round((hero.baseDamage * (hero.attackRating + str[hero.strength + 1])));
+    var changeDex = document.getElementById('add-dex');
+        changeDex.innerHTML = hero.evasion + '% -> ' + (hero.evasion + dex[hero.dexterity + 1]) + '%';
+    var changeEnd = document.getElementById('add-end');
+        changeEnd.innerHTML = (hero.armorRating * 100) + '% -> ' + ((hero.armorRating - end[hero.endurance + 1]) * 100) + '%';
+
+    for (var i = 0; i < choices.length; i++) {
+        choices[i].addEventListener('click', function(e) {
+            for (var i = 0; i < choices.length; i++) {
+                choices[i].style.outlineColor = 'rgba(0,0,0,0)';
+            }
+            this.style.outlineColor = '#ffd700';
+            selection = this.classList[1];
+        });
+    }
+    var button = document.querySelector('#level-up-menu button');
+        button.addEventListener('click', function() {
+            var done = false;
+            if (selection === 'strength') {
+                hero.strength++;
+                hero.attackRating += str[hero.strength];
+                done = true;
+                console.log('strength: ' + hero.strength);
+                console.log('attack: ' + hero.attackRating);
+                console.log('======================');
+            }
+            else if (selection === 'dexterity') {
+                hero.dexterity++;
+                hero.evasion += dex[hero.dexterity];
+                done = true;
+                console.log('dexterity: ' + hero.dexterity);
+                console.log('evasion: ' + hero.evasion);
+                console.log('======================');
+            }
+            else if (selection === 'endurance') {
+                hero.endurance++;
+                hero.armorRating -= end[hero.endurance];
+                done = true;
+                console.log('endurance: ' + hero.endurance);
+                console.log('armorRating: ' + hero.armorRating);
+                console.log('======================');
+            }
+
+            if (done) {
+                var level = document.getElementById('level');
+                    level.innerHTML = 'Level ' + hero.level;
+                    level.classList.remove('level-up');
+                    level.removeEventListener('click', levelUp);
+                    menu.style.animation = 'img-fade-out 1s 1 forwards';
+                setTimeout(function() {
+                    for (var i = 0; i < choices.length; i++) {
+                        choices[i].removeEventListener('click', function(e) {});
+                    }
+                    menu.style.display = 'none';
+                    hero.pause = false;
+                }, 1000);
+                for (var i = 0; i < choices.length; i++) {
+                    choices[i].style.outlineColor = 'rgba(0,0,0,0)';
+                }
+                selection = null;
+                var elClone = button.cloneNode(true);
+                button.parentNode.replaceChild(elClone, button);
+            }
+            else {
+                console.log('come on man');
+            }
+        });
+}
+
 
 //////////////////////////////////////
 
@@ -188,7 +289,7 @@ var levelContainer = document.getElementById('level-container');
     levelContainer.style.width = numberOfColumns * cellSize + 'px';
 var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
-    player.addEventListener('click', checkMath, true);
+    player.addEventListener('click', checkMath);
 var healthBar = document.getElementById('health');
 var xpBar = document.getElementById('xp');
 var gameMode = ['multiples','factors','primes','equality'];
@@ -259,10 +360,12 @@ var optionsButton = document.querySelectorAll('.btn-options');
             // Open options menu
             var menu = document.getElementById('options-menu');
             if (optionsPosition === 'closed') {
+                hero.pause = true;
                 menu.style.transform = 'translateX(0)';
                 optionsPosition = 'open';
             }
             else {
+                hero.pause = false;
                 setOptions();
                 menu.style.transform = 'translateX(-100%)';
                 optionsPosition = 'closed';
@@ -619,7 +722,8 @@ function randomizeColumns(number) {
         object.object = 'junk-' + randomNumber(1,junk);
         object.tile = 'empty';
         object.contents = 'blocked';
-        object.health = 40;
+        object.health = 30;
+        object.evasion = 0;
     }
 }
 
@@ -723,11 +827,15 @@ function addHero() {
         hero.health = 100;
         hero.xp = 0;
         hero.level = 1;
+        hero.strength = 1;
+        hero.dexterity = 1;
+        hero.endurance = 1;
         hero.armorRating = 1;
         hero.attackRating = 1;
         hero.baseDamage = heroBaseDamage;
         hero.evasion = 10;
         hero.gameLevel = 1;
+        hero.pause = false;
         hero.multiplesRight = 0;
         hero.multiplesWrong = 0;
         hero.factorsRight = 0;
@@ -760,7 +868,7 @@ function addHero() {
     var name = document.getElementById('player-name');
         name.innerHTML = 'Ser ' + hero.name;
     var level = document.getElementById('level');
-        level.innerHTML = 'Level ' + hero.gameLevel;
+        level.innerHTML = 'Level ' + hero.level;
     healthBar.style.width = hero.health + '%';
     healthBar.style.transition = '0s';
     xpBar.style.width = hero.xp + '%';
@@ -1112,7 +1220,9 @@ function checkMath() {
 var taps = [];
 
 // Move hero with screen swipes
-(function swipe() {
+function swipe() {
+
+    var touchSurface = document.getElementById('touch-surface');
 
     var xStart;
     var xEnd;
@@ -1126,75 +1236,78 @@ var taps = [];
     var totalTime;
     var timeLimit = 250;
 
-    levelContainer.addEventListener('touchstart', function(e) {
+    touchSurface.addEventListener('touchstart', function(e) {
         e.preventDefault();
-        xStart = e.changedTouches[0].clientX;
-        yStart = e.changedTouches[0].clientY;
-        startTime = new Date().getTime();
+        if (hero.canMove) {
+            xStart = e.changedTouches[0].clientX;
+            yStart = e.changedTouches[0].clientY;
+            startTime = new Date().getTime();
+        }
     });
 
-    levelContainer.addEventListener('touchmove', function(e) {
+    touchSurface.addEventListener('touchmove', function(e) {
         e.preventDefault();
     });
 
-    levelContainer.addEventListener('touchend', function(e) {
+    touchSurface.addEventListener('touchend', function(e) {
         e.preventDefault();
-        xEnd = e.changedTouches[0].clientX;
-        yEnd = e.changedTouches[0].clientY;
-        totalTime = new Date().getTime() - startTime;
+        if (hero.canMove) {
+            xEnd = e.changedTouches[0].clientX;
+            yEnd = e.changedTouches[0].clientY;
+            totalTime = new Date().getTime() - startTime;
 
-        xDistance = xEnd - xStart;
-        yDistance = yEnd - yStart;
+            xDistance = xEnd - xStart;
+            yDistance = yEnd - yStart;
 
-        // Weird method I came up with to check for a double tap
-        if (totalTime <= timeLimit && Math.abs(xDistance) < 50 && Math.abs(yDistance) < 50) {
-            var tap = new Date().getTime();
-                taps.push(tap);
-            setTimeout(function() {
-                taps = [];
-            }, timeLimit);
-            if (taps.length === 2) {
-                if (taps[1] - taps[0] < timeLimit) {
-                    checkMath();
+            // Weird method I came up with to check for a double tap
+            // if (totalTime <= timeLimit && Math.abs(xDistance) < 50 && Math.abs(yDistance) < 50) {
+            //     var tap = new Date().getTime();
+            //         taps.push(tap);
+            //     setTimeout(function() {
+            //         taps = [];
+            //     }, timeLimit);
+            //     if (taps.length === 2) {
+            //         if (taps[1] - taps[0] < timeLimit) {
+            //             checkMath();
+            //         }
+            //     }
+            // }
+
+
+            // Make sure swipe is fast enough, and prevent swiping the hero
+            if (totalTime <= timeLimit && e.target.id !== 'hero') {
+
+                // Check for LEFT or RIGHT movement
+                if (Math.abs(xDistance) > minDistance && Math.abs(yDistance) < tolerance) {
+                    // Move RIGHT
+                    if (xEnd - xStart > 0) {
+                        e.target.id = 'move-right';
+                        moveHero(e);
+                    }
+                    // Move LEFT
+                    else if (xEnd - xStart < 0) {
+                        e.target.id = 'move-left';
+                        moveHero(e);
+                    }
+                }
+                // Check for UP or DOWN movement
+                else if (Math.abs(yDistance) > minDistance && Math.abs(xDistance) < tolerance) {
+                    // Move DOWN
+                    if (yEnd - yStart > 0) {
+                        e.target.id = 'move-down';
+                        moveHero(e);
+                    }
+                    // Move UP
+                    else if (yEnd - yStart < 0) {
+                        e.target.id = 'move-up';
+                        moveHero(e);
+                    }
                 }
             }
         }
-
-
-        // Make sure swipe is fast enough, and prevent swiping the hero
-        else if (totalTime <= timeLimit && e.target.id !== 'hero') {
-
-            // Check for LEFT or RIGHT movement
-            if (Math.abs(xDistance) > minDistance && Math.abs(yDistance) < tolerance) {
-                // Move RIGHT
-                if (xEnd - xStart > 0) {
-                    e.target.id = 'move-right';
-                    moveHero(e);
-                }
-                // Move LEFT
-                else if (xEnd - xStart < 0) {
-                    e.target.id = 'move-left';
-                    moveHero(e);
-                }
-            }
-            // Check for UP or DOWN movement
-            else if (Math.abs(yDistance) > minDistance && Math.abs(xDistance) < tolerance) {
-                // Move DOWN
-                if (yEnd - yStart > 0) {
-                    e.target.id = 'move-down';
-                    moveHero(e);
-                }
-                // Move UP
-                else if (yEnd - yStart < 0) {
-                    e.target.id = 'move-up';
-                    moveHero(e);
-                }
-            }
-        }
-
     });
 
-}());
+}
 
 
 // Check collision of movement, and move accordingly
@@ -1324,67 +1437,75 @@ function moveHero(e) {
 // Attack depending on what direction you are attacking from
 function checkForAttack(direction,victim,attacker) {
     if (victim.hasOwnProperty('health')) {
-        if (victim.health > 0) {
-            var victimContainer = document.getElementById(victim.id);
-            if (victim.hero) {
-                victimContainer = player;
-            }
-            if (victim.hasOwnProperty('id')) {
-                victimContainer.classList.add('hit');
-                setTimeout(function() {
-                    victimContainer.classList.remove('hit');
-                }, 250);
-            }
-            var attackerContainer = document.getElementById(attacker.id);
-            var attackerTop = attacker.top;
-            var attackerLeft = attacker.left;
-            if (direction === 'up') {
-                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
-                setTimeout(function() { 
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                }, 200);
-            }
-            else if (direction === 'down') {
-                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
-                setTimeout(function() { 
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                }, 200);
-            }
-            else if (direction === 'left') {
-                attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                setTimeout(function() { 
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                }, 200);
-            }
-            else if (direction === 'right') {
-                attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                setTimeout(function() { 
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                }, 200);
-            }
-            if (victim === hero) {
-                dealDamage(attacker.baseDamage,attacker);
-            }
-            else {
-                victim.health -= attacker.baseDamage * attacker.attackRating;
-                if (victim.health <= 0) {
-                    victim.contents = 'empty';
-                    delete map[victim.row - 1][victim.col - 1].health;
-                    map[victim.row - 1][victim.col - 1].enemy = false;
-                    if (victim.enemy !== false) {
-                        var enemyIndex = enemies.map(function(e) { return e.id; }).indexOf(victim.id);
-                        enemies.splice(enemyIndex,1);
-                        victimContainer.style.opacity = '0';
-                        setTimeout(function() {
-                            victimContainer.remove();
-                        }, 350);
-                    }
-                    else {
-                        var object = document.querySelector('#' + victim.location + ' img');
-                            object.style.opacity = '0';
+        // Check if evasion stops attack
+        if (randomNumber(1,100) > victim.evasion) {
+            if (victim.health > 0) {
+                var victimContainer = document.getElementById(victim.id);
+                if (victim.hero) {
+                    victimContainer = player;
+                }
+                // Flash hit image
+                if (victim.hasOwnProperty('id')) {
+                    victimContainer.classList.add('hit');
+                    setTimeout(function() {
+                        victimContainer.classList.remove('hit');
+                    }, 250);
+                }
+                // Move attacker for attack animation
+                var attackerContainer = document.getElementById(attacker.id);
+                var attackerTop = attacker.top;
+                var attackerLeft = attacker.left;
+                if (direction === 'up') {
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
+                    setTimeout(function() { 
+                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    }, 200);
+                }
+                else if (direction === 'down') {
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
+                    setTimeout(function() { 
+                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    }, 200);
+                }
+                else if (direction === 'left') {
+                    attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                    setTimeout(function() { 
+                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    }, 200);
+                }
+                else if (direction === 'right') {
+                    attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                    setTimeout(function() { 
+                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    }, 200);
+                }
+                if (victim === hero) {
+                    dealDamage(attacker.baseDamage,attacker);
+                }
+                else {
+                    victim.health -= attacker.baseDamage * attacker.attackRating;
+                    if (victim.health <= 0) {
+                        victim.contents = 'empty';
+                        delete map[victim.row - 1][victim.col - 1].health;
+                        map[victim.row - 1][victim.col - 1].enemy = false;
+                        if (victim.enemy !== false) {
+                            var enemyIndex = enemies.map(function(e) { return e.id; }).indexOf(victim.id);
+                            enemies.splice(enemyIndex,1);
+                            victimContainer.style.opacity = '0';
+                            setTimeout(function() {
+                                victimContainer.remove();
+                            }, 350);
+                        }
+                        else {
+                            var object = document.querySelector('#' + victim.location + ' img');
+                                object.style.opacity = '0';
+                        }
                     }
                 }
             }
+        }
+        else {
+            console.log('evaded!');
         }
     }
 }
@@ -1616,7 +1737,6 @@ function addEnemy(row,col,monster) {
     enemy.moveInterval = monster.moveInterval;
     enemy.moveSpeed = monster.moveSpeed;
     enemy.ability = monster.ability;
-    enemy.abilityImage = monster.abilityImage;
     enemy.abilityDamge = monster.abilityDamge;
     enemy.abilityDuration = monster.abilityDuration;
     enemy.abilityChance = monster.abilityChance;
@@ -1678,8 +1798,8 @@ function addEnemy(row,col,monster) {
                 clearTimeout(interval);
             }
             // If options menu open, pause movement
-            else if (optionsPosition === 'open') {
-
+            else if (hero.pause === true) {
+                console.log('--PAUSED--');
             }
             // Roll chance to use special ability, then perform an action
             else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel && map !== null) {

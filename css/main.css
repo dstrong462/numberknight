@@ -436,11 +436,65 @@ button {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
+    margin: 5px 0;
 }
 
 #level {
     color: #fff;
-    padding: 5px;
+    text-shadow: 1px 1px rgba(0,0,0,.5);
+    border: 2px solid rgba(0,0,0,0);
+    padding: 0 9px;
+    transition: 1s;
+}
+
+.level-up {
+    cursor: pointer;
+    background-color: #c02121;
+    border-color: #ffd700 !important;
+}
+
+#level-up-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url('../img/backgrounds/background-01.png');
+    opacity: 0;
+    transition: opacity 1s;
+    overflow-y: scroll;
+    padding: 20px;
+    z-index: 100;
+}
+
+#level-up-menu h6 {
+    color: #bbb;
+}
+
+#level-up-menu .row {
+    justify-content: space-between;
+    outline: 2px solid rgba(0,0,0,0);
+    padding: 10px;
+}
+
+#level-up-menu p {
+    font-size: .95em;
+    line-height: 1.1em;
+}
+
+#level-up-menu span {
+    font-size: .95em;
+}
+
+#add-str,
+#add-dex,
+#add-end {
+    color: #149ce0;
+    font-size: 1.1em !important;
 }
 
 #health:after,
@@ -492,7 +546,7 @@ button {
 }
 
 #xp {
-    background-color: #EFCE2B;
+    background-color: #ffd700;
 }
 
 .enemy {
