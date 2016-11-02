@@ -2,8 +2,12 @@
 
 // Minimum cell width in pixels
 var minimumCellWidth = 60;
+var maxScreenWidth = 768;
+var maxColumns = 8;
+var maxRows = 10;
 // Percentage of screen space to be saved for the UI
 var reservedSpace = 25;
+var desktopReservedSpace = 5;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
@@ -168,11 +172,26 @@ function levelUp() {
     var choices = document.querySelectorAll('#level-up-menu .row');
 
     var changeStr = document.getElementById('add-str');
+    if (hero.strength === (str.length - 1)) {
+        changeStr.innerHTML = 'MAX LEVEL';
+    }
+    else {
         changeStr.innerHTML = Math.round((hero.baseDamage * hero.attackRating)) + ' -> ' + Math.round((hero.baseDamage * (hero.attackRating + str[hero.strength + 1])));
+    }
     var changeDex = document.getElementById('add-dex');
+    if (hero.dexterity === (dex.length - 1)) {
+        changeStr.innerHTML = 'MAX LEVEL';
+    }
+    else {
         changeDex.innerHTML = hero.evasion + '% -> ' + (hero.evasion + dex[hero.dexterity + 1]) + '%';
+    }
     var changeEnd = document.getElementById('add-end');
+    if (hero.endurance === (end.length - 1)) {
+        changeStr.innerHTML = 'MAX LEVEL';
+    }
+    else {
         changeEnd.innerHTML = (hero.armorRating * 100) + '% -> ' + ((hero.armorRating - end[hero.endurance + 1]) * 100) + '%';
+    }
 
     for (var i = 0; i < choices.length; i++) {
         choices[i].addEventListener('click', function(e) {
@@ -186,29 +205,20 @@ function levelUp() {
     var button = document.querySelector('#level-up-menu button');
         button.addEventListener('click', function() {
             var done = false;
-            if (selection === 'strength') {
+            if (selection === 'strength' && hero.strength < (str.length - 1)) {
                 hero.strength++;
                 hero.attackRating += str[hero.strength];
                 done = true;
-                console.log('strength: ' + hero.strength);
-                console.log('attack: ' + hero.attackRating);
-                console.log('======================');
             }
-            else if (selection === 'dexterity') {
+            else if (selection === 'dexterity' && hero.dexterity < (dex.length - 1)) {
                 hero.dexterity++;
                 hero.evasion += dex[hero.dexterity];
                 done = true;
-                console.log('dexterity: ' + hero.dexterity);
-                console.log('evasion: ' + hero.evasion);
-                console.log('======================');
             }
-            else if (selection === 'endurance') {
+            else if (selection === 'endurance' && hero.endurance < (end.length - 1)) {
                 hero.endurance++;
                 hero.armorRating -= end[hero.endurance];
                 done = true;
-                console.log('endurance: ' + hero.endurance);
-                console.log('armorRating: ' + hero.armorRating);
-                console.log('======================');
             }
 
             if (done) {
@@ -230,9 +240,6 @@ function levelUp() {
                 selection = null;
                 var elClone = button.cloneNode(true);
                 button.parentNode.replaceChild(elClone, button);
-            }
-            else {
-                console.log('come on man');
             }
         });
 }
@@ -270,6 +277,9 @@ var screenWidth = window.innerWidth
 || document.documentElement.clientWidth
 || document.body.clientWidth;
 
+// Max screen width for desktop viewing
+if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
+
 var screenHeight = window.innerHeight
 || document.documentElement.clientHeight
 || document.body.clientHeight;
@@ -278,10 +288,16 @@ screenWidth = screenWidth - (reservedSides * 2);
 
 // Calculate number of columns to build based on minimum column width
 var numberOfColumns = Math.floor(screenWidth / minimumCellWidth);
+if (numberOfColumns > maxColumns) { numberOfColumns = maxColumns; }
+
 var cellSize = Math.floor(screenWidth / numberOfColumns);
 
 // Calculate number of rows to build while leaving space for menus
+if (screenWidth === maxScreenWidth) {
+    reservedSpace = desktopReservedSpace;
+}
 var numberOfRows = Math.floor((screenHeight * (1 - (reservedSpace / 100))) / cellSize);
+if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
 var optionsPosition = 'closed';
@@ -917,12 +933,32 @@ function addMath() {
 
 // Generate list of correct and incorrect multiples
 function multiples(total,correct,incorrect) {
-    target = randomNumber(2,20);
+    var difficulty = [
+        {
+            // EASY
+            min: 2,
+            max: 10,
+            highest: 50
+        },
+        {
+            // MEDIUM
+            min: 5,
+            max: 25,
+            highest: 100
+        },
+        {
+            // HARD
+            min: 10,
+            max: 50,
+            highest: 200
+        }
+    ];
+    target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
     var correctArray = [];
     var incorrectArray = [];
     // Route random numbers to one of two arrays
     for (var i = 0; i < total; i++) {
-        answer = { number: randomNumber(1,100), answer: false };
+        answer = { number: randomNumber(1,difficulty[hero.difficultyMath - 1].highest), answer: false };
         if (answer.number % target === 0 && correctArray.length < correct) {
             answer.answer = true;
             correctArray.push(answer);
@@ -945,7 +981,25 @@ function multiples(total,correct,incorrect) {
 
 // Generate list of correct and incorrect factors
 function factors(total,correct,incorrect) {
-    target = randomNumber(20,100);
+    var difficulty = [
+        {
+            // EASY
+            min: 20,
+            max: 40,
+
+        },
+        {
+            // MEDIUM
+            min: 40,
+            max: 100,
+        },
+        {
+            // HARD
+            min: 50,
+            max: 200,
+        }
+    ];
+    target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
     if (target % 2 !== 0) {
         target++;
     }
@@ -953,7 +1007,7 @@ function factors(total,correct,incorrect) {
     var incorrectArray = [];
     // Route random numbers to one of two arrays
     for (var i = 0; i < total; i++) {
-        answer = { number: randomNumber(1,100), answer: false };
+        answer = { number: randomNumber(1,difficulty[hero.difficultyMath - 1].max), answer: false };
         if (target % answer.number === 0 && correctArray.length < correct) {
             answer.answer = true;
             correctArray.push(answer);
@@ -976,9 +1030,24 @@ function factors(total,correct,incorrect) {
 
 // Generate list of prime numbers
 function primes(total,correct,incorrect) {
+        var difficulty = [
+        {
+            // EASY
+            max: 50
+
+        },
+        {
+            // MEDIUM
+            max: 100
+        },
+        {
+            // HARD
+            max: 200
+        }
+    ];
     var correctArray = [];
     var incorrectArray = [];
-    generatePrimeNumbers(100);
+    generatePrimeNumbers(difficulty[hero.difficultyMath - 1].max);
     // Route random numbers to one of two arrays
     for (var i = 0; i < total; i++) {
         answer = { number: nonPrimes[randomNumber(0,nonPrimes.length - 1)], answer: false };
@@ -1026,7 +1095,25 @@ function generatePrimeNumbers(max) {
 
 // Generate list of correct and incorrect equality formulas
 function equality(total,correct,incorrect) {
-    target = randomNumber(1,20);
+        var difficulty = [
+        {
+            // EASY
+            min: 1,
+            max: 20,
+
+        },
+        {
+            // MEDIUM
+            min: 20,
+            max: 70,
+        },
+        {
+            // HARD
+            min: 70,
+            max: 150,
+        }
+    ];
+    target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
     var correctArray = [];
     var incorrectArray = [];
     var symbols = ['+','-','*','/'];
@@ -1093,8 +1180,6 @@ function equality(total,correct,incorrect) {
             equationString += num1 + symbol + num2;
             // Make sure it is invalid
             if (eval(equationString) !== target && symbol === '/') {
-                // If division, make sure highest number is posted first
-                // equationString = Math.max(num1,num2) + '&divide;' + Math.min(num1,num2);
                 equation = equationString.replace('/', '&divide;');
                 answer = { number: equation, answer: false };
                 incorrectArray.push(answer);
@@ -1504,9 +1589,6 @@ function checkForAttack(direction,victim,attacker) {
                 }
             }
         }
-        else {
-            console.log('evaded!');
-        }
     }
 }
 
@@ -1732,7 +1814,7 @@ function addEnemy(row,col,monster) {
     enemy.armorRating = 1;
     enemy.attackRating = 1;
     enemy.baseDamage = monster.damage;
-    enemy.evasion = 10;
+    enemy.evasion = monster.evasion;
     enemy.weight = monster.weight;
     enemy.moveInterval = monster.moveInterval;
     enemy.moveSpeed = monster.moveSpeed;
@@ -1799,7 +1881,6 @@ function addEnemy(row,col,monster) {
             }
             // If options menu open, pause movement
             else if (hero.pause === true) {
-                console.log('--PAUSED--');
             }
             // Roll chance to use special ability, then perform an action
             else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel && map !== null) {
