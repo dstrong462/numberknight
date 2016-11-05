@@ -11,9 +11,18 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background-image: url('../img/backgrounds/background-01.png');
+    background-image: url('../img/backgrounds/background-01.gif');
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    max-width: 768px;
+    height: 100vh;
+    overflow: auto;
+    margin: 0 auto;
 }
 
 /* GUI ELEMENTS
@@ -64,6 +73,7 @@ button {
 }
 
 .btn-options,
+.btn-back,
 #btn-fallen-heroes,
 #music + label span,
 #soundfx + label span,
@@ -113,7 +123,8 @@ button {
     background-image: url('../img/gui/star-on.svg');
 }
 
-#btn-main-menu {
+#btn-main-menu,
+.btn-back {
     background-image: url('../img/gui/button-back.svg');
 }
 
@@ -130,7 +141,7 @@ button {
     width: 100vw;
     height: 100vh;
     perspective: 1000px;
-    background-image: url('../img/backgrounds/background-01.png');
+    background-image: url('../img/backgrounds/background-01.gif');
     z-index: 50;
 }
 
@@ -211,6 +222,11 @@ button {
     opacity: 0;
 }
 
+#fallen-heroes .row:hover,
+#fallen-heroes .row:active {
+    background-color: rgba(255,255,255,0.1);
+}
+
 #fallen-heroes button {
     background-image: url('../img/gui/button-back.svg');
     flex-shrink: 0;
@@ -254,9 +270,8 @@ button {
     align-items: center;
     align-content: center;
     text-align: center;
-    background-image: url('../img/backgrounds/background-01.png');
-    background-color: #777;
-    transition: .5s;
+    background-color: #222;
+    transition: .5s ease;
     z-index: 80;
 }
 
@@ -330,10 +345,10 @@ button {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    height: 45px;
     color: #fff;
     font-size: 1.25em;
-    line-height: 3em;
-    text-align: center;
+    line-height: 50px;
     padding: 0 20px;
     z-index: 20;
 }
@@ -381,6 +396,7 @@ button {
 .cell {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     width: 60px;
@@ -388,6 +404,7 @@ button {
     color: #fff;
     font-size: .95em;
     letter-spacing: 1px;
+    text-align: center;
     text-shadow: 2px 2px rgba(0,0,0,.9);
     overflow: hidden;
     background-repeat: no-repeat;
@@ -399,6 +416,13 @@ button {
     transition: .5s;
     padding: 0;
     margin: 0;
+}
+
+.cell p {
+    line-height: 1.05em;
+    transition: .5s;
+    margin: auto;
+    z-index: 1;
 }
 
 .cell img {
@@ -413,37 +437,39 @@ button {
 }
 
 /*#level-container .row div:first-child {
-    box-shadow: 18px 0 5px rgba(0,0,0,.4) inset;
+    box-shadow: 18px 0 5px rgba(0,0,0,.3) inset;
 }
 
 #level-container .row div:last-child {
-    box-shadow: -18px 0 5px rgba(0,0,0,.4) inset;
+    box-shadow: -18px 0 5px rgba(0,0,0,.3) inset;
 }
 
 #shadow-top div {
-    box-shadow: 0 20px 5px rgba(0,0,0,.45) inset;
+    box-shadow: 0 20px 5px rgba(0,0,0,.3) inset;
 }
 
 #shadow-top div:first-child {
-    box-shadow: 18px 20px 5px rgba(0,0,0,.45) inset !important;
+    box-shadow: 18px 20px 5px rgba(0,0,0,.3) inset !important;
 }
 
 #shadow-top div:last-child {
-    box-shadow: -18px 20px 5px rgba(0,0,0,.45) inset !important;
+    box-shadow: -18px 20px 5px rgba(0,0,0,.3) inset !important;
 }*/
 
 #bottom-bar {
-    justify-content: space-between;
+    height: 85px;
     align-items: center;
     padding: 0 20px;
-    margin: 5px 0;
+}
+
+#bottom-bar .row {
+    justify-content: space-between;
 }
 
 #level {
     color: #fff;
     text-shadow: 1px 1px rgba(0,0,0,.5);
     border: 2px solid rgba(0,0,0,0);
-    padding: 0 9px;
     transition: 1s;
 }
 
@@ -463,7 +489,7 @@ button {
     right: 0;
     bottom: 0;
     left: 0;
-    background-image: url('../img/backgrounds/background-01.png');
+    background-image: url('../img/backgrounds/background-01.gif');
     opacity: 0;
     transition: opacity 1s;
     overflow-y: auto;
@@ -530,7 +556,6 @@ button {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: 0 20px;
     margin-bottom: 5px;
 }
 
@@ -538,7 +563,7 @@ button {
 #xp {
     position: relative;
     width: 100%;
-    height: 20px;
+    height: 22px;
     background-color: #E22727;
     border-radius: 6px;
     box-shadow: 2px 2px 0px rgba(0,0,0,.5);
@@ -554,14 +579,20 @@ button {
     position: absolute;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 65% 65%;
+    background-size: 85% 85%;
     z-index: 10;
+}
+
+.projectile {
+    display: flex;
+    position: absolute;
+    z-index: 5;
 }
 
 .hit:after {
     content: url('../img/hit.gif');
     transform: scale(2,2);
-    animation: strike .25s 1;
+    animation: strike .35s 1;
     margin: auto;
 }
 
@@ -582,24 +613,59 @@ button {
     100%  { opacity: 0; }
 }
 
+/* PLAYER STATS SCREEN
+================================== */
+
 #game-over {
-    position: fixed;
+    position: absolute;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     display: none;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: flex-start;
     align-items: center;
     align-content: center;
-    background-color: #353535;
-    border: 8px solid rgba(255,0,0,.75);
+    text-align: center;
+    background-image: url('../img/backgrounds/background-02.gif');
+    overflow-y: auto;
     opacity: 0;
     transition: 1s;
+    padding: 25px;
     z-index: 100;
+}
+
+#game-over h5 {
+    color: #149ce0;
+    margin-bottom: 30px;
+}
+
+#game-over h6 {
+    color: #24e35a;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+#game-over p {
+    color: #bbb;
+    margin-bottom: 5px;
+}
+
+#game-over span {
+    color: #fff;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+#game-over .death {
+    color: #E22727;
+    font-size: 1.25em;
+    margin-top: 20px;
+}
+
+#game-over button {
+    margin-top: 50px;
 }
 
 
@@ -632,11 +698,20 @@ button {
 
 #hero {
     display: flex;
-    background-image: url('../img/hero.png');
+    justify-content: center;
+    align-items: center;
+    background-image: url('../img/hero.gif');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 80% 80%;
 }
+
+/* TORCH EFFECT WIP */
+/*#hero:after {
+    content: url('../img/test.gif');
+    transform: scale(4,4);
+    pointer-events: none;
+}*/
 
 
 /* DESKTOP MAX SIZING
@@ -656,13 +731,8 @@ button {
         height: 100vh;
         margin: 0 auto;
     }
-    #game-container {
-        position: relative;
-        width: 100vw;
-        max-width: 768px;
-        height: 100vh;
-        overflow: hidden;
-        margin: 0 auto;
+    .cell {
+        font-size: 1.15em;
     }
     #fallen-heroes .row {
         width: 75%;
