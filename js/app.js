@@ -26,9 +26,22 @@ var damageFromTraps = 15;
 var chanceToSpawnTrap = 100;
 var backgrounds = 2;
 var tilesets = 2;
+var junk = 10;
 var empty = 6;
 var traps = ['fire-grate','spikes'];
-var junk = 10;
+var loot = [
+    {
+        type: 'health',
+        healing: 15,
+        image: 'potion-health.gif',
+    },
+    {
+        type: 'gold',
+        gold: 10,
+        image: 'gold-small.gif',
+    }
+];
+var lootChance = 100;
 
 //////////////////////////////////////
 
@@ -532,7 +545,7 @@ function Cell(location,row,col,tile) {
 
 // Call individual object functions
 function randomizeObjects() {
-    randomizeColumns(2);
+    randomizeColumns(6);
     randomizeTraps(4);
 }
 
@@ -1342,6 +1355,7 @@ function moveHero(e) {
                     hero.squaresMoved++;
                     map[hero.row - 1][hero.col - 1].hero = true;
                     checkForTraps();
+                    checkForLoot();
                 }
                 else {
                     checkForAttack('up',mapLocation,hero);
@@ -1369,6 +1383,7 @@ function moveHero(e) {
                     hero.squaresMoved++;
                     map[hero.row - 1][hero.col - 1].hero = true;
                     checkForTraps();
+                    checkForLoot();
                 }
                 else {
                     checkForAttack('down',mapLocation,hero);
@@ -1396,6 +1411,7 @@ function moveHero(e) {
                     hero.squaresMoved++;
                     map[hero.row - 1][hero.col - 1].hero = true;
                     checkForTraps();
+                    checkForLoot();
                 }
                 else {
                     checkForAttack('left',mapLocation,hero);
@@ -1423,6 +1439,7 @@ function moveHero(e) {
                     hero.squaresMoved++;
                     map[hero.row - 1][hero.col - 1].hero = true;
                     checkForTraps();
+                    checkForLoot();
                 }
                 else {
                     checkForAttack('right',mapLocation,hero);
@@ -1492,7 +1509,16 @@ function checkForAttack(direction,victim,attacker) {
                 else {
                     victim.health -= attacker.baseDamage * attacker.attackRating;
                     if (victim.health <= 0) {
-                        victim.contents = 'empty';
+                        // Roll for loot
+                        if (randomNumber(1,100) <= lootChance) {
+                            var lootDrop = loot[randomNumber(0,loot.length - 1)];
+                            var location = map[victim.row - 1][victim.col - 1]
+                                location.contents = 'loot';
+                                location.loot = lootDrop;
+                        }
+                        else {
+                            victim.contents = 'empty';
+                        }
                         delete map[victim.row - 1][victim.col - 1].health;
                         map[victim.row - 1][victim.col - 1].enemy = false;
                         if (victim.enemy !== false) {
@@ -1507,12 +1533,16 @@ function checkForAttack(direction,victim,attacker) {
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
                         }
+                        var lootLocation = document.getElementById(victim.location);
+                        var lootImage = document.createElement('img');
+                            lootImage.src = 'img/loot/' + lootDrop.image;
+                            lootImage.style.width = '50%';
+                            lootLocation.appendChild(lootImage);
                     }
                 }
             }
         }
         else if (victim === hero) {
-            console.log('attack evaded');
             hero.attacksEvaded++;
         }
     }
@@ -1604,6 +1634,25 @@ function checkForTraps() {
         }
         else if (location.contents === 'trap') {
             dealDamage(location.trapDamage,'trap');
+        }
+    }
+}
+
+
+// Check for loot and make necessary changes
+function checkForLoot() {
+    var location = map[hero.row - 1][hero.col - 1];
+    if (location.contents === 'loot') {
+        if (location.loot.healing && hero.health < 100) {
+            restoreHealth(location.loot.healing);
+            location.contents = 'empty';
+            var cell = document.querySelectorAll('#' + location.location + ' img');
+            for (var i = 0; i < cell.length; i++) {
+                cell[i].remove();
+            }
+        }
+        else if (location.loot.gold) {
+            console.log('gold');
         }
     }
 }
