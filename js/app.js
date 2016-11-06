@@ -38,7 +38,9 @@ if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
         soundfx: true,
-        music: true
+        music: true,
+        enemiesEncountered: [],
+        newEnemies: 0
     };
 }
 else {
@@ -237,6 +239,18 @@ function titleButtons() {
         var continueButton = document.getElementById('btn-continue');
             continueButton.style.display = 'inline-block';
     }
+    // Display bestiary button if any monsters have been encountered
+    if (options.enemiesEncountered.length > 0) {
+        var bestiaryButton = document.getElementById('btn-bestiary');
+            bestiaryButton.addEventListener('click', displayBestiary);
+            bestiaryButton.style.display = 'flex';
+        // Display notification if new enemies have been encountered
+        if (options.newEnemies > 0) {
+            var newCount = document.getElementById('btn-bestiary-new');
+                newCount.innerHTML = options.newEnemies;
+                newCount.style.display = 'flex';
+        }
+    }
 }
 
 var soundfx = document.getElementById('soundfx');
@@ -338,7 +352,7 @@ function displayHeroes() {
                 row.classList.add('row');
                 row.id = 'fallen-' + i;
             var entry = '<div><span>' + fallenHeroes[i].name + '</span>';
-                entry += '<span>Level ' + fallenHeroes[i].level + '</span></div>';
+                entry += '<span>Level ' + fallenHeroes[i].gameLevel + '</span></div>';
                 entry += '<p>' + fallenHeroes[i].death + '</p>';
                 row.innerHTML = entry;
                 container.appendChild(row);
@@ -683,7 +697,7 @@ function addHero() {
     var name = document.getElementById('player-name');
         name.innerHTML = 'Ser ' + hero.name;
     var level = document.getElementById('level');
-        level.innerHTML = 'Level ' + hero.level;
+        level.innerHTML = 'Floor ' + hero.gameLevel;
     healthBar.style.width = hero.health + '%';
     healthBar.style.transition = '0s';
     xpBar.style.width = hero.xp + '%';
@@ -1542,8 +1556,18 @@ function dealDamage(amount,source) {
         }
         // If it was an enemy
         else if (source.enemy) {
-            // var deathBy = deathText.math[randomNumber(0,deathText.math.length - 1)];
-            var deathBy = 'Got his ass kicked by a ' + source.type + '.';
+            if (source.type === 'Gelatinous Cube') {
+                var deathBy = deathText.gelCube[randomNumber(0,deathText.gelCube.length - 1)];
+            }
+            else if (source.type === 'Giant Spider') {
+                var deathBy = deathText.spider[randomNumber(0,deathText.spider.length - 1)];
+            }
+            else if (source.type === 'Number Mage') {
+                var deathBy = deathText.numMage[randomNumber(0,deathText.numMage.length - 1)];
+            }
+            else if (source.type === 'Oculord') {
+                var deathBy = deathText.oculord[randomNumber(0,deathText.oculord.length - 1)];
+            }
         }
         youDied(deathBy);
     }
@@ -1683,7 +1707,7 @@ function levelUp() {
 
             if (done) {
                 var level = document.getElementById('level');
-                    level.innerHTML = 'Level ' + hero.level;
+                    level.innerHTML = 'Floor ' + hero.gameLevel;
                     level.classList.remove('level-up');
                     level.removeEventListener('click', levelUp);
                     menu.style.animation = 'img-fade-out 1s 1 forwards';
@@ -1765,9 +1789,76 @@ var deathText = {
                 'Couldn&rsquo;t math their way out of a paper bag.',
                 'Death by math.',
                 'Killed by numbers.',
-                'Math is hard.']
+                'Math is hard.'],
+
+    gelCube:    ['Ate too much Jell-O.',
+                'Run over by a Gelatinous Cube.',
+                'Got a big ole hug from a Gelatinous Cube.',
+                'Got into a fatal makeout session with a Gelatinous Cube.',
+                'Being slowly digested and turned into Gelatinous Cube poop.',
+                'Trapped in a Gelatinous Cube of emotion.'],
+
+    spider:     ['Killed by a spider. A big one.',
+                'I hate spiders. Why did I put them in my game??',
+                'Not very good at making friends with spiders.',
+                'Food for the Spider Queen.',
+                'Spiders are very aggressive huggers.',
+                'Tripped and fell into a spiders mouth.'],
+
+    numMage:    ['Killed by the weakest enemy in the entire game.',
+                'Got out numbered by a Number Mage.',
+                'Death by Number Mage.',
+                'Do Number Mages even deal damage?'],
+
+    oculord:    ['Looked too deeply into the all seeing eye of the Oculord.',
+                'Beat up by a giant meatball.',
+                'Died valiantly while battling an Oculord.'
+
+                ]
 }
 
+
+// Display bestiary
+function displayBestiary() {
+    var gameOverScreen = document.getElementById('game-over');
+        gameOverScreen.innerHTML = '';
+        gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    
+    var list = '<h5>Bestiary</h5>';
+
+    for (var i = 0; i < options.enemiesEncountered.length; i++) {
+        var monster = bestiary.filter(function(monster) {
+            return monster.type === options.enemiesEncountered[i];
+        })[0];
+
+        list += '<div class="row"><div class="col-2">';
+        list += '<img src="img/enemies/' + monster.image + '"></div>';
+        list += '<div class="col-9"><p>' + monster.type + '</p>';
+        list += '<p>' + monster.info + '</p></div></div>';  
+    }
+
+    gameOverScreen.innerHTML = list;
+
+    var button = document.createElement('button');
+        button.className = 'main-menu-button';
+        gameOverScreen.appendChild(button);
+
+        gameOverScreen.style.opacity = '1';
+        gameOverScreen.style.display = 'flex';
+
+    var closeButton = document.querySelector('.main-menu-button');
+        closeButton.innerHTML = '';
+        closeButton.className = 'btn-back';
+        closeButton.addEventListener('click', function() {
+            gameOverScreen.style.display = 'none';
+            gameOverScreen.innerHTML = '';
+        });
+
+    options.newEnemies = 0;
+    localStorage.setItem('options', JSON.stringify(options));
+    var newCount = document.getElementById('btn-bestiary-new');
+        newCount.style.display = 'none';
+}
 
 // Display fallen hero stats
 function listFallenStats(hero,view) {
@@ -1928,47 +2019,50 @@ var bestiary = [
         image: 'cube-green.gif',
         damage: 10,
         health: 50,
-        weight: 250,
+        weight: 25,
         evasion: 0,
         moveInterval: 2100,
         moveSpeed: 2,
         ability: 'acid',
         abilityDamge: 5,
         abilityDuration: 5500,
-        abilityChance: 100
+        abilityChance: 100,
+        info: 'Description of the monster goes here.'
     },
     {
         type: 'Giant Spider',
         image: 'spider.gif',
         damage: 15,
         health: 65,
-        weight: 350,
+        weight: 35,
         evasion: 0,
         moveInterval: 2000,
         moveSpeed: 0.35,
         ability: 'web',
         abilityDamge: 0,
         abilityDuration: 12000,
-        abilityChance: 10
+        abilityChance: 10,
+        info: 'Description of the monster goes here.'
     },
     {
         type: 'Number Mage',
         image: 'number-mage.gif',
-        damage: 10,
+        damage: 5,
         health: 85,
-        weight: 350,
+        weight: 35,
         evasion: 0,
         moveInterval: 3000,
         moveSpeed: 0.5,
         ability: 'rotate',
         abilityDamge: 0,
         abilityDuration: 10000,
-        abilityChance: 80
+        abilityChance: 80,
+        info: 'Description of the monster goes here.'
     },
     {
         type: 'Oculord',
         image: 'oculord.gif',
-        damage: 10,
+        damage: 15,
         health: 100,
         weight: 50,
         evasion: 0,
@@ -1978,7 +2072,8 @@ var bestiary = [
         abilityImage: ['projectile-fire.gif', 'projectile-ice.gif'],
         abilityDamge: 20,
         abilityDuration: 0.5,
-        abilityChance: 100
+        abilityChance: 100,
+        info: 'Description of the monster goes here.'
     }
 ]
 
@@ -2015,6 +2110,12 @@ function addEnemy(row,col,monster) {
     enemy.abilityChance = monster.abilityChance;
     if (monster.abilityImage) {
         enemy.abilityImage = monster.abilityImage;
+    }
+    // Check if monster has been encountered before
+    if (options.enemiesEncountered.indexOf(monster.type) == -1) {
+        options.enemiesEncountered.unshift(monster.type);
+        options.newEnemies++;
+        localStorage.setItem('options', JSON.stringify(options));
     }
     enemies.push(enemy);
     // Add to map data
