@@ -23,27 +23,62 @@ var heroBaseDamage = 25;
 var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
 
-var chanceToSpawnTrap = 100;
+var chanceToSpawnTrap = 75;
 var backgrounds = 2;
-var tilesets = 2;
+var tilesets = 10;
 var junk = 10;
+var walls = 16;
 var empty = 6;
 var traps = ['fire-grate','spikes'];
+var numberOfTraps = [2,4,6];
 var loot = [
     {
         type: 'health',
-        healing: 15,
-        image: 'potion-health.gif',
+        amount: [5,10,15]
     },
     {
         type: 'gold',
-        gold: 10,
-        image: 'gold-small.gif',
+        amount: [1,2,5,10,25]
     }
 ];
-var lootChance = 100;
+var lootChance = 40;
+
+// Object Themes
+var themes = [
+    // Storage Room
+    ['pot-1','pot-2','pot-3','pot-4','pot-5','pot-6','bones-1','bones-3','bones-4','bones-5','bones-6','bones-7','barrel-1','barrel-2','box-1','box-2','table-1','table-2','shelf-1','weapons-1','weapons-2'],
+    // Study
+    ['bones-3','bones-4','bones-5','chair-1','chair-2','table-1','table-2','shelf-1','shelf-2'],
+    // Graveyard 1
+    ['fence-1','fence-2','bones-1','bones-2','bones-3','bones-4','bones-5','bones-6','bones-7','coffin-1','coffin-2','coffin-3','grave-1','grave-2','grave-3','grave-4','grave-5','grave-6','monument-1','monument-2','monument-3','monument-4','vase-1','vase-2'],
+    // Graveyard 2
+    ['fence-1','fence-2','tree-1','tree-2','bush-1','bush-2','bones-1','bones-2','bones-3','bones-4','bones-5','bones-6','bones-7','coffin-1','coffin-2','coffin-3','grave-1','grave-2','grave-3','grave-4','grave-5','grave-6','monument-1','monument-2','monument-3','monument-4'],
+    // Outside Area
+    ['fence-1','fence-2','tree-1','tree-2','bush-1','bush-2','bones-1','bones-2']
+];
 
 //////////////////////////////////////
+
+
+// Show splash screen
+(function splashScreen() {
+    var splash = document.querySelector('#splash img');
+        splash.style.animation = 'img-fade-in 1.25s 1s 1 forwards';
+    setTimeout(function(){
+        splash.parentElement.addEventListener('click', fadeImgOut);
+    }, 1250);
+    var fadeOut = setTimeout(function() {
+        fadeImgOut();
+    }, 5000);
+    function fadeImgOut() {
+        clearInterval(fadeOut);
+        splash.style.animation = 'img-fade-out 1.25s 1 forwards';
+        splash.parentElement.style.animation = 'img-fade-out 0.75s 1.75s 1 forwards';
+        setTimeout(function() {
+            splash.parentElement.style.display = 'none';
+        }, 2500);
+    }
+}());
 
 
 // Check if there is already an options file
@@ -52,8 +87,10 @@ if (localStorage.getItem('options') === null) {
     options = {
         soundfx: true,
         music: true,
+        tutorial: true,
         enemiesEncountered: [],
-        newEnemies: 0
+        newEnemies: 0,
+        gold: 0
     };
 }
 else {
@@ -168,11 +205,11 @@ var optionsButton = document.querySelectorAll('.btn-options');
     for (var i = 0; i < optionsButton.length; i++) {
         optionsButton[i].addEventListener('click', function(e) {
             // Hide main menu button if needed
-            if (e.target.parentElement.parentElement.id === 'title-screen') {
-                document.querySelector('#options-menu button').style.display = 'none';
+            if (e.target.offsetParent.id === 'title-screen') {
+                document.querySelector('#options-menu .return-to-main-menu').style.display = 'none';
             }
             else if (e.target.parentElement.id === 'top-bar') {
-                document.querySelector('#options-menu button').style.display = 'inline-block';
+                document.querySelector('#options-menu .return-to-main-menu').style.display = 'inline-block';
             }
             // Open options menu
             var menu = document.getElementById('options-menu');
@@ -190,6 +227,9 @@ var optionsButton = document.querySelectorAll('.btn-options');
 
         });
     }
+var tutorialButton = document.getElementById('btn-tutorial');
+    tutorialButton.addEventListener('click', displayTutorial);
+
 // When returning to the main menu, rotate the display back
 var mainMenuButton = document.getElementById('btn-main-menu');
     mainMenuButton.addEventListener('click', function() {
@@ -198,7 +238,7 @@ var mainMenuButton = document.getElementById('btn-main-menu');
     });
 // When ready to play, get the play name and selected difficulties
 var playButton = document.getElementById('btn-play');
-    playButton.addEventListener('click', function() {
+    playButton.addEventListener('click', function(e) {
         delete hero;
         hero = {};
         hero.name = document.getElementById('name-input').value;
@@ -214,7 +254,12 @@ var playButton = document.getElementById('btn-play');
             alert('That would be too easy. Select at least 1 game mode.');
         }
         else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
-            startGame();
+            if (options.tutorial) {
+                displayTutorial(e);
+            }
+            else {
+                startGame();
+            }
         }
     });
 
@@ -263,6 +308,12 @@ function titleButtons() {
                 newCount.innerHTML = options.newEnemies;
                 newCount.style.display = 'flex';
         }
+    }
+    // Display gold total
+    if (options.gold > 0) {
+        var goldTotal = document.querySelector('#gold-total span');
+            goldTotal.parentElement.style.display = 'flex';
+            goldTotal.innerHTML = options.gold.toLocaleString();
     }
 }
 
@@ -411,6 +462,7 @@ function displayHeroes() {
     }
 }
 
+
 // Clear high score list
 function clearList() {
     if (confirm('This will clear your Fallen Heroes list. Are you sure about this?')) {
@@ -424,6 +476,82 @@ function clearList() {
 }
 
 
+// Display tutorial on New Games
+function displayTutorial(e) {
+    var tutorial = document.getElementById('tutorial');
+        tutorial.innerHTML = '';
+        tutorial.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    
+    var list = '<h5>How to Play</h5>';
+        list += '<p>Here is a brief description of the game, and any kind of story that I might want to throw in there to fill up some space and make it more interesting.</p>';
+        list += '<br />';
+        list += '<h5>Game Modes</h6>';
+        list += '<br />';
+        list += '<h6>Multiples</h6>';
+        list += '<p>Find and capture tiles that are MULTIPLES of the number given. Multiples of 5 would be 5, 10, 15, 20, etc.</p>';
+        list += '<h6>Factors</h6>';
+        list += '<p>Find and capture tiles that evenly divide into the given number. Factors of 20 would be 1, 2, 4, 5, and so on.</p>';
+        list += '<h6>Prime Numbers</h6>';
+        list += '<p>These are numbers that are only divisible by 1 and themselves. Examples of prime numbers are 3, 5, 7, and 11.</p>';
+        list += '<h6>Equality</h6>';
+        list += '<p>Select equations that equal the given number. Examples for Equals 6 would include 2+4, and 12&divide;2.</p>';
+        list += '<br />';
+        list += '<h5>Challenge Levels</h5>';
+        list += '<p>Challenge levels are not part of the normal rotation, but will occur every few levels to mix things up.</p>';
+        list += '<br />';
+        list += '<h6>Ascending Order</h6>'
+        list += '<p>Capture the tiles in ascending order from lowest number to highest.</p>';
+        list += '<h6>Descending Order</h6>'
+        list += '<p>Capture the tiles in descending order from highest number to lowest.</p>';
+        list += '<br /><input type="checkbox" name="enable-tutorial" id="enable-tutorial" checked /><label for="enable-tutorial"><span></span>Show Tutorial Next Time</label>'
+        list += '<button class="main-menu-button">Play</button>';
+        list += '<button class="btn-back"></button>';
+
+        tutorial.innerHTML = list;
+
+    var backButton = document.querySelector('#tutorial .btn-back');
+        backButton.addEventListener('click', function() {
+            localStorage.setItem('options', JSON.stringify(options));
+            tutorial.style.display = 'none';
+            tutorial.innerHTML = '';
+        });
+
+    if (e.target.id === 'btn-tutorial') {
+        document.querySelector('#tutorial .main-menu-button').style.display = 'none';
+    }
+    else {
+        backButton.style.display = 'none';
+    }
+
+        tutorial.style.display = 'flex';
+        tutorial.style.opacity = '1';
+
+    // Allow user to disable tutorial from showing on starting a new game
+    var tutorialCheckbox = document.querySelector('#tutorial input');
+    if (options.tutorial) {
+        tutorialCheckbox.checked = true;
+    }
+    else {
+        tutorialCheckbox.checked = false;
+    }
+        tutorialCheckbox.addEventListener('click', function(e) {
+            if (e.target.checked) {
+                options.tutorial = true;
+            }
+            else if (!e.target.checked) {
+                options.tutorial = false;
+            }
+        });
+
+    // Start game
+    var button = document.querySelector('#tutorial .main-menu-button');
+        button.addEventListener('click', function() {
+            localStorage.setItem('options', JSON.stringify(options));
+            startGame();
+        });
+}
+
+
 // Start Game
 function startGame(fadeIn) {
     fadeOut();
@@ -431,6 +559,17 @@ function startGame(fadeIn) {
         generateLevel();
         document.querySelector('.flipper').style.transform = 'rotateY(0deg)';
         document.querySelector('.flip-container').style.display = 'none';
+        document.getElementById('tutorial').style.display = 'none';
+    }, 1000);
+    // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
+    var moves = hero.squaresMoved;
+    var timer = 0;
+    var interval = setInterval(function() {
+        if (hero.squaresMoved > moves || timer >= 10) {
+            letTheGamesBegin();
+            clearInterval(interval);
+        }
+        timer++;
     }, 1000);
 }
 
@@ -448,16 +587,14 @@ function generateLevel() {
         generateLevel();
     }
     fadeIn();
-    setTimeout(function() {
-        letTheGamesBegin();
-    }, 2500);
 }
+
 
 var maxWeight = 0;
 var totalWeight = 0;
 var numberOfEnemies = 0;
-
 var enemies = [];
+
 
 // Reset anything from the previous level
 function resetAll() {
@@ -480,13 +617,13 @@ function resetAll() {
 function fadeOut() {
     var fade = document.getElementById('fade-to-black');
         fade.style.display = 'flex';
-        fade.style.animation = 'fade-out 1s 1';
+        fade.style.animation = 'fade-out 1s 1 forwards';
 }
 
 // Fade back in
 function fadeIn() {
     var fade = document.getElementById('fade-to-black');
-        fade.style.animation = 'fade-in 1s 0.5s 1';
+        fade.style.animation = 'fade-in 1s 1 forwards';
     var save = document.getElementById('warning');
         save.src = 'img/gui/save.svg';
         save.style.animation = 'saving 3s 1s 1';
@@ -506,20 +643,18 @@ function buildMap() {
     enemies = [];
     // Pick a random tileset
     tilesetNumber = randomNumber(1,tilesets);
+    tilesetInside = randomNumber(1,tilesets);
     // Cycle through each row
     for (var r = 1; r <= numberOfRows; r++) {
         var newRow = [];
-        var row = '';
-            row += 'r' + r;
+        var row = 'r' + r;
         // Cycle through each column
         for (var c = 1; c <= numberOfColumns; c++) {
-            var col = '';
-                col += 'c' + c;
-            var location = '';
-                location += row + col;
-                // Create an object with these details and push to an array
-                location = new Cell(location,r,c,'empty');
-                newRow.push(location);
+            var col = 'c' + c;
+            var location = row + col;
+            // Create an object with these details and push to an array
+            location = new Cell(location,r,c,'empty');
+            newRow.push(location);
         }
         map.push(newRow);
     }
@@ -545,20 +680,39 @@ function Cell(location,row,col,tile) {
 
 // Call individual object functions
 function randomizeObjects() {
-    randomizeColumns(6);
-    randomizeTraps(4);
+    randomizeDebris(5);
+    randomizeColumns(randomNumber(1,3));
+    randomizeTraps(numberOfTraps[hero.difficultyMonster - 1]);
+}
+
+
+// Randomize breakable debris
+function randomizeDebris(number) {
+    var objectTheme = themes[randomNumber(0,themes.length - 1)];
+    for (var i = 0; i < number; i++) {
+        var cell = randomCell();
+        var object = map[cell[0]][cell[1]];
+        object.object = objectTheme[randomNumber(0,objectTheme.length - 1)];
+        object.tile = 'empty';
+        object.contents = 'blocked';
+        object.health = 30;
+        object.evasion = 0;
+    }
 }
 
 
 // Randomize columns
 function randomizeColumns(number) {
+    columnArray = [];
+    wallTileset = randomNumber(1,walls);
     for (var i = 0; i < number; i++) {
         var cell = randomCell();
         var object = map[cell[0]][cell[1]];
-        object.object = 'junk-' + randomNumber(1,junk);
+        columnArray.push(object.location);
+        object.object = 'wall';
         object.tile = 'empty';
         object.contents = 'blocked';
-        object.health = 30;
+        object.health = 150;
         object.evasion = 0;
     }
 }
@@ -594,9 +748,21 @@ function randomCell() {
     }
 }
 
+//////////////////////
+function cheat() {
+    hero.answers = hero.answersNeeded - 1;
+}
+//////////////////////
+
 
 // Build grid one row at a time
 function buildGrid() {
+    // Select a random level template style
+    levelTemplates = ['single','dual','corners','tri-corners'];
+    template = levelTemplates[randomNumber(0,levelTemplates.length - 1)];
+    wallTorches = randomNumber(0,1);
+    exitTileset = '';
+
     for (var i = 0; i < numberOfRows; i++) {
         buildRow(i);
     }
@@ -604,11 +770,18 @@ function buildGrid() {
     document.querySelector('#level-container .row').id = 'shadow-top';
     // Level exit
     levelExit = document.getElementById(exit.location);
+    levelExit.style.backgroundImage = 'url("img/exit.gif")'
+    levelExit.style.overflow = 'hidden';
     var cover = document.createElement('img');
-        cover.src = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+        cover.src = exitTileset;
         cover.style.width = '100%';
         cover.style.height = '100%';
         levelExit.appendChild(cover);
+    columnPositions = [];
+    for (var i = 0; i < columnArray.length; i++) {
+        var cell = document.getElementById(columnArray[i]).getBoundingClientRect();
+        columnPositions.push(cell);
+    }
 }
 
 
@@ -628,6 +801,13 @@ function buildRow(row) {
             if (map[row][i].object) {
                 var object = document.createElement('img');
                     object.src = 'img/objects/' + map[row][i].object + '.gif';
+                if (map[row][i].object === 'wall') {
+                    if (wallTorches === 1) {
+                        cell.classList.add('torch');
+                    }
+                    object.src = 'img/objects/wall-' + wallTileset + '.gif';
+                    object.className = 'wall';
+                }
                 cell.appendChild(object);
             }
         newRow.appendChild(cell);
@@ -639,11 +819,70 @@ function buildRow(row) {
 // Grab the content value of the desired cell and apply the appropriate graphic
 function applyTileset(e) {
     var tile = e.tile;
-    if (tile === 'empty') {
-        var tileset = 'url("img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif")'; 
+    if (tile === 'empty' || tile === 'exit') {
+        // Apply same tileset to entire map
+        if (template === 'single') {
+            var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+        }
+        // Border the map with one tileset, then fill the middle with another
+        else if (template === 'dual') {
+            if (e.row === 1 || e.row === numberOfRows || e.col === 1 || e.col === numberOfColumns) {
+                var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+            }
+            else {
+                var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+            }
+        }
+        // Border map except for corners
+        else if (template === 'corners') {
+            if (e.row === 1 || e.row === numberOfRows) {
+                if (e.col === 1 || e.col === numberOfColumns) {
+                    var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+                else {
+                    var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+            }
+            else if (e.col === 1 || e.col === numberOfColumns) {
+                var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+            }
+            else {
+                var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+            }
+        }
+        // Add larger corner sections
+        else if (template === 'tri-corners') {
+            if (e.row === 1 || e.row === numberOfRows) {
+                if (e.col === 1 || e.col === 2 || e.col === numberOfColumns || e.col === numberOfColumns - 1) {
+                    var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+                else {
+                    var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+            }
+            else if (e.row === 2 || e.row === numberOfRows - 1) {
+                if (e.col === 1 || e.col === numberOfColumns) {
+                    var tileset = 'img/tiles/' + tilesetNumber + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+                else {
+                    var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+                }
+            }
+            else {
+                var tileset = 'img/tiles/' + tilesetInside + '/empty' + randomNumber(1,empty) + '.gif'; 
+            }
+        }
     }
+    // If object, apply object image
     else {
         var tileset = 'url("img/' + tile + '.gif")';
+    }
+    // Apply correct tileset to exit cover
+    if (e.contents === 'exit') {
+        exitTileset = tileset;
+    }
+    else {
+        tileset = 'url("' + tileset + '")';
     }
     return tileset;
 }
@@ -688,6 +927,8 @@ function addHero() {
         hero.squaresMoved = 0;
         hero.trapsEvaded = 0;
         hero.attacksEvaded = 0;
+        hero.timesFrozen = 0;
+        hero.timesWebbed = 0;
         hero.hero = true;
         hero.name = document.getElementById('name-input').value;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
@@ -723,7 +964,7 @@ function addHero() {
 // Reset variables and route to the selected game mode
 function addMath() {
     hero.challengeMode = false;
-    if (hero.gameLevel % 3 === 0) {
+    if (hero.gameLevel % 4 === 0) {
         var mode = challengeMode[randomNumber(0,challengeMode.length - 1)];
         hero.challengeMode = true;
     }
@@ -1233,6 +1474,7 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsWrong++;
         }
+        flashHitImage(hero,player);
         dealDamage(damageFromWrongAnswer,'wrong answer');
     }
 }
@@ -1451,9 +1693,21 @@ function moveHero(e) {
             hero.gameLevel++;
             // Save game to local storage
             localStorage.setItem('savedGame', JSON.stringify(hero));
+            localStorage.setItem('options', JSON.stringify(options));
             awardXp('level');
             startGame();
         }
+    }
+}
+
+
+// Flash hit image on character
+function flashHitImage(victim,victimContainer) {
+    if (victim.hasOwnProperty('id')) {
+        victimContainer.classList.add('hit');
+        setTimeout(function() {
+            victimContainer.classList.remove('hit');
+        }, 350);
     }
 }
 
@@ -1468,13 +1722,7 @@ function checkForAttack(direction,victim,attacker) {
                 if (victim.hero) {
                     victimContainer = player;
                 }
-                // Flash hit image
-                if (victim.hasOwnProperty('id')) {
-                    victimContainer.classList.add('hit');
-                    setTimeout(function() {
-                        victimContainer.classList.remove('hit');
-                    }, 350);
-                }
+                flashHitImage(victim,victimContainer);
                 // Move attacker for attack animation
                 var attackerContainer = document.getElementById(attacker.id);
                 var attackerTop = attacker.top;
@@ -1509,16 +1757,6 @@ function checkForAttack(direction,victim,attacker) {
                 else {
                     victim.health -= attacker.baseDamage * attacker.attackRating;
                     if (victim.health <= 0) {
-                        // Roll for loot
-                        if (randomNumber(1,100) <= lootChance) {
-                            var lootDrop = loot[randomNumber(0,loot.length - 1)];
-                            var location = map[victim.row - 1][victim.col - 1]
-                                location.contents = 'loot';
-                                location.loot = lootDrop;
-                        }
-                        else {
-                            victim.contents = 'empty';
-                        }
                         delete map[victim.row - 1][victim.col - 1].health;
                         map[victim.row - 1][victim.col - 1].enemy = false;
                         if (victim.enemy !== false) {
@@ -1532,19 +1770,63 @@ function checkForAttack(direction,victim,attacker) {
                         else {
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
+                            // Roll for loot
+                            rollLoot(victim);
                         }
-                        var lootLocation = document.getElementById(victim.location);
-                        var lootImage = document.createElement('img');
-                            lootImage.src = 'img/loot/' + lootDrop.image;
-                            lootImage.style.width = '50%';
-                            lootLocation.appendChild(lootImage);
                     }
                 }
             }
         }
-        else if (victim === hero) {
-            hero.attacksEvaded++;
+        else {
+            if (victim === hero) {
+                hero.attacksEvaded++;
+                flashMessage(victim,'evaded!');
+            }
+            else {
+                flashMessage(victim,'miss!');
+            }
         }
+    }
+}
+
+
+// Flash a status message for evasions
+function flashMessage(person,message) {
+    var msg = document.querySelector('#' + person.id + ' .message');
+        msg.innerHTML = message;
+        msg.style.display = 'flex';
+        msg.style.opacity = '0';
+        if (message === 'miss' || message === 'evaded!') {
+            var duration = 0.7;
+        }
+        else {
+            var duration = 2;
+        }
+        msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
+    setTimeout(function() {
+        msg.style.display = 'none';
+    }, duration * 1000);
+
+}
+
+
+// Randomize loot drop
+function rollLoot(victim) {
+    if (randomNumber(1,100) <= lootChance) {
+        var lootType = loot[randomNumber(0,loot.length - 1)];
+        var lootAmount = lootType.amount[randomNumber(0,lootType.amount.length - 1)];
+        var lootDrop = { type: lootType.type, amount: lootAmount }
+        var location = map[victim.row - 1][victim.col - 1]
+            location.contents = 'loot';
+            location.loot = lootDrop;
+        var lootLocation = document.getElementById(victim.location);
+        var lootImage = document.createElement('img');
+            lootImage.src = 'img/loot/' + lootDrop.type + '-' + lootAmount + '.gif';
+            lootImage.style.width = '50%';
+            lootLocation.appendChild(lootImage);
+    }
+    else {
+        victim.contents = 'empty';
     }
 }
 
@@ -1598,6 +1880,9 @@ function dealDamage(amount,source) {
             else if (source.type === 'Oculord') {
                 var deathBy = deathText.oculord[randomNumber(0,deathText.oculord.length - 1)];
             }
+            else if (source.type === 'Vampire') {
+                var deathBy = deathText.vampire[randomNumber(0,deathText.vampire.length - 1)];
+            }
         }
         youDied(deathBy);
     }
@@ -1608,10 +1893,22 @@ function dealDamage(amount,source) {
 
 
 // Freeze anyone who walks through ice for set number of seconds
-function freezePerson(person,duration) {
+function freezePerson(person,duration,type) {
     person.canMove = false;
-    setTimeout(function() { 
-        person.canMove = true; 
+    var timer = document.getElementById('hero-status');
+        timer.style.width = '100%';
+    if (type === 'ice') {
+        flashMessage(person,'frozen!');
+        timer.style.backgroundColor = '#8aeaea';
+    }
+    else {
+        timer.style.backgroundColor = '#24e35a';
+    }
+        timer.style.display = 'flex';
+        timer.style.animation = 'status-effect ' + (duration / 1000) + 's linear 1 forwards';
+    setTimeout(function() {
+        timer.style.display = 'none';
+        person.canMove = true;
     }, duration);
 }
 
@@ -1620,19 +1917,25 @@ function freezePerson(person,duration) {
 function checkForTraps() {
     var location = map[hero.row - 1][hero.col - 1];
     // Check against hero % chance to evade traps
-    if (randomNumber(1,100) < hero.evasion) {
+    if (randomNumber(1,100) < hero.evasion && location.contents === 'trap') {
         hero.trapsEvaded++;
+        flashMessage(hero,'evaded!');
     }
     else {
         if (location.contents === 'trap' && location.tile === 'ice') {
+            hero.timesFrozen++;
             var duration = 3000;
-            freezePerson(hero,duration);
+            flashMessage(hero,'frozen!');
+            freezePerson(hero,duration,'ice');
         }
         else if (location.trapType === 'web') {
+            hero.timesWebbed++;
             var duration = 4000;
-            freezePerson(hero,duration);
+            flashMessage(hero,'trapped!');
+            freezePerson(hero,duration,'web');
         }
         else if (location.contents === 'trap') {
+            flashHitImage(hero,player);
             dealDamage(location.trapDamage,'trap');
         }
     }
@@ -1643,16 +1946,20 @@ function checkForTraps() {
 function checkForLoot() {
     var location = map[hero.row - 1][hero.col - 1];
     if (location.contents === 'loot') {
-        if (location.loot.healing && hero.health < 100) {
-            restoreHealth(location.loot.healing);
+        var cell = document.querySelectorAll('#' + location.location + ' img');
+        if (location.loot.type === 'health' && hero.health < 100) {
+            restoreHealth(location.loot.amount);
             location.contents = 'empty';
-            var cell = document.querySelectorAll('#' + location.location + ' img');
             for (var i = 0; i < cell.length; i++) {
                 cell[i].remove();
             }
         }
-        else if (location.loot.gold) {
-            console.log('gold');
+        else if (location.loot.type === 'gold') {
+            options.gold += location.loot.amount;
+            location.contents = 'empty';
+            for (var i = 0; i < cell.length; i++) {
+                cell[i].remove();
+            }
         }
     }
 }
@@ -1681,6 +1988,7 @@ function awardXp(source) {
             level.innerHTML = 'Level Up!';
             level.classList.add('level-up');
             level.addEventListener('click', levelUp);
+        restoreHealth(100);
     }
 }
 
@@ -1791,6 +2099,7 @@ function youDied(deathBy) {
         fallenHeroes.splice((fallenHeroes.length), 1);
     }
     localStorage.setItem('fallenHeroes', JSON.stringify(fallenHeroes));
+    localStorage.setItem('options', JSON.stringify(options));
     // Kill character
     localStorage.removeItem('savedGame');
     listFallenStats(hero,'game-over');
@@ -1804,11 +2113,17 @@ function fadeToMainMenu() {
     fadeOut();
     // Reset all menus
     setTimeout(function() {
-        resetAll();
-        titleButtons();
-        setTimeout(function() {
-            fadeIn();
-        }, 500);
+        try {
+            resetAll();
+            titleButtons();
+            setTimeout(function() {
+                fadeIn();
+            }, 1000);
+        }
+        catch(e) {
+            console.log(e);
+            alert('fadeToMainMenu ERROR');
+        }
     }, 1000);
 }
 
@@ -1863,7 +2178,8 @@ var deathText = {
                 'Beat up by a giant meatball.',
                 'Died valiantly while battling an Oculord.'
 
-                ]
+                ],
+    vampire:    ['Killed by a vampire.']
 }
 
 
@@ -1933,6 +2249,8 @@ function listFallenStats(hero,view) {
         stats += '<p>Enemies Slain: <span>' + hero.enemiesSlain + '</span></p>';
         stats += '<p>Traps Evaded: <span>' + hero.trapsEvaded + '</span></p>';
         stats += '<p>Attacks Evaded: <span>' + hero.attacksEvaded + '</span></p>';
+        stats += '<p>Times Frozen: <span>' + hero.timesFrozen + '</span></p>';
+        stats += '<p>Times Spider Webbed: <span>' + hero.timesWebbed + '</span></p>';
 
         stats += '<button class="main-menu-button">Main menu</button>';
         gameOverScreen.innerHTML = stats;
@@ -1967,19 +2285,30 @@ function letTheGamesBegin() {
     else if (hero.difficultyMonster == 3) {
         maxWeight = 180;
     }
-    // Spawn enemies at an interval
-    var interval = setInterval(function() {
-        if (map === null) {
-            clearTimeout(interval);
+    // Get list of safe spawn locations
+    spawnArray = [];
+    for (var r = 0; r < numberOfRows; r++) {
+        for (var c = 0; c < numberOfColumns; c++) {
+            var cell = map[r][c];
+            if (r === 0 || r === numberOfRows - 1) {
+                if (cell.object && cell.contents !== 'trap') {
+                }
+                else {
+                    spawnArray.push(cell);
+                }
+            }
+            else if (c === 0 || c === numberOfColumns -1) {
+                if (cell.object && cell.contents !== 'trap') {
+                }
+                else {
+                    spawnArray.push(cell);
+                }
+            }
         }
-        else if (map.length === 0) {
-            clearTimeout(interval);
-        }
-        else if (totalWeight < maxWeight) {
-            var spawn = randomMonsterSpawn();
-            getEnemy(spawn.row,spawn.col);
-        }
-    }, 5000);
+    }
+    // Spawn first enemy
+    var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
+    getEnemy(spawn.row,spawn.col);
 }
 
 
@@ -2013,25 +2342,6 @@ function handleTraps() {
             }());
         }
     }
-}
-
-
-// Select a random location on the outside of the map
-function randomMonsterSpawn() {
-    var randomRow = randomNumber(1,numberOfRows);
-    if (randomRow === 1 || randomRow === numberOfRows) {
-        var randomCol = randomNumber(1,numberOfColumns);
-    }
-    else {
-        var number = randomNumber(0,1);
-        if (number === 0) {
-            var randomCol = 1;
-        }
-        else {
-            var randomCol = numberOfColumns;
-        }
-    }
-    return { row: randomRow, col: randomCol }
 }
 
 
@@ -2069,7 +2379,7 @@ var bestiary = [
         damage: 10,
         health: 50,
         weight: 25,
-        evasion: 0,
+        evasion: 5,
         moveInterval: 2100,
         moveSpeed: 2,
         ability: 'acid',
@@ -2081,10 +2391,10 @@ var bestiary = [
     {
         type: 'Giant Spider',
         image: 'spider.gif',
-        damage: 15,
+        damage: 10,
         health: 65,
         weight: 35,
-        evasion: 0,
+        evasion: 15,
         moveInterval: 2000,
         moveSpeed: 0.35,
         ability: 'web',
@@ -2099,7 +2409,7 @@ var bestiary = [
         damage: 5,
         health: 85,
         weight: 35,
-        evasion: 0,
+        evasion: 10,
         moveInterval: 3000,
         moveSpeed: 0.5,
         ability: 'rotate',
@@ -2114,14 +2424,30 @@ var bestiary = [
         damage: 15,
         health: 100,
         weight: 50,
-        evasion: 0,
+        evasion: 10,
         moveInterval: 3000,
         moveSpeed: 2.5,
         ability: 'projectile',
         abilityImage: ['projectile-fire.gif', 'projectile-ice.gif'],
-        abilityDamge: 20,
-        abilityDuration: 0.5,
-        abilityChance: 100,
+        abilityDamge: 15,
+        abilityDuration: 0.45,
+        abilityChance: 70,
+        info: 'Description of the monster goes here.'
+    },
+    {
+        type: 'Vampire',
+        image: 'vampire.gif',
+        damage: 15,
+        health: 125,
+        weight: 60,
+        evasion: 10,
+        moveInterval: 3000,
+        moveSpeed: 1,
+        ability: 'invisibility',
+        abilityImage: 'vampire-shadow.gif',
+        abilityDamge: 0.5,
+        abilityDuration: 10000,
+        abilityChance: 70,
         info: 'Description of the monster goes here.'
     }
 ]
@@ -2157,6 +2483,7 @@ function addEnemy(row,col,monster) {
     enemy.abilityDamge = monster.abilityDamge;
     enemy.abilityDuration = monster.abilityDuration;
     enemy.abilityChance = monster.abilityChance;
+    enemy.invisible = false;
     if (monster.abilityImage) {
         enemy.abilityImage = monster.abilityImage;
     }
@@ -2166,19 +2493,30 @@ function addEnemy(row,col,monster) {
         options.newEnemies++;
         localStorage.setItem('options', JSON.stringify(options));
     }
-    enemies.push(enemy);
-    // Add to map data
-    map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
+    if (enemies !== null) {
+        enemies.push(enemy);
+    }
+    else {
+        resetAll();
+        return;
+    }
     // Create DOM element for enemy
     var createEnemy = document.createElement('div');
         createEnemy.classList.add('enemy');
         createEnemy.id = enemy.id;
         createEnemy.style.width = cellSize + 'px';
         createEnemy.style.height = cellSize + 'px';
-        createEnemy.style.backgroundImage = 'url("img/enemies/' + enemy.image + '")';
+        createEnemy.style.backgroundImage = 'url("img/enemies/enemy-shadow.png")';
         createEnemy.style.top = '0';
         createEnemy.style.left = '0';
         createEnemy.style.transitionDuration = '0';
+    var message = document.createElement('span');
+        message.className = 'message';
+        message.innerHTML = '';
+        createEnemy.appendChild(message);
+    var enemyImage = document.createElement('img');
+        enemyImage.src = 'img/enemies/' + enemy.image;
+        createEnemy.appendChild(enemyImage);
         levelContainer.appendChild(createEnemy);
     var enemyContainer = document.getElementById(enemy.id);
     // Insert the enemy onto one of the outside squares
@@ -2200,61 +2538,115 @@ function addEnemy(row,col,monster) {
             enemyContainer.style.transition = enemy.moveSpeed + 's ease';
         }
     }
+    // Move enemy in from outside of map
     setTimeout(function() {
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        // Add to map data
+        if (map !== null) {
+            map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
+        }
         actionInterval();
     }, 2000);
+
+    // Spawn another enemy at a random interval
+    var spawnInterval = randomNumber(2000,7000);
+    var monsterSpawn = setInterval(function() {
+        if (map === null || map.length === 0) {
+            clearInterval(monsterSpawn);
+        }
+        else if (totalWeight < maxWeight) {
+            clearInterval(monsterSpawn);
+            var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
+            getEnemy(spawn.row,spawn.col);
+        }
+    }, spawnInterval);
 
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
         var interval = setInterval(function() {
             // Destroy any stowaways trying to sneak into the next level
-            if (hero === null) {
-                enemy = null;
+            if (enemy.gameLevel !== hero.gameLevel) {
+                console.log('i shouldnt be here');
                 clearTimeout(interval);
-            }
-            else if (enemy.gameLevel !== hero.gameLevel) {
-                enemy = null;
-                clearTimeout(interval);
-            }
-            // Award XP on death, then destroy
-            else if (enemy.health <= 0 && enemy.gameLevel === hero.gameLevel) {
-                awardXp(enemy);
-                totalWeight -= enemy.weight;
-                hero.enemiesSlain++;
                 enemy = null;
                 delete enemy;
-                delete enemyContainer;
+            }
+            else if (map === null || hero === null) {
+                console.log('null map: ' + enemy);
                 clearTimeout(interval);
-            }
-            // If options menu open, pause movement
-            else if (hero.pause === true) {
-            }
-            // Roll chance to use special ability, then perform an action
-            else if (enemy.health >= 0 && enemy.gameLevel === hero.gameLevel && map !== null) {
-                var useAbility = randomNumber(1,100);
-                if (useAbility <= enemy.abilityChance) {
-                    if (enemy.ability === 'acid' || enemy.ability === 'web') {
-                        layTrap(enemy);
-                    }
-                    else if (enemy.ability === 'rotate') {
-                        rotateEquation(enemy);
-                    }
-                    else if (enemy.ability === 'projectile') {
-                        enemyProjectile(enemy,enemyContainer);
-                    }
-                }
-                moveEnemyPassive(enemy,enemyContainer);
+                enemy = null;
+                delete enemy;
             }
             else {
-                totalWeight = 0;
-                enemy = null;
-                delete enemy;
-                delete enemyContainer;
-                clearTimeout(interval);
+                // Award XP on death, then destroy
+                if (enemy.health <= 0) {
+                    clearTimeout(interval);
+                    awardXp(enemy);
+                    totalWeight -= enemy.weight;
+                    hero.enemiesSlain++;
+                    enemy = null;
+                    delete enemy;
+                    delete enemyContainer;
+                }
+                // If options menu open, pause movement
+                else if (hero.pause === true) {
+                }
+                // Roll chance to use special ability, then perform an action
+                else if (enemy.health >= 0) {
+                    var useAbility = randomNumber(1,100);
+                    if (useAbility <= enemy.abilityChance) {
+                        if (enemy.ability === 'acid' || enemy.ability === 'web') {
+                            layTrap(enemy);
+                        }
+                        else if (enemy.ability === 'rotate') {
+                            rotateEquation(enemy);
+                        }
+                        else if (enemy.ability === 'projectile') {
+                            enemyProjectile(enemy,enemyContainer);
+                        }
+                        else if (enemy.ability === 'invisibility' && enemy.invisible === false) {
+                            turnInvisible(enemy,enemyContainer);
+                        }
+                    }
+                    getMovementDirection(enemy,enemyContainer,'passive');
+                }
+                else {
+                    clearTimeout(interval);
+                    totalWeight = 0;
+                    enemy = null;
+                    delete enemy;
+                    delete enemyContainer;
+                }
             }
         }, enemy.moveInterval);
     }
+}
+
+
+// Allow vampires to temporarily turn mostly invisible
+function turnInvisible(enemy,enemyContainer) {
+    enemy.invisible = true;
+    enemy.evasion = 50;
+    enemyContainer.lastChild.style.opacity = '0';
+    // Drain health if invisible and within range
+    var interval = setInterval(function() {
+        if (enemy.health <= 0) {
+            clearInterval(interval);
+        }
+        else if (enemy.invisible) {
+            if (Math.abs(hero.row - enemy.row) <= 1 && Math.abs(hero.col - enemy.col) <= 1) {
+                dealDamage(enemy.abilityDamge,enemy);
+            }
+        }
+        else {
+            clearInterval(interval);
+        }
+    }, 250);
+    setTimeout(function() {
+        enemy.invisible = false;
+        enemy.evasion = 0;
+        enemyContainer.lastChild.style.opacity = '1';
+    }, enemy.abilityDuration);
 }
 
 
@@ -2317,11 +2709,12 @@ function enemyProjectile(enemy,enemyContainer) {
                 // Check for projectile type
                 type = type.split('-').pop().split('.').shift();
                 if (type === 'ice') {
-                    freezePerson(hero,enemy.moveInterval);
+                    freezePerson(hero,enemy.moveInterval,'ice');
                     clearInterval(interval);
                     projectile.style.display = 'none';
                 }
                 else {
+                    flashHitImage(hero,player);
                     dealDamage(enemy.abilityDamge,enemy);
                     clearInterval(interval);
                     projectile.style.display = 'none';
@@ -2330,11 +2723,21 @@ function enemyProjectile(enemy,enemyContainer) {
             // Make player immune to damage until projectile leaves the current cell
             else {
                 canHit = false;
+                flashMessage(hero,'evaded!');
                 hero.attacksEvaded++;
                 var safeTime = enemy.abilityDuration * 1250;
                 setTimeout(function() {
                     canHit = true;
                 }, safeTime);
+            }
+        }
+        // Check if there is a column collision
+        for (var i = 0; i < columnPositions.length; i++) {
+            if (Math.abs(projectilePos.top - columnPositions[i].top) <= (cellSize * 0.85) &&
+            Math.abs(projectilePos.left - columnPositions[i].left) <= (cellSize * 0.85) &&
+            canHit) {
+                clearInterval(interval);
+                projectile.style.display = 'none';
             }
         }
     }, 250);
@@ -2353,8 +2756,10 @@ function rotateEquation(enemy) {
         var cell = document.querySelector('#' + enemy.location + ' p');
             cell.style.transition = '1s';
             cell.style.transform = 'rotate(180deg)';
+            cell.style.color = '#E22727';
         setTimeout(function() {
             cell.style.transform = 'rotate(0deg)';
+            cell.style.color = '#fff';
         }, enemy.abilityDuration);
     }
 }
@@ -2393,84 +2798,151 @@ function layTrap(enemy) {
 }
 
 
+// Determine which direction to move in
+function getMovementDirection(enemy,enemyContainer,movementType) {
+    var directions = ['up','down','left','right'];
+    var hasAttacked = false;
+    // Passive enemies have a lower chance to target you
+    if (movementType === 'passive') {
+        var chanceToAttack = 40;
+    }
+    // A future aggressive AI will be more... aggressive
+    else {
+        var chanceToAttack = 80;
+    }
+
+    // If on top row, do not move up
+    if (enemy.row === 1) {
+        var index = directions.indexOf('up');
+            directions.splice(index, 1);
+    }
+    else {
+        var mapLocation = map[enemy.row - 2][enemy.col - 1];
+        // If the player is above them, roll for attack chance
+        if (mapLocation.hero && randomNumber(1,100) <= chanceToAttack) {
+            checkForAttack('up',hero,enemy);
+            hasAttacked = true;
+        }
+        // If location is blocked or contains an enemy
+        else {
+            if (mapLocation.contents === 'blocked' || mapLocation.enemy || mapLocation.hero)  {
+                var index = directions.indexOf('up');
+                    directions.splice(index, 1);
+            }
+        }
+    }
+
+    // If on bottom row, do not move down
+    if (enemy.row === numberOfRows) {
+        var index = directions.indexOf('down');
+            directions.splice(index, 1);
+    }
+    else {
+        var mapLocation = map[enemy.row][enemy.col - 1];
+        // If the player is below them, roll for attack chance
+        if (mapLocation.hero && randomNumber(1,100) <= chanceToAttack) {
+            checkForAttack('down',hero,enemy);
+            hasAttacked = true;
+        }
+        // If location is blocked or contains an enemy
+        else {
+            if (mapLocation.contents === 'blocked' || mapLocation.enemy || mapLocation.hero)  {
+                var index = directions.indexOf('down');
+                    directions.splice(index, 1);
+            }
+        }
+    }
+
+    // If on left most column, do not move left
+    if (enemy.col === 1) {
+        var index = directions.indexOf('left');
+            directions.splice(index, 1);
+    }
+    else {
+        var mapLocation = map[enemy.row - 1][enemy.col - 2];
+        // If the player is left of them, roll for attack chance
+        if (mapLocation.hero && randomNumber(1,100) <= chanceToAttack) {
+            checkForAttack('left',hero,enemy);
+            hasAttacked = true;
+        }
+        // If location is blocked or contains an enemy
+        else {
+            if (mapLocation.contents === 'blocked' || mapLocation.enemy || mapLocation.hero)  {
+                var index = directions.indexOf('left');
+                    directions.splice(index, 1);
+            }
+        }
+    }
+
+    // If on right most column, do not move right
+    if (enemy.col === numberOfColumns) {
+        var index = directions.indexOf('right');
+            directions.splice(index, 1);
+    }
+    else {
+        var mapLocation = map[enemy.row - 1][enemy.col];
+        // If the player is right of them, roll for attack chance
+        if (mapLocation.hero && randomNumber(1,100) <= chanceToAttack) {
+            checkForAttack('right',hero,enemy);
+            hasAttacked = true;
+        }
+        // If location is blocked or contains an enemy
+        else {
+            if (mapLocation.contents === 'blocked' || mapLocation.enemy || mapLocation.hero)  {
+                var index = directions.indexOf('right');
+                    directions.splice(index, 1);
+            }
+        }
+    }
+
+    if (movementType === 'passive' && hasAttacked === false) {
+        moveEnemyPassive(enemy,enemyContainer,directions);
+    }
+}
+
+
 // Random movement
-function moveEnemyPassive(enemy,enemyContainer) {
-    var move = randomNumber(0,3);
+function moveEnemyPassive(enemy,enemyContainer,directions) {
+    var move = directions[randomNumber(0,directions.length - 1)];
+
     // MOVE UP
-    if (move === 0) {
-        if (enemy.row === 1) {
-
-        }
-        else {
-            var mapLocation = map[enemy.row - 2][enemy.col - 1];
-            if (enemy.canMove && enemy.top >= cellSize && mapLocation.contents !== 'blocked' && mapLocation.hero === false && mapLocation.enemy === false) {
-                map[enemy.row - 1][enemy.col - 1].enemy = false;
-                enemy.top -= cellSize;
-                enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
-                enemy.row--;
-                map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
-            }
-            else if (mapLocation.hero) {
-                checkForAttack('up',hero,enemy);
-            }
-        }
+    if (move === 'up') {
+        var mapLocation = map[enemy.row - 2][enemy.col - 1];
+        map[enemy.row - 1][enemy.col - 1].enemy = false;
+        enemy.top -= cellSize;
+        enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        enemy.row--;
+        map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
     }
+
     // MOVE DOWN
-    else if (move === 1) {
-        if (enemy.row === numberOfRows) {
-
-        }
-        else {
-            var mapLocation = map[enemy.row][enemy.col - 1];
-            if (enemy.canMove && enemy.top <= (numberOfRows - 1) * cellSize && mapLocation.contents !== 'blocked' && mapLocation.hero === false && mapLocation.enemy === false) {
-                map[enemy.row - 1][enemy.col - 1].enemy = false;
-                enemy.top += cellSize;
-                enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
-                enemy.row++;
-                map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
-            }
-            else if (mapLocation.hero) {
-                checkForAttack('down',hero,enemy);
-            }
-        }
+    else if (move === 'down') {
+        var mapLocation = map[enemy.row][enemy.col - 1];
+        map[enemy.row - 1][enemy.col - 1].enemy = false;
+        enemy.top += cellSize;
+        enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        enemy.row++;
+        map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
     }
+
     // MOVE LEFT
-    else if (move === 2) {
-        if (enemy.col === 1) {
-
-        }
-        else {
-            var mapLocation = map[enemy.row - 1][enemy.col - 2];
-            if (enemy.canMove && enemy.left >= cellSize && mapLocation.contents !== 'blocked' && mapLocation.hero === false && mapLocation.enemy === false) {
-                map[enemy.row - 1][enemy.col - 1].enemy = false;
-                enemy.left -= cellSize;
-                enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
-                enemy.col--;
-                map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
-            }
-            else if (mapLocation.hero) {
-                checkForAttack('left',hero,enemy);
-            }
-        }
+    else if (move === 'left') {
+        var mapLocation = map[enemy.row - 1][enemy.col - 2];
+        map[enemy.row - 1][enemy.col - 1].enemy = false;
+        enemy.left -= cellSize;
+        enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        enemy.col--;
+        map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
     }
-    // MOVE RIGHT
-    else if (move === 3) {
-        if (enemy.col === numberOfColumns) {
 
-        }
-        else {
-            var mapLocation = map[enemy.row - 1][enemy.col];
-            if (enemy.canMove && enemy.left <= (numberOfColumns - 1) * cellSize && mapLocation.contents !== 'blocked' && mapLocation.hero === false && mapLocation.enemy === false) {
-                map[enemy.row - 1][enemy.col - 1].enemy = false;
-                enemy.left += cellSize;
-                enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
-                enemy.col++;
-                map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
-            }
-            else if (mapLocation.hero) {
-                checkForAttack('right',hero,enemy);
-            }
-        }
+    // MOVE RIGHT
+    else if (move === 'right') {
+        var mapLocation = map[enemy.row - 1][enemy.col];
+        map[enemy.row - 1][enemy.col - 1].enemy = false;
+        enemy.left += cellSize;
+        enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
+        enemy.col++;
+        map[enemy.row - 1][enemy.col - 1].enemy = enemy.id;
     }
     enemy.location = 'r' + enemy.row + 'c' + enemy.col;
 }
@@ -2488,12 +2960,5 @@ function getAccuracy(right,wrong) {
 
 // Random number generator within a range
 function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// Because I keep accidentally calling 'random' instead of 'randomNumber' and staring at
-// the screen blankly for 10 minutes until I realize why my browser keeps crashing
-function random(min, max) {
-    alert('use randomNumber, dumbass!');
     return Math.floor(Math.random() * (max - min + 1) + min);
 }

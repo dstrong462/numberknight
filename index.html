@@ -18,6 +18,8 @@
 
 <body>
 
+<div id="splash"><img src="img/gui/vermilion_logo.png"></div>
+
 <section id="game-container">
     <div id="level-up-menu">
         <h5>- PAUSED -</h5>
@@ -65,15 +67,16 @@
             <input type="checkbox" id="music" />
             <label for="music"><span></span></label>
         </div>
+        <button id="btn-tutorial">How To Play</button>
         <div>
             <h6>Thanks</h6>
             <p>Game Art: <a href="#" onclick="window.open('http://www.oryxdesignlab.com', '_system');">Oryx Design Lab</a></p>
             <p>GUI Art: <a href="#" onclick="window.open('https://gameartpartners.com/downloads/gui-collection-stone-age/', '_system');">Zuhria</a></p>
         </div>
-        <div>
+        <div id="credits">
             <h6>Credits</h6>
-            <p>Developed by</p>
-            <p>Daniel Strong &copy;<span id="year">2016</span></p>
+                <p>Developed by</p>
+                <p>Daniel Strong &copy;<span id="year">2016</span></p>
             <a href="#" onclick="window.open('http://www.vermiliongiant.com', '_system');">www.VermilionGiant.com</a>
         </div>
         <div class="row">
@@ -90,10 +93,15 @@
                     <button id="btn-new-game">New Game</button>
                     <button id="btn-continue">Continue</button>
                 </div>
-                <div class="row">
-                    <button id="btn-bestiary"><span id="btn-bestiary-new">0</span></button>
-                    <button id="btn-fallen-heroes"></button>
-                    <button class="btn-options"></button>
+                <div>
+                    <div class="row">
+                        <button id="btn-bestiary"><img src="img/enemies/cube-green.gif"><span id="btn-bestiary-new">0</span></button>
+                        <button id="btn-fallen-heroes"></button>
+                        <button class="btn-options"></button>
+                    </div>
+                    <div id="gold-total" class="row">
+                        <img src="img/loot/gold-5.gif"><span></span>
+                    </div>
                 </div>
             </div>
             <div id="new-game">
@@ -142,7 +150,7 @@
         </div>
     </div>
 
-    <div id="fade-to-black"></div>
+    <div id="fade-to-black">- Loading -</div>
 
     <div id="main-container">
         <div id="top-bar"><span id="game-mode"></span><img id="warning" src="img/gui/warning.svg"><span class="btn-options"></span></div>
@@ -153,7 +161,7 @@
                 <div class="hero-spacer"></div>
 
                 <div id="move-left"></div>
-                <div id="hero"></div>
+                <div id="hero"><span class="message">miss</span><img src="img/hero.gif"><span id="hero-status"></span></div>
                 <div id="move-right"></div>
 
                 <div class="hero-spacer"></div>
@@ -176,6 +184,7 @@
     </div>
 
     <div id="game-over"></div>
+    <div id="tutorial"></div>
 </section>
 
 <script src="js/app.js"></script>
