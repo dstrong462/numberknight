@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-	<title></title>
+	<title>Number Knight</title>
 
     <meta name="description" content="">
 
@@ -41,7 +41,7 @@
             </div>
             <div class="col-9">
                 <h6>DEXTERITY</h6>
-                <p>Increases your % chance to avoid traps and enemy damage.</p>
+                <p>Increases your chance to avoid traps, projectiles, and enemy damage.</p>
                 <p id="add-dex"></p>
             </div>
         </div>
@@ -67,7 +67,7 @@
             <input type="checkbox" id="music" />
             <label for="music"><span></span></label>
         </div>
-        <button id="btn-tutorial">How To Play</button>
+        <button id="btn-gamemodes">Game Modes</button>
         <div>
             <h6>Thanks</h6>
             <p>Game Art: <a href="#" onclick="window.open('http://www.oryxdesignlab.com', '_system');">Oryx Design Lab</a></p>
@@ -157,15 +157,15 @@
         <div id="level-container">
             <div id="hero-container">
                 <div class="hero-spacer"></div>
-                <div id="move-up"></div>
+                <div id="move-up"><img src="img/gui/arrow.svg"></div>
                 <div class="hero-spacer"></div>
 
-                <div id="move-left"></div>
+                <div id="move-left"><img src="img/gui/arrow.svg"></div>
                 <div id="hero"><span class="message">miss</span><img src="img/hero.gif"><span id="hero-status"></span></div>
-                <div id="move-right"></div>
+                <div id="move-right"><img src="img/gui/arrow.svg"></div>
 
                 <div class="hero-spacer"></div>
-                <div id="move-down"></div>
+                <div id="move-down"><img src="img/gui/arrow.svg"></div>
                 <div class="hero-spacer"></div>
             </div>
         </div>
@@ -185,6 +185,7 @@
 
     <div id="game-over"></div>
     <div id="tutorial"></div>
+    <div id="level-splash"></div>
 </section>
 
 <script src="js/app.js"></script>

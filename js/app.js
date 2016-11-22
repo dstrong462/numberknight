@@ -2,12 +2,12 @@
 
 // Minimum cell width in pixels
 var minimumCellWidth = 60;
+var maxiumumCellWidth = 85;
 var maxScreenWidth = 768;
-var maxColumns = 8;
-var maxRows = 12;
-// Percentage of screen space to be saved for the UI
-var reservedSpace = 25;
-var desktopReservedSpace = 5;
+var maxColumns = 7;
+var maxRows = 8;
+// Amount of screen space to be saved for the UI in pixels
+var reservedSpace = 125;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
@@ -23,14 +23,15 @@ var heroBaseDamage = 25;
 var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
 
-var chanceToSpawnTrap = 75;
+var chanceToSpawnTrap = 80;
 var backgrounds = 2;
 var tilesets = 10;
-var junk = 10;
 var walls = 16;
 var empty = 6;
 var traps = ['fire-grate','spikes'];
-var numberOfTraps = [2,4,6];
+var trapsToBuild = [];
+var debrisToBuild;
+var columnsToBuild;
 var loot = [
     {
         type: 'health',
@@ -85,9 +86,11 @@ var themes = [
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
+        newgame: true,
+        tutorial: true,
+        endgame: false,
         soundfx: true,
         music: true,
-        tutorial: true,
         enemiesEncountered: [],
         newEnemies: 0,
         gold: 0
@@ -129,14 +132,23 @@ var numberOfColumns = Math.floor(screenWidth / minimumCellWidth);
 if (numberOfColumns > maxColumns) { numberOfColumns = maxColumns; }
 
 var cellSize = Math.floor(screenWidth / numberOfColumns);
-
-// Calculate number of rows to build while leaving space for menus
-if (screenWidth === maxScreenWidth) {
-    reservedSpace = desktopReservedSpace;
+if (cellSize > maxiumumCellWidth) {
+    cellSize = maxiumumCellWidth;
 }
-var numberOfRows = Math.floor((screenHeight * (1 - (reservedSpace / 100))) / cellSize);
+
+var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
 if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
+
+// Resize UI bars for desktop
+if (screenWidth > maxScreenWidth) {
+    var topBar = document.getElementById('top-bar');
+    var uiWidth = (numberOfColumns * cellSize) + reservedSides * 2 + 'px';
+        topBar.style.width = uiWidth;
+        topBar.style.height = '75px';
+    var bottomBar = document.getElementById('bottom-bar');
+        bottomBar.style.width = uiWidth;
+}
 
 var optionsPosition = 'closed';
 var levelContainer = document.getElementById('level-container');
@@ -146,6 +158,7 @@ var player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
 var healthBar = document.getElementById('health');
 var xpBar = document.getElementById('xp');
+
 var gameMode = ['multiples','factors','primes','equality'];
 var challengeMode = ['ascending','descending'];
 
@@ -163,7 +176,7 @@ var moveRight = document.getElementById('move-right');
 document.onkeyup = checkKey;
 
 function checkKey(e) {
-    if (hero.canMove === true) {
+    if (hero.canMove) {
         e = e || window.event;
         if (e.keyCode == '37' ||
             e.keyCode == '38' ||
@@ -199,6 +212,7 @@ var continueButton = document.getElementById('btn-continue');
         // Retrieve saved game from local storage and parse it
         var retrievedList = localStorage.getItem('savedGame');
             hero = JSON.parse(retrievedList);
+            options.newgame = false;
         startGame();
     });
 var optionsButton = document.querySelectorAll('.btn-options');
@@ -227,8 +241,8 @@ var optionsButton = document.querySelectorAll('.btn-options');
 
         });
     }
-var tutorialButton = document.getElementById('btn-tutorial');
-    tutorialButton.addEventListener('click', displayTutorial);
+var gamemodesButton = document.getElementById('btn-gamemodes');
+    gamemodesButton.addEventListener('click', showGamemodes);
 
 // When returning to the main menu, rotate the display back
 var mainMenuButton = document.getElementById('btn-main-menu');
@@ -254,12 +268,8 @@ var playButton = document.getElementById('btn-play');
             alert('That would be too easy. Select at least 1 game mode.');
         }
         else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
-            if (options.tutorial) {
-                displayTutorial(e);
-            }
-            else {
-                startGame();
-            }
+            options.newgame = true;
+            startGame();
         }
     });
 
@@ -274,7 +284,9 @@ var modeEquality = document.getElementById('equality');
     modeEquality.addEventListener('click', adjustGameMode);
 
 var returnToMainMenu = document.querySelector('.return-to-main-menu');
-    returnToMainMenu.addEventListener('click', fadeToMainMenu);
+    returnToMainMenu.addEventListener('click', function() {
+        fadeToMainMenu(fadeIn);
+    });
 
 titleButtons();
 }
@@ -417,7 +429,12 @@ function displayHeroes() {
                 row.id = 'fallen-' + i;
             var entry = '<div><span>' + fallenHeroes[i].name + '</span>';
                 entry += '<span>Level ' + fallenHeroes[i].gameLevel + '</span></div>';
-                entry += '<p>' + fallenHeroes[i].death + '</p>';
+                if (fallenHeroes[i].death === 'Quest Complete') {
+                    entry += '<p class="complete">' + fallenHeroes[i].death + '</p>';
+                }
+                else {
+                    entry += '<p>' + fallenHeroes[i].death + '</p>';
+                }
                 row.innerHTML = entry;
                 container.appendChild(row);
             var button = document.getElementById(row.id);
@@ -476,8 +493,8 @@ function clearList() {
 }
 
 
-// Display tutorial on New Games
-function displayTutorial(e) {
+// Display information about the different game modes
+function showGamemodes(e) {
     var tutorial = document.getElementById('tutorial');
         tutorial.innerHTML = '';
         tutorial.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
@@ -504,8 +521,7 @@ function displayTutorial(e) {
         list += '<h6>Descending Order</h6>'
         list += '<p>Capture the tiles in descending order from highest number to lowest.</p>';
         list += '<br /><input type="checkbox" name="enable-tutorial" id="enable-tutorial" checked /><label for="enable-tutorial"><span></span>Show Tutorial Next Time</label>'
-        list += '<button class="main-menu-button">Play</button>';
-        list += '<button class="btn-back"></button>';
+        list += '<div class="row"><button class="btn-back"></button></div>';
 
         tutorial.innerHTML = list;
 
@@ -515,13 +531,6 @@ function displayTutorial(e) {
             tutorial.style.display = 'none';
             tutorial.innerHTML = '';
         });
-
-    if (e.target.id === 'btn-tutorial') {
-        document.querySelector('#tutorial .main-menu-button').style.display = 'none';
-    }
-    else {
-        backButton.style.display = 'none';
-    }
 
         tutorial.style.display = 'flex';
         tutorial.style.opacity = '1';
@@ -542,67 +551,54 @@ function displayTutorial(e) {
                 options.tutorial = false;
             }
         });
-
-    // Start game
-    var button = document.querySelector('#tutorial .main-menu-button');
-        button.addEventListener('click', function() {
-            localStorage.setItem('options', JSON.stringify(options));
-            startGame();
-        });
 }
 
 
 // Start Game
-function startGame(fadeIn) {
+function startGame() {
     fadeOut();
+    // Build dungeon and reset menus
     setTimeout(function() {
-        generateLevel();
+        resetAll(buildMap);
         document.querySelector('.flipper').style.transform = 'rotateY(0deg)';
         document.querySelector('.flip-container').style.display = 'none';
         document.getElementById('tutorial').style.display = 'none';
     }, 1000);
-    // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
-    var moves = hero.squaresMoved;
-    var timer = 0;
-    var interval = setInterval(function() {
-        if (hero.squaresMoved > moves || timer >= 10) {
-            letTheGamesBegin();
-            clearInterval(interval);
-        }
-        timer++;
-    }, 1000);
-}
-
-// Generate the level
-function generateLevel() {
-    try {
-        resetAll();
-        buildMap();
-        addHero();
-        randomizeObjects();
-        buildGrid();
-        addMath();
-        handleTraps();
-    } catch(e) {
-        generateLevel();
+    if (options.tutorial === false && options.endgame === false) {
+        // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
+        var moves = hero.squaresMoved;
+        var timer = 0;
+        var interval = setInterval(function() {
+            if (hero.squaresMoved > moves || timer >= 10) {
+                letTheGamesBegin();
+                clearInterval(interval);
+            }
+            timer++;
+        }, 1000);
     }
-    fadeIn();
 }
 
 
 var maxWeight = 0;
 var totalWeight = 0;
 var numberOfEnemies = 0;
+var maxEnemies = 0;
 var enemies = [];
 
 
 // Reset anything from the previous level
-function resetAll() {
+function resetAll(callback) {
+    console.log('resetAll');
     map = null;
     enemies = null;
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
+    // Reset challenge and boss levels
+    hero.challengeMode = false;
+    hero.bossLevel = false;
+    hero.bossHasSpawned = false;
+    hero.bossIsDead = false;
     optionsPosition = 'closed';
     document.getElementById('options-menu').style.transform = 'translateX(-100%)';
     var title = document.querySelector('.flip-container');
@@ -610,6 +606,7 @@ function resetAll() {
     var gameOver = document.getElementById('game-over');
         gameOver.style.display = 'none';
         gameOver.style.opacity = '0';
+    callback(addHero);
 }
 
 
@@ -632,11 +629,356 @@ function fadeIn() {
         healthBar.style.transition = '.5s';
         xpBar.style.transition = '.5s';
     }, 950);
+    // Splash level text if necessary
+    if (hero.bossLevel) {
+        var levelSplash = document.getElementById('level-splash');
+            levelSplash.style.opacity = '0';
+            levelSplash.style.display = 'flex';
+            levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
+            levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
+        setTimeout(function() {
+            levelSplash.style.display = 'none';
+        }, 3500);
+    }
 }
 
 
+var rescueText = ['Random rescue text 1','Random rescue text 2','Random rescue text 3','Random rescue text 4',];
+
+
+// Display story and dialogue text on screen
+var multipart = 0;
+function textBubble(msg,delay) {
+    if (delay === undefined) {
+        delay = 2000;
+    }
+    if (multipart === 'done') {
+        multipart = 0;
+    }
+    hero.pause = true;
+    hero.canMove = false;
+    tutorialData.proceed = false;
+    setTimeout(function() {
+        var overlay = document.getElementById('level-splash');
+            overlay.innerHTML = '';
+            overlay.style.opacity = '0';
+            overlay.style.display = 'flex';
+        var bubble = document.createElement('div');
+            bubble.style.backgroundColor = 'rgba(0,0,0,0.8)';
+
+        // If a multi part message is received
+        if (Array.isArray(msg) && multipart < msg.length) {
+            if (msg[0] === 'theend') {
+                bubble.innerHTML = '<h5>- The End -</h5>';
+            }
+            else {
+                bubble.innerHTML = msg[multipart];
+            }
+            multipart++;
+        }
+        else {
+            // If rescuing a knight
+            if (msg === 'rescue') {
+                var knight1 = document.createElement('p');
+                    knight1.style.color = hero.knights[0].color;
+                    knight1.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    bubble.appendChild(knight1);
+                var knight2 = document.createElement('p');
+                    knight2.style.color = hero.knights[1].color;
+                    knight2.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    bubble.appendChild(knight2);
+                var knight3 = document.createElement('p');
+                    knight3.style.color = hero.knights[2].color;
+                    knight3.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    bubble.appendChild(knight3);
+            }
+            else {
+                bubble.innerHTML = msg;
+            }
+        }
+
+        // Close message after clicking on it
+        setTimeout(function() {
+            bubble.addEventListener('click', function() {
+                overlay.style.animation = 'fade-in 1s 1 forwards';
+                setTimeout(function() {
+                    tutorialData.proceed = true;
+                    hero.canMove = true;
+                    hero.pause = false;
+                    overlay.style.display = 'none';
+                    if (Array.isArray(msg) && multipart < msg.length) {
+                        textBubble(msg,delay);
+                    }
+                    else if (multipart >= msg.length) {
+                        multipart = 'done';
+                    }
+                }, 1000);
+            });
+        }, 1000);
+
+        overlay.appendChild(bubble);
+        overlay.style.animation = 'fade-out 1s 1 forwards';
+    }, delay);
+}
+
+
+// Run the tutorial level for new players
+function startTutorial() {
+
+    var message = 'Welcome to Number Knight!<br />Tap here to get started.';
+    textBubble(message);
+    hero.evasion = 100;
+    hero.canCapture = false;
+
+    // TUTORIAL SECTION - Show movement buttons
+    var showButtons = setInterval(function() {
+        if (tutorialData.proceed) {
+            clearInterval(showButtons);
+            var moveButtons = [];
+                moveButtons.push(moveUp,moveRight,moveDown,moveLeft);
+            var i = 0;
+            var interval = setInterval(function() {
+                if (i >= moveButtons.length) {
+                    clearInterval(interval);
+                }
+                else {
+                    moveButtons[i].style.animation = 'fade-out 0.5s 1 forwards';
+                    i++;
+                }
+            }, 250);
+            var message = 'Tap the arrows to move around, or use the arrow keys if you have a keyboard.';
+            textBubble(message,2000);
+            teachMovement();
+        }
+    }, 250);
+
+    // TUTORIAL SECTION - Teach basic movement to player
+    function teachMovement() {
+        hero.squaresMoved = 0;
+        var moveOnce = setInterval(function() {
+            if (hero.squaresMoved >= 2) {
+                clearInterval(moveOnce);
+                var message = 'Great. Now move to the highlighted square.';
+                tutorialData.highlightedSquare = map[0][numberOfColumns - 1].location,
+                textBubble(message,0);
+                setTimeout(function() {
+                    var square = document.getElementById(tutorialData.highlightedSquare);
+                        square.style.border = '2px solid rgba(0,0,0,0)';
+                        square.style.borderRadius = '6px'
+                        square.style.transition = 'border-color 1s';
+                        square.style.borderColor = 'rgba(255,215,0,1)';
+                }, 1000);
+            }
+        }, 250);
+        var moveToSquare = setInterval(function() {
+            if (hero.location === map[0][numberOfColumns - 1].location) {
+                clearInterval(moveToSquare);
+                var message = 'See those 2 traps? Go step on one and see what happens.';
+                textBubble(message,0);
+                setTimeout(function() {
+                    var square = document.getElementById(tutorialData.highlightedSquare);
+                        square.style.borderColor = 'rgba(47,45,37,0.5)';
+                    var moveButtons = [];
+                        moveButtons.push(moveUp,moveRight,moveDown,moveLeft);
+                    for (var i = 0; i < moveButtons.length; i++) {
+                        moveButtons[i].style.animation = 'fade-in 0.5s 1 forwards';
+                    }
+                    setTimeout(function() {
+                        for (var i = 0; i < moveButtons.length; i++) {
+                            moveButtons[i].style.opacity = 0;
+                        }
+                        teachTraps();
+                    }, 500);
+                }, 500);
+            }
+        }, 250);
+    }
+
+    // TUTORIAL SECTION - Teach player about damage from traps
+    function teachTraps() {
+        hero.squaresMoved = 0;
+        hero.evasion = 0;
+        document.getElementById('healthbar').style.opacity = 1;
+        for (var i = 0; i < 2; i++) {
+            document.getElementById(trapArray[i].location).style.border = '2px solid rgba(0,0,0,0)';
+            document.getElementById(trapArray[i].location).style.borderRadius = '6px'
+            document.getElementById(trapArray[i].location).style.transition = 'border-color 1s';
+            document.getElementById(trapArray[i].location).style.borderColor = 'rgba(226,39,39,1)';
+        }
+        var interval = setInterval(function() {
+            if (hero.squaresMoved >= 2) {
+                clearInterval(interval);
+                for (var i = 0; i < 2; i++) {
+                    document.getElementById(trapArray[i].location).style.borderColor = 'rgba(47,45,37,0.5)';
+                }
+            }
+        }, 250);
+        var takeDamage = setInterval(function() {
+            if (hero.health < 100) {
+                clearInterval(takeDamage);
+                var message = 'Ouch! Break open one of these containers and find something to heal yourself with.';
+                textBubble(message,500);
+                hero.evasion = 100;
+                teachLooting();
+            }
+        }, 250);
+    }
+
+
+    // TUTORIAL SECTION - Teach player how to break objects and find loot
+    function teachLooting() {
+        var object1 = document.getElementById(map[0][0].location);
+        var object2 = document.getElementById(map[numberOfRows - 1][numberOfColumns - 1].location);
+        var objects = [];
+            objects.push(object1,object2);
+        for (var i = 0; i < 2; i++) {
+            objects[i].style.border = '2px solid rgba(0,0,0,0)';
+            objects[i].style.borderRadius = '6px'
+            objects[i].style.transition = 'border-color 1s';
+            objects[i].style.borderColor = 'rgba(255,215,0,1)';
+        }
+        hero.squaresMoved = 0;
+        var interval = setInterval(function() {
+            if (hero.squaresMoved > 0) {
+                var objects = document.querySelectorAll('.cell');
+                for (var i = 0; i < objects.length; i++) {
+                    objects[i].style.borderColor = 'rgba(47,45,37,0.5)';
+                }
+            }
+            if (hero.health === 100) {
+                clearInterval(interval);
+                teachMath();
+            }
+        }, 250);
+    }
+
+
+    // TUTORIAL SECTION - Teach the player how to match
+    function teachMath() {
+        var message = 'What would a dungeon be without math?';
+        textBubble(message,1000);
+        var mathTutorial = document.querySelectorAll('.cell p');
+        var i = 0;
+        var interval = setInterval(function() {
+            if (i >= mathTutorial.length) {
+                clearInterval(interval);
+                document.querySelector('#top-bar .btn-options').style.pointerEvents = 'auto';
+                document.getElementById('top-bar').style.opacity = 1;
+                continueMath();
+            }
+            else if (tutorialData.proceed) {
+                mathTutorial[i].style.opacity = 1;
+                i++;
+            }
+        }, 100);
+        function continueMath() {
+            var message = 'Stand on top of the nearest Multiple of 10, and capture the tile by tapping on your player, or by pressing the spacebar.';
+            textBubble(message,500);
+            hero.canCapture = true;
+            var interval = setInterval(function() {
+                if (hero.answers > 0) {
+                    var message = 'Great! Now capture a few more.';
+                    textBubble(message,0);
+                    clearInterval(interval);
+                }
+            }, 250);
+            var moreMath = setInterval(function() {
+                if (hero.answers > 2 && tutorialData.proceed) {
+                    teachCombat();
+                    clearInterval(moreMath);
+                }
+            }, 250);
+        }
+    }
+
+
+    // TUTORIAL SECTION - Teach the player how to deal with enemies
+    function teachCombat() {
+        hero.canCapture = false;
+        hero.enemiesSlain = 0;
+        var message = "It wouldn't be a proper dungeon without monsters now would it?";
+        textBubble(message,0);
+        var interval = setInterval(function() {
+            if (tutorialData.proceed) {
+                letTheGamesBegin();
+                document.getElementById('xpbar').style.opacity = 1;
+                clearInterval(interval);
+                var message = 'Stand next to an enemy and tap on it to attack. Watch out for the pools of acid!';
+                textBubble(message,2500);
+            }
+        }, 250);
+        var slayMonster = setInterval(function() {
+            if (hero.enemiesSlain > 0) {
+                hero.canCapture = true;
+                var message = "To proceed deeper into the dungeon capture any remaining tiles.";
+                textBubble(message,0);
+                clearInterval(slayMonster);
+                finishUp();
+            }
+        }, 250);
+    }
+
+    // TUTORIAL SECTION - Finish up the tutorial and lay out the story
+    function finishUp() {
+        var interval = setInterval(function() {
+            if (hero.answers >= hero.answersNeeded) {
+                var message = ['Your training is complete, but your journey is just beginning...',
+                    'You are the only remaining Number Knight. The other Knights have all been captured by the foul beasts within these dungeons.',
+                    'It is up to you and you alone to rescue them and return peace and safety to this world once again.<br />Good luck!'];
+                textBubble(message,500);
+                clearInterval(interval);
+            }
+        }, 250);
+        var final = setInterval(function() {
+            if (multipart === 'done') {
+                setTimeout(function() {
+                    clearInterval(final);
+                    options.tutorial = false;
+                    options.newgame = false;
+                    openExitCover();
+                    restoreHealth(100);
+                    hero.evasion = 10;
+                }, 1000);
+            }
+        }, 250);
+    }
+}
+
+
+// Settings for tutorial
+var tutorialData = {
+    proceed: false,
+    tilesetOutside: 9,
+    tilesetInside: 6,
+    exitLocation: [numberOfRows - 1, 2],
+    numDebris: 2,
+    numColumns: 2,
+    numTraps: 2,
+    objectTheme: themes[1],
+    wallTileset: 5,
+    wallLocation: [[1,1],[1,numberOfColumns - 2]],
+    trapLocation: [[numberOfRows - 2,1],[numberOfRows - 2,numberOfColumns - 2]],
+    heroTop: cellSize * 3,
+    heroLeft: cellSize * 2,
+    heroRow: 4,
+    heroCol: 3,
+    heroLocation: 'r4c3',
+    gameMode: 'multiples',
+    target: 10,
+};
+
+
 // Build an array of objects for the grid. This will store the column, row, its contents, etc.
-function buildMap() {
+function buildMap(callback) {
+    console.log('buildMap');
+    // Set Challenge Level
+    if (hero.gameLevel % 4 === 0) {
+        hero.challengeMode = true;
+    }
+    // Set Boss Level
+    if (hero.gameLevel % 6 === 0) {
+        hero.bossLevel = true;
+    }
     levelContainer.innerHTML = '';
     levelContainer.appendChild(heroContainer);
     map = [];
@@ -644,6 +986,10 @@ function buildMap() {
     // Pick a random tileset
     tilesetNumber = randomNumber(1,tilesets);
     tilesetInside = randomNumber(1,tilesets);
+    if (options.tutorial && options.newgame || options.endgame) {
+        tilesetNumber = tutorialData.tilesetOutside;
+        tilesetInside = tutorialData.tilesetInside;
+    }
     // Cycle through each row
     for (var r = 1; r <= numberOfRows; r++) {
         var newRow = [];
@@ -660,9 +1006,109 @@ function buildMap() {
     }
     // Place exit in random cell
     var cell = randomCell();
+    if (options.tutorial && options.newgame) {
+        cell = tutorialData.exitLocation;
+    }
     map[cell[0]][cell[1]].tile = 'exit';
     map[cell[0]][cell[1]].contents = 'exit';
     exit = map[cell[0]][cell[1]];
+
+    callback();
+}
+
+
+// Place the hero on the map in a set position
+function addHero() {
+    console.log('addHero');
+    if (hero.health) {
+
+    }
+    // If new game build new hero
+    else {
+        // Add new player data
+        hero = new Cell('r1c1',1,1,'hero');
+        hero.armorRating = 1;
+        hero.ascending = [];
+        hero.attackRating = 1;
+        hero.attacksEvaded = 0;
+        hero.baseDamage = heroBaseDamage;
+        hero.bosses = ['Spider Queen','Vampire Lord','Red Knight'];
+        hero.bossHasSpawned = false;
+        hero.bossIsDead = false;
+        hero.bossLevel = false;
+        hero.canCapture = true;
+        hero.canMove = true;
+        hero.challengeMode = false;
+        hero.cooldownTimer = 200;
+        hero.dexterity = 1;
+        hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
+        hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
+        hero.endurance = 1;
+        hero.equalsRight = 0;
+        hero.equalsWrong = 0;
+        hero.enemiesSlain = 0;
+        hero.evasion = 10;
+        hero.factorsRight = 0;
+        hero.factorsWrong = 0;
+        hero.gameLevel = 1;
+        hero.health = 100;
+        hero.hero = true;
+        hero.id = 'hero-container';
+        hero.knights = [{ number: 0, color: '#888888' }, { number: 2, color: '#cc3234' }, { number: 3, color: '#1cba4c' }, { number: 4, color: '#7c629c' }, { number: 5, color: '#fc8a04' },
+                        { number: 6, color: '#cccacc' }, { number: 7, color: '#ffffff' }, { number: 8, color: '#f4fe04' },{ number: 9, color: '#a47644' }];
+        hero.left = 0;
+        hero.level = 1;
+        hero.location = 'r' + hero.row + 'c' + hero.col;
+        hero.multiplesRight = 0;
+        hero.multiplesWrong = 0;
+        hero.name = document.getElementById('name-input').value;
+        hero.pause = false;
+        hero.primesRight = 0;
+        hero.primesWrong = 0;
+        hero.squaresMoved = 0;
+        hero.strength = 1;
+        hero.timesFrozen = 0;
+        hero.timesPoisoned = 0;
+        hero.timesWebbed = 0;
+        hero.top = 0;
+        hero.trapsEvaded = 0;
+        hero.xp = 0;
+    }
+
+    if (options.tutorial && options.newgame) {
+        hero.top = tutorialData.heroTop;
+        hero.left = tutorialData.heroLeft;
+        hero.row = tutorialData.heroRow;
+        hero.col = tutorialData.heroCol;
+        hero.location = tutorialData.heroLocation;
+    }
+
+    // The hero is contained in a 3x3 grid with movement buttons attached
+    // Size the container to fit evenly
+    heroContainer.style.width = cellSize * 3 + 'px';
+    heroContainer.style.height = cellSize * 3 + 'px';
+    heroContainer.style.top = '-' + cellSize + 'px';
+    heroContainer.style.left = '-' + cellSize + 'px';
+    heroContainer.style.zIndex = 15;
+    // Size each cell to match the map cell size
+    var heroGrid = document.querySelectorAll('#hero-container div');
+    for (var i = 0; i < heroGrid.length; i++) {
+        heroGrid[i].style.width = cellSize + 'px';
+        heroGrid[i].style.height = cellSize + 'px';
+    }
+
+    var name = document.getElementById('player-name');
+        name.innerHTML = 'Ser ' + hero.name;
+    var level = document.getElementById('level');
+        level.innerHTML = 'Floor ' + hero.gameLevel;
+    healthBar.style.width = hero.health + '%';
+    healthBar.style.transition = '0s';
+    xpBar.style.width = hero.xp + '%';
+    xpBar.style.transition = '0s';
+    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
+    hero.canMove = true;
+
+    getObjectLocations();
 }
 
 
@@ -678,60 +1124,39 @@ function Cell(location,row,col,tile) {
 }
 
 
-// Call individual object functions
-function randomizeObjects() {
-    randomizeDebris(5);
-    randomizeColumns(randomNumber(1,3));
-    randomizeTraps(numberOfTraps[hero.difficultyMonster - 1]);
-}
+// Build array of safe locations to spawn traps, columns, and debris
+function getObjectLocations() {
+    console.log('getObjectLocations');
+    debrisToBuild = randomNumber(3,5);
+    columnsToBuild = randomNumber(1,3);
+    trapsToBuild = [randomNumber(1,2),randomNumber(3,4),randomNumber(4,6)];
 
-
-// Randomize breakable debris
-function randomizeDebris(number) {
-    var objectTheme = themes[randomNumber(0,themes.length - 1)];
-    for (var i = 0; i < number; i++) {
-        var cell = randomCell();
-        var object = map[cell[0]][cell[1]];
-        object.object = objectTheme[randomNumber(0,objectTheme.length - 1)];
-        object.tile = 'empty';
-        object.contents = 'blocked';
-        object.health = 30;
-        object.evasion = 0;
+    var total = trapsToBuild[hero.difficultyMonster - 1] + debrisToBuild + columnsToBuild;
+    if (options.endgame) {
+        total = 20;
     }
-}
+    var fullArray = [];
+    locationArray = [];
 
-
-// Randomize columns
-function randomizeColumns(number) {
-    columnArray = [];
-    wallTileset = randomNumber(1,walls);
-    for (var i = 0; i < number; i++) {
-        var cell = randomCell();
-        var object = map[cell[0]][cell[1]];
-        columnArray.push(object.location);
-        object.object = 'wall';
-        object.tile = 'empty';
-        object.contents = 'blocked';
-        object.health = 150;
-        object.evasion = 0;
-    }
-}
-
-
-// Percentage chance to spawn a trap
-function randomizeTraps(number) {
-    trapArray = [];
-    if (randomNumber(1,100) <= chanceToSpawnTrap) {
-        for (var i = 0; i < number; i++) {
-            var cell = randomCell();
-            var mapTile = map[cell[0]][cell[1]];
-                mapTile.tile = 'empty';
-                mapTile.object = traps[randomNumber(0,traps.length - 1)];
-                mapTile.contents = 'trap';
-                mapTile.trapDamage = damageFromTraps;
-                trapArray.push(mapTile);
+    // Generate list of safe locations to spawn traps, columns, and objects
+    for (var r = 0; r < numberOfRows; r++) {
+        for (var c = 0; c < numberOfColumns; c++) {
+            var cell = map[r][c];
+            if (cell.location !== hero.location && cell.contents !== 'exit' && cell.contents !== 'blocked') {
+                var temp = [cell.row - 1,cell.col - 1];
+                fullArray.push(temp);
+            }
         }
     }
+    // Randomly grab one and remove it from the array to prevent duplicates
+    for (var i = 0; i < total * 2; i++) {
+        var index = randomNumber(0,fullArray.length - 1);
+        var cell = fullArray[index];
+            locationArray.push(cell);
+            fullArray.splice(index,1);
+    }
+
+    randomizeDebris();
 }
 
 
@@ -739,14 +1164,140 @@ function randomizeTraps(number) {
 function randomCell() {
     var randomRow = randomNumber(0,(numberOfRows - 1));
     var randomCol = randomNumber(0,(numberOfColumns - 1));
-    if (map[randomRow][randomCol].location === hero.location ||
-        map[randomRow][randomCol].contents === 'exit') {
+    var cell = map[randomRow][randomCol];
+    if (cell.location === hero.location || cell.contents === 'exit' || cell.contents === 'blocked') {
         randomCell();
     }
     else {
         return [randomRow, randomCol];
     }
 }
+
+
+// Randomize breakable debris
+function randomizeDebris() {
+    console.log('randomizeDebris');
+    var objectTheme = themes[randomNumber(0,themes.length - 1)];
+    if (options.tutorial && options.newgame) {
+        var number = tutorialData.numDebris;
+        objectTheme = tutorialData.objectTheme;
+        var template = [[0,0],[numberOfRows - 1,numberOfColumns - 1]];
+    }
+    else if (options.endgame) {
+        var number = 10;
+    }
+    else {
+        var number = debrisToBuild;
+    }
+    for (var i = 0; i < number; i++) {
+        var cell = locationArray[0];
+        var object = map[cell[0]][cell[1]];
+        if (options.tutorial && options.newgame) {
+            object = map[template[i][0]][template[i][1]];
+        }
+        if (options.endgame) {
+            object.object = 'knight-' + i;
+        }
+        else {
+            object.object = objectTheme[randomNumber(0,objectTheme.length - 1)];
+        }
+        object.tile = 'empty';
+        object.contents = 'blocked';
+        object.health = 30;
+        object.evasion = 0;
+        locationArray.shift();
+    }
+
+    randomizeColumns();
+}
+
+
+// Randomize columns
+function randomizeColumns() {
+    console.log('randomizeColumns');
+    columnArray = [];
+    wallTileset = randomNumber(1,walls);
+    if (options.endgame || options.tutorial && options.newgame) {
+        var number = tutorialData.numColumns;
+        wallTileset = tutorialData.wallTileset;
+        var template = tutorialData.wallLocation;
+    }
+    else if (hero.bossLevel !== false) {
+        wallTileset = '0';
+        var number = 3;
+    }
+    else {
+        var number = columnsToBuild;
+    }
+
+    for (var i = 0; i < number; i++) {
+        var cell = locationArray[0];
+        var object = map[cell[0]][cell[1]];
+        if (options.endgame || options.tutorial && options.newgame) {
+            object = map[template[i][0]][template[i][1]];
+        }
+        columnArray.push({ location: object.location, row: object.row, col: object.col });
+        object.object = 'wall';
+        object.cage = false;
+        object.tile = 'empty';
+        object.contents = 'blocked';
+        if (hero.bossLevel === false) {
+            object.health = 150;
+            object.evasion = 0;
+        }
+        locationArray.shift();
+    }
+
+    randomizeTraps();
+}
+
+
+// Percentage chance to spawn a trap
+function randomizeTraps() {
+    console.log('randomizeTraps');
+    trapArray = [];
+    if (options.tutorial && options.newgame) {
+        var totalTraps = tutorialData.numTraps;
+        var template = tutorialData.trapLocation;
+    }
+    else if (options.endgame) {
+        var totalTraps = 0;
+    }
+    else {
+        var totalTraps = trapsToBuild[hero.difficultyMonster - 1];
+    }
+
+    var safety = 0;
+    for (var i = 0; i < totalTraps; i++) {
+        var cell = locationArray[0];
+        if (safety > 25) {
+            console.log('/// STOP randomizeTraps ///');
+            break;
+        }
+        if (cell === undefined) {
+            i--;
+            safety++
+        }
+        else {
+            var mapTile = map[cell[0]][cell[1]];
+            if (options.tutorial && options.newgame) {
+                mapTile = map[template[i][0]][template[i][1]];
+            }
+            mapTile.tile = 'empty';
+            mapTile.object = traps[randomNumber(0,traps.length - 1)];
+            if (options.tutorial && options.newgame) {
+                mapTile.object = traps[i];
+            }
+            mapTile.contents = 'trap';
+            mapTile.trapDamage = damageFromTraps;
+            trapArray.push(mapTile);
+            locationArray.shift();
+        }
+    }
+
+    buildGrid();
+}
+
 
 //////////////////////
 function cheat() {
@@ -757,10 +1308,16 @@ function cheat() {
 
 // Build grid one row at a time
 function buildGrid() {
+    console.log('buildGrid');
     // Select a random level template style
     levelTemplates = ['single','dual','corners','tri-corners'];
     template = levelTemplates[randomNumber(0,levelTemplates.length - 1)];
     wallTorches = randomNumber(0,1);
+    if (options.tutorial && options.newgame || options.endgame) {
+        template = 'corners';
+        wallTorches = 1;
+    }
+    captive = 0;
     exitTileset = '';
 
     for (var i = 0; i < numberOfRows; i++) {
@@ -779,8 +1336,14 @@ function buildGrid() {
         levelExit.appendChild(cover);
     columnPositions = [];
     for (var i = 0; i < columnArray.length; i++) {
-        var cell = document.getElementById(columnArray[i]).getBoundingClientRect();
+        var cell = document.getElementById(columnArray[i].location).getBoundingClientRect();
         columnPositions.push(cell);
+    }
+    if (options.endgame) {
+        theEnd();
+    }
+    else {
+        addMath();
     }
 }
 
@@ -802,11 +1365,22 @@ function buildRow(row) {
                 var object = document.createElement('img');
                     object.src = 'img/objects/' + map[row][i].object + '.gif';
                 if (map[row][i].object === 'wall') {
-                    if (wallTorches === 1) {
+                    if (hero.bossLevel) {
+                        wallTorches = 0;
+                        var prisoner = document.createElement('img');
+                            prisoner.src = 'img/objects/knight-' + hero.knights[captive].number + '.gif';
+                            prisoner.classList.add('prisoner');
+                            cell.appendChild(prisoner);
+                            captive++;
+                    }
+                    else if (wallTorches === 1) {
                         cell.classList.add('torch');
                     }
                     object.src = 'img/objects/wall-' + wallTileset + '.gif';
                     object.className = 'wall';
+                }
+                else if (map[row][i].object.includes('knight')) {
+                    object.className = 'knight';
                 }
                 cell.appendChild(object);
             }
@@ -888,89 +1462,27 @@ function applyTileset(e) {
 }
 
 
-// Place the hero on the map in a set position
-function addHero() {
-    if (hero.health) {
-
-    }
-    // If new game build new hero
-    else {
-        // Add new player data
-        hero = new Cell('r1c1',1,1,'hero');
-        hero.id = 'hero-container';
-        hero.top = 0;
-        hero.left = 0;
-        hero.location = 'r' + hero.row + 'c' + hero.col;
-        hero.canMove = true;
-        hero.health = 100;
-        hero.xp = 0;
-        hero.level = 1;
-        hero.strength = 1;
-        hero.dexterity = 1;
-        hero.endurance = 1;
-        hero.armorRating = 1;
-        hero.attackRating = 1;
-        hero.baseDamage = heroBaseDamage;
-        hero.evasion = 10;
-        hero.gameLevel = 1;
-        hero.pause = false;
-        hero.multiplesRight = 0;
-        hero.multiplesWrong = 0;
-        hero.factorsRight = 0;
-        hero.factorsWrong = 0;
-        hero.primesRight = 0;
-        hero.primesWrong = 0;
-        hero.equalsRight = 0;
-        hero.equalsWrong = 0;
-        hero.ascending = [];
-        hero.enemiesSlain = 0;
-        hero.squaresMoved = 0;
-        hero.trapsEvaded = 0;
-        hero.attacksEvaded = 0;
-        hero.timesFrozen = 0;
-        hero.timesWebbed = 0;
-        hero.hero = true;
-        hero.name = document.getElementById('name-input').value;
-        hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
-        hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
-    }
-
-    // The hero is contained in a 3x3 grid with movement buttons attached
-    // Size the container to fit evenly
-    heroContainer.style.width = cellSize * 3 + 'px';
-    heroContainer.style.height = cellSize * 3 + 'px';
-    heroContainer.style.top = '-' + cellSize + 'px';
-    heroContainer.style.left = '-' + cellSize + 'px';
-    // Size each cell to match the map cell size
-    var heroGrid = document.querySelectorAll('#hero-container div');
-    for (var i = 0; i < heroGrid.length; i++) {
-        heroGrid[i].style.width = cellSize + 'px';
-        heroGrid[i].style.height = cellSize + 'px';
-    }
-
-    var name = document.getElementById('player-name');
-        name.innerHTML = 'Ser ' + hero.name;
-    var level = document.getElementById('level');
-        level.innerHTML = 'Floor ' + hero.gameLevel;
-    healthBar.style.width = hero.health + '%';
-    healthBar.style.transition = '0s';
-    xpBar.style.width = hero.xp + '%';
-    xpBar.style.transition = '0s';
-    heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
-    hero.canMove = true;
-}
-
-
 // Reset variables and route to the selected game mode
 function addMath() {
-    hero.challengeMode = false;
-    if (hero.gameLevel % 4 === 0) {
+    console.log('addMath');
+    if (hero.bossLevel) {
+        var mode = gameMode[randomNumber(0,gameMode.length - 1)];
+        hero.bossLevel = hero.bosses[randomNumber(0,hero.bosses.length - 1)];
+    }
+    if (hero.challengeMode) {
         var mode = challengeMode[randomNumber(0,challengeMode.length - 1)];
-        hero.challengeMode = true;
+    }
+    else if (options.tutorial && options.newgame) {
+        var mode = tutorialData.gameMode;
+        document.querySelector('#top-bar .btn-options').style.pointerEvents = 'none';
+        document.getElementById('top-bar').style.opacity = 0;
+        document.getElementById('healthbar').style.opacity = 0;
+        document.getElementById('xpbar').style.opacity = 0;
     }
     else {
         var mode = gameMode[randomNumber(0,gameMode.length - 1)];
     }
+
     hero.gameMode = mode;
     hero.answers = 0;
     hero.answersNeeded = 0;
@@ -981,7 +1493,7 @@ function addMath() {
     for (var r = 0; r < numberOfRows; r++) {
         for (var c = 0; c < numberOfColumns; c++) {
             if (map[r][c].contents === 'empty') {
-                total++
+                total++;
             }
         }
     }
@@ -994,26 +1506,27 @@ function addMath() {
 
     // Traditional Game Modes
     if (mode === 'multiples') {
-        multiples(total,correctNeeded,incorrectNeeded);
+        multiples(total,correctNeeded,incorrectNeeded,displayMath);
     }
     else if (mode === 'factors') {
-        factors(total,correctNeeded,incorrectNeeded);
+        factors(total,correctNeeded,incorrectNeeded,displayMath);
     }
     else if (mode === 'primes') {
-        primes(total,correctNeeded,incorrectNeeded);
+        primes(total,correctNeeded,incorrectNeeded,displayMath);
     }
     else if (mode === 'equality') {
-        equality(total,correctNeeded,incorrectNeeded);
+        equality(total,correctNeeded,incorrectNeeded,displayMath);
     }
     // Challenge Modes
     else if (mode === 'ascending' || mode === 'descending') {
-        ascendingDescending(total);
+        ascendingDescending(total,displayMath);
     }
 }
 
 
 // Generate list of correct and incorrect multiples
-function multiples(total,correct,incorrect) {
+function multiples(total,correct,incorrect,callback) {
+    console.log('Multiples');
     var difficulty = [
         {
             // EASY
@@ -1035,6 +1548,9 @@ function multiples(total,correct,incorrect) {
         }
     ];
     target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
+    if (options.tutorial && options.newgame) {
+        target = tutorialData.target;
+    }
     var correctArray = [];
     var incorrectArray = [];
     // Route random numbers to one of two arrays
@@ -1056,12 +1572,13 @@ function multiples(total,correct,incorrect) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
-    displayMath(finalArray);
+    callback(finalArray,fadeIn);
 }
 
 
 // Generate list of correct and incorrect factors
-function factors(total,correct,incorrect) {
+function factors(total,correct,incorrect,callback) {
+    console.log('factors');
     var difficulty = [
         {
             // EASY
@@ -1105,12 +1622,13 @@ function factors(total,correct,incorrect) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
-    displayMath(finalArray);
+    callback(finalArray,fadeIn);
 }
 
 
 // Generate list of prime numbers
-function primes(total,correct,incorrect) {
+function primes(total,correct,incorrect,callback) {
+    console.log('primes');
         var difficulty = [
         {
             // EASY
@@ -1149,12 +1667,13 @@ function primes(total,correct,incorrect) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
-    displayMath(finalArray);
+    callback(finalArray,fadeIn);
 }
 
 
 // Generate an array of prime numbers up to the number given
 function generatePrimeNumbers(max) {
+    console.log('generatePrimeNumbers');
     var numbers = [];
     primes = [];
     nonPrimes = [];
@@ -1175,13 +1694,13 @@ function generatePrimeNumbers(max) {
 
 
 // Generate list of correct and incorrect equality formulas
-function equality(total,correct,incorrect) {
+function equality(total,correct,incorrect,callback) {
+    console.log('equality');
         var difficulty = [
         {
             // EASY
             min: 1,
             max: 20,
-
         },
         {
             // MEDIUM
@@ -1310,11 +1829,11 @@ function equality(total,correct,incorrect) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Equals ' + target;
     // Send to the display function
-    displayMath(finalArray);
+    callback(finalArray,fadeIn);
 }
 
 // Generate list of ascending or descending random values
-function ascendingDescending(total) {
+function ascendingDescending(total,callback) {
     var difficulty = [
         {
             // EASY
@@ -1359,33 +1878,36 @@ function ascendingDescending(total) {
     hero.answersNeeded = total;
     document.getElementById('game-mode').innerHTML = modeText;
     // Send to the display function
-    displayMath(finalArray);
+    callback(finalArray,fadeIn);
 }
 
 
 // Take the combined array of answers, shuffle it, then return it
 function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
+    console.log('shuffle');
+    var currentIndex = array.length, temporaryValue, randomIndex;
 
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
 
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
 
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
 
   return array;
 }
 
 // Place all of the math formulas into the grid
-function displayMath(finalArray) {
+function displayMath(finalArray,callback) {
+    console.log('displayMath');
     var i = 0;
+    var safety = 0;
     for (var r = 0; r < numberOfRows; r++) {
         for (var c = 0; c < numberOfColumns; c++) {
             if (map[r][c].contents === 'empty' || map[r][c].contents === 'exit') {
@@ -1393,11 +1915,42 @@ function displayMath(finalArray) {
                 map[r][c].answer = finalArray[i].answer;
                 var cell = document.getElementById(map[r][c].location);
                 var equation = document.createElement('p');
-                    equation.innerHTML = finalArray[i].number;
-                cell.appendChild(equation);
-                i++;
+                if (options.tutorial && options.newgame) {
+                    equation.style.opacity = '0';
+                }
+                equation.innerHTML = finalArray[i].number;
+                if (cell !== null) {
+                    cell.appendChild(equation);
+                    i++;
+                }
+                else if (safety > 100) {
+                    console.log('STOP!! displayMath');
+                    break;
+                }
+                else {
+                    safety++;
+                }
             }
         }
+    }
+    callback();
+    handleTraps();
+    if (options.tutorial) {
+        startTutorial();
+    }
+}
+
+
+// Slide open exit cover
+function openExitCover() {
+    if (hero.answers >= hero.answersNeeded && options.tutorial === false) {
+        var exitAnswer = document.querySelector('#' + levelExit.id + ' p');
+        if (exitAnswer !== null) {
+            exitAnswer.style.opacity = '0';
+        }
+        var exitCover = document.querySelector('#' + levelExit.id + ' img');
+            exitCover.style.transition = '2.25s ease-in-out';
+            exitCover.style.transform = 'translateY(-100%)';
     }
 }
 
@@ -1408,12 +1961,13 @@ function checkMath() {
     // Get the hero location so you can check the appropriate map data
     var munchLocation = map[hero.row - 1][hero.col - 1];
     // Prevent from capturing a tile more than once
-    if (munchLocation.answer === 'captured') {
-
+    if (munchLocation.answer === 'captured' || hero.canCapture === false) {
+        return;
     }
     // Ascending or Descending Order
     else if (munchLocation.number === hero.ascending[0]) {
         correct = true;
+        munchLocation.answer = 'captured';
         hero.ascending.shift();
     }
     else if (munchLocation.answer && hero.challengeMode === false) {
@@ -1426,20 +1980,18 @@ function checkMath() {
         var square = document.querySelector('#' + munchLocation.location + ' p');
         setTimeout(function() {
             if (square === null) {
-                console.log('null square');
             }
             else {
                 square.remove();
             }
         }, 250);
         if (hero.answers === hero.answersNeeded) {
-            var exitAnswer = document.querySelector('#' + levelExit.id + ' p');
-            if (exitAnswer !== null) {
-                exitAnswer.style.opacity = '0';
+            if (hero.bossLevel && hero.bossIsDead) {
+                openExitCover();
             }
-            var exitCover = document.querySelector('#' + levelExit.id + ' img');
-                exitCover.style.transition = '2.25s ease-in-out';
-                exitCover.style.transform = 'translateY(-100%)';
+            else if (hero.bossLevel === false) {
+                openExitCover();
+            }
         }
 
         if (hero.gameMode === 'multiples') {
@@ -1454,9 +2006,6 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsRight++;
         }
-    }
-    else if (munchLocation.contents === 'exit' && hero.answers === hero.answersNeeded ) {
-        startGame();
     }
     else if (!munchLocation.hasOwnProperty("answer")) {
 
@@ -1575,6 +2124,7 @@ function swipe() {
 // Check collision of movement, and move accordingly
 function moveHero(e) {
     if (hero.canMove) {
+        cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
         if (e.target.id === 'move-up' || e.keyCode == '38') {
             if (hero.row === 1) {
@@ -1662,7 +2212,6 @@ function moveHero(e) {
         }
         else if (e.target.id === 'move-right' || e.keyCode == '39') {
             if (hero.col === numberOfColumns) {
-
             }
             else {
                 var mapLocation = map[hero.row - 1][hero.col];
@@ -1689,13 +2238,28 @@ function moveHero(e) {
             }
         }
         hero.location = 'r' + hero.row + 'c' + hero.col;
-        if (hero.location == levelExit.id && hero.answers === hero.answersNeeded) {
-            hero.gameLevel++;
-            // Save game to local storage
-            localStorage.setItem('savedGame', JSON.stringify(hero));
-            localStorage.setItem('options', JSON.stringify(options));
-            awardXp('level');
-            startGame();
+        if (hero.location === levelExit.id && hero.answers >= hero.answersNeeded) {
+            if (hero.bossLevel && hero.bossIsDead || hero.bossLevel === false) {
+                hero.canMove = false;
+                hero.gameLevel++;
+                if (hero.bossLevel && hero.bossIsDead) {
+                    hero.knights.splice(0,3);
+                }
+                if (options.tutorial) {
+                    options.tutorial = false;
+                }
+                // Save game to local storage
+                localStorage.setItem('savedGame', JSON.stringify(hero));
+                localStorage.setItem('options', JSON.stringify(options));
+                if (hero.knights.length === 0) {
+                    options.endgame = true;
+                    startGame();
+                }
+                else {
+                    awardXp('level');
+                    startGame();
+                }
+            }
         }
     }
 }
@@ -1728,9 +2292,14 @@ function checkForAttack(direction,victim,attacker) {
                 var attackerTop = attacker.top;
                 var attackerLeft = attacker.left;
                 if (direction === 'up') {
+                    var original = attackerContainer.style.zIndex;
+                    attackerContainer.style.zIndex = 25;
                     attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
                     setTimeout(function() { 
                         attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                        setTimeout(function() {
+                            attackerContainer.style.zIndex = original;
+                        }, 200);
                     }, 200);
                 }
                 else if (direction === 'down') {
@@ -1756,6 +2325,23 @@ function checkForAttack(direction,victim,attacker) {
                 }
                 else {
                     victim.health -= attacker.baseDamage * attacker.attackRating;
+                    if (victim.boss) {
+                        if (victim.type === 'Red Knight') {
+                            var healthBar = document.getElementById('boss-health-redknight');
+                        }
+                        else if (victim.type === 'Blue Knight') {
+                            var healthBar = document.getElementById('boss-health-blueknight');
+                        }
+                        else if (victim.type === 'Yellow Knight') {
+                            var healthBar = document.getElementById('boss-health-yellowknight');
+                        }
+                        else {
+                            var healthBar = document.getElementById('boss-health');
+                        }
+
+                            healthBar.style.opacity = '1';
+                            healthBar.style.width = (victim.health / victim.startingHealth) * 100 + '%';
+                    }
                     if (victim.health <= 0) {
                         delete map[victim.row - 1][victim.col - 1].health;
                         map[victim.row - 1][victim.col - 1].enemy = false;
@@ -1770,6 +2356,7 @@ function checkForAttack(direction,victim,attacker) {
                         else {
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
+                                object.parentElement.classList.remove('torch');
                             // Roll for loot
                             rollLoot(victim);
                         }
@@ -1791,30 +2378,33 @@ function checkForAttack(direction,victim,attacker) {
 
 
 // Flash a status message for evasions
-function flashMessage(person,message) {
+function flashMessage(person,message,time) {
     var msg = document.querySelector('#' + person.id + ' .message');
         msg.innerHTML = message;
         msg.style.display = 'flex';
         msg.style.opacity = '0';
-        if (message === 'miss' || message === 'evaded!') {
-            var duration = 0.7;
+        if (time) {
+            var duration = time / 1000;
         }
         else {
-            var duration = 2;
+            var duration = 0.7;
         }
         msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
     setTimeout(function() {
         msg.style.display = 'none';
     }, duration * 1000);
-
 }
 
 
 // Randomize loot drop
 function rollLoot(victim) {
-    if (randomNumber(1,100) <= lootChance) {
+    if (options.tutorial || randomNumber(1,100) <= lootChance) {
         var lootType = loot[randomNumber(0,loot.length - 1)];
         var lootAmount = lootType.amount[randomNumber(0,lootType.amount.length - 1)];
+        if (options.tutorial && options.newgame) {
+            lootType = loot[0];
+            lootAmount = lootType.amount[2];
+        }
         var lootDrop = { type: lootType.type, amount: lootAmount }
         var location = map[victim.row - 1][victim.col - 1]
             location.contents = 'loot';
@@ -1868,7 +2458,10 @@ function dealDamage(amount,source) {
         }
         // If it was an enemy
         else if (source.enemy) {
-            if (source.type === 'Gelatinous Cube') {
+            if (source.type === 'Bat') {
+                var deathBy = deathText.bat[randomNumber(0,deathText.bat.length - 1)];
+            }
+            else if (source.type === 'Gelatinous Cube') {
                 var deathBy = deathText.gelCube[randomNumber(0,deathText.gelCube.length - 1)];
             }
             else if (source.type === 'Giant Spider') {
@@ -1882,6 +2475,15 @@ function dealDamage(amount,source) {
             }
             else if (source.type === 'Vampire') {
                 var deathBy = deathText.vampire[randomNumber(0,deathText.vampire.length - 1)];
+            }
+            else if (source.type === 'Spider Queen') {
+                var deathBy = deathText.spiderQueen[randomNumber(0,deathText.spiderQueen.length - 1)];
+            }
+            else if (source.type === 'Vampire Lord') {
+                var deathBy = deathText.vampireLord[randomNumber(0,deathText.vampireLord.length - 1)];
+            }
+            else if (source.type === 'Red Knight' || source.type === 'Blue Knight' ||source.type === 'Yellow Knight') {
+                var deathBy = deathText.threeKnights[randomNumber(0,deathText.threeKnights.length - 1)];
             }
         }
         youDied(deathBy);
@@ -1898,7 +2500,7 @@ function freezePerson(person,duration,type) {
     var timer = document.getElementById('hero-status');
         timer.style.width = '100%';
     if (type === 'ice') {
-        flashMessage(person,'frozen!');
+        flashMessage(person,'frozen!',duration);
         timer.style.backgroundColor = '#8aeaea';
     }
     else {
@@ -1922,16 +2524,16 @@ function checkForTraps() {
         flashMessage(hero,'evaded!');
     }
     else {
-        if (location.contents === 'trap' && location.tile === 'ice') {
+        if (location.trapType === 'ice') {
             hero.timesFrozen++;
-            var duration = 3000;
-            flashMessage(hero,'frozen!');
+            var duration = location.trapDuration;
+            flashMessage(hero,'frozen!',duration);
             freezePerson(hero,duration,'ice');
         }
         else if (location.trapType === 'web') {
             hero.timesWebbed++;
             var duration = 4000;
-            flashMessage(hero,'trapped!');
+            flashMessage(hero,'trapped!',duration);
             freezePerson(hero,duration,'web');
         }
         else if (location.contents === 'trap') {
@@ -1948,7 +2550,12 @@ function checkForLoot() {
     if (location.contents === 'loot') {
         var cell = document.querySelectorAll('#' + location.location + ' img');
         if (location.loot.type === 'health' && hero.health < 100) {
-            restoreHealth(location.loot.amount);
+            if (options.tutorial && options.newgame) {
+                restoreHealth(100);
+            }
+            else {
+                restoreHealth(location.loot.amount);
+            }
             location.contents = 'empty';
             for (var i = 0; i < cell.length; i++) {
                 cell[i].remove();
@@ -1972,6 +2579,7 @@ function awardXp(source) {
         setTimeout(function() {
             hero.xp += 15;
             xpBar.style.width = hero.xp + '%';
+            localStorage.setItem('savedGame', JSON.stringify(hero));
         }, 2500);
     }
     // Add xp for slaying a monster
@@ -1996,9 +2604,9 @@ function awardXp(source) {
 // Allocate 1 skill point for the player to use and change stat accordingly
 function levelUp() {
     hero.pause = true;
-    var str = [0,0,.25,.35,.5];
-    var dex = [0,0,5,7,9];
-    var end = [0,0,.1,.15,.2];
+    var str = [0,0,1.2,1.5,1.9,2.5];
+    var dex = [0,0,18,28,40,55];
+    var end = [0,0,0.95,0.85,0.72,0.5];
     var selection = '';
     var menu = document.getElementById('level-up-menu');
         menu.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
@@ -2014,31 +2622,36 @@ function levelUp() {
 
     var changeStr = document.getElementById('add-str');
     if (hero.strength === (str.length - 1)) {
-        changeStr.innerHTML = 'MAX LEVEL';
+        strLvl.innerHTML = 'MAX';
+        changeStr.innerHTML = Math.round(hero.baseDamage * hero.attackRating);
     }
     else {
-        changeStr.innerHTML = Math.round((hero.baseDamage * hero.attackRating)) + ' -> ' + Math.round((hero.baseDamage * (hero.attackRating + str[hero.strength + 1])));
+        changeStr.innerHTML = Math.round((hero.baseDamage * hero.attackRating)) + ' -> ' + Math.round((hero.baseDamage * str[hero.strength + 1]));
     }
     var changeDex = document.getElementById('add-dex');
     if (hero.dexterity === (dex.length - 1)) {
-        changeStr.innerHTML = 'MAX LEVEL';
+        dexLvl.innerHTML = 'MAX';
+        changeDex.innerHTML = hero.evasion + '%';
     }
     else {
-        changeDex.innerHTML = hero.evasion + '% -> ' + (hero.evasion + dex[hero.dexterity + 1]) + '%';
+        changeDex.innerHTML = hero.evasion + '% -> ' + dex[hero.dexterity + 1] + '%';
     }
     var changeEnd = document.getElementById('add-end');
     if (hero.endurance === (end.length - 1)) {
-        changeStr.innerHTML = 'MAX LEVEL';
+        endLvl.innerHTML = 'MAX';
+        changeEnd.innerHTML = (hero.armorRating * 100) + '%';
     }
     else {
-        changeEnd.innerHTML = (hero.armorRating * 100) + '% -> ' + ((hero.armorRating - end[hero.endurance + 1]) * 100) + '%';
+        changeEnd.innerHTML = (hero.armorRating * 100) + '% -> ' + (end[hero.endurance + 1] * 100) + '%';
     }
 
     for (var i = 0; i < choices.length; i++) {
         choices[i].addEventListener('click', function(e) {
             for (var i = 0; i < choices.length; i++) {
+                choices[i].style.backgroundColor = 'rgba(0,0,0,0)';
                 choices[i].style.outlineColor = 'rgba(0,0,0,0)';
             }
+            this.style.backgroundColor = 'rgba(255,255,255,0.07)';
             this.style.outlineColor = '#ffd700';
             selection = this.classList[1];
         });
@@ -2048,17 +2661,17 @@ function levelUp() {
             var done = false;
             if (selection === 'strength' && hero.strength < (str.length - 1)) {
                 hero.strength++;
-                hero.attackRating += str[hero.strength];
+                hero.attackRating = str[hero.strength];
                 done = true;
             }
             else if (selection === 'dexterity' && hero.dexterity < (dex.length - 1)) {
                 hero.dexterity++;
-                hero.evasion += dex[hero.dexterity];
+                hero.evasion = dex[hero.dexterity];
                 done = true;
             }
             else if (selection === 'endurance' && hero.endurance < (end.length - 1)) {
                 hero.endurance++;
-                hero.armorRating -= end[hero.endurance];
+                hero.armorRating = end[hero.endurance];
                 done = true;
             }
 
@@ -2076,6 +2689,7 @@ function levelUp() {
                     hero.pause = false;
                 }, 1000);
                 for (var i = 0; i < choices.length; i++) {
+                    choices[i].style.backgroundColor = 'rgba(0,0,0,0)';
                     choices[i].style.outlineColor = 'rgba(0,0,0,0)';
                 }
                 selection = null;
@@ -2109,20 +2723,34 @@ function youDied(deathBy) {
 
 
 // Fade to black, reset menus, and fade back in
-function fadeToMainMenu() {
+function fadeToMainMenu(callback) {
     fadeOut();
-    // Reset all menus
     setTimeout(function() {
         try {
-            resetAll();
+            map = null;
+            enemies = null;
+            numberOfEnemies = 0;
+            totalWeight = 0;
+            hero.canMove = false;
+            // Reset challenge and boss levels
+            hero.challengeMode = false;
+            hero.bossLevel = false;
+            hero.bossHasSpawned = false;
+            hero.bossIsDead = false;
+            optionsPosition = 'closed';
+            document.getElementById('options-menu').style.transform = 'translateX(-100%)';
+            var title = document.querySelector('.flip-container');
+                title.style.display = 'flex';
+            var gameOver = document.getElementById('game-over');
+                gameOver.style.display = 'none';
+                gameOver.style.opacity = '0';
             titleButtons();
             setTimeout(function() {
-                fadeIn();
-            }, 1000);
-        }
-        catch(e) {
+                callback();
+            }, 500);
+        } catch(e) {
             console.log(e);
-            alert('fadeToMainMenu ERROR');
+            console.log('fadeToMainMenu ERROR');
         }
     }, 1000);
 }
@@ -2148,12 +2776,19 @@ var deathText = {
     math:       ['Forgot how to math.',
                 'Left their calculator at home.',
                 'Didn&rsquo;t pay attention in math class.',
-                'Got mathed upside the head',
+                'Got mathed upside the head.',
                 'Got in a fight with a number and lost somehow.',
                 'Couldn&rsquo;t math their way out of a paper bag.',
                 'Death by math.',
                 'Killed by numbers.',
                 'Math is hard.'],
+
+    bat:        ['Nibbled to death by a bat.',
+                'Killed by a flying rat.',
+                'Got one too many bats to the face.',
+                'Death by bats.',
+                'Lost a fight to a bat.',
+                'Ran into a bats mouth face first.'],
 
     gelCube:    ['Ate too much Jell-O.',
                 'Run over by a Gelatinous Cube.',
@@ -2176,10 +2811,33 @@ var deathText = {
 
     oculord:    ['Looked too deeply into the all seeing eye of the Oculord.',
                 'Beat up by a giant meatball.',
-                'Died valiantly while battling an Oculord.'
+                'Died valiantly while battling an Oculord.',
+                'Death by Oculord.',
+                'Eaten by a one-eyed flying meatball.',
+                'Put food on the table for a family of Oculords.'],
+                
+    vampire:    ['Killed by a vampire.',
+                'Got a very aggressive hickey from a vampire.',
+                'Was the main course at the all you can eat vampire buffet.',
+                'Decided to help out a starving vampire in need.',
+                'Gave a vampire a tall glass of Blood Light.',
+                'Got a big sloppy, bloody kiss from a vampire.'],
 
-                ],
-    vampire:    ['Killed by a vampire.']
+    spiderQueen:    ['Food for Spider Queen babies.',
+                    'I still hate spiders. Why did I put a gigantic one that shoots poison in my game??',
+                    'Put food on the table for a family of spiders.',
+                    'Got wrapped up like a Christmas present for some hungry spider kids.',
+                    'Eaten by a big mommy spider.',
+                    'Tried to headbutt the Spider Queen and got eaten instead.'],
+
+    vampireLord:    ['Killed by the Vampire Lord.',
+                    'Frozen. Bitten. And drained of all life the the Vampire Lord.',
+                    'The Vampire Lord does not like non-vampires.',
+                    'Got turned into a vampire by the Vampire Lord. So I guess that&rsquo;s pretty cool.',
+                    'Vampire Lord thanks you for the delicious blood.',
+                    'More blood for the vampire lord.'],
+
+    threeKnights:   ['Was defeated by The Three Knights.'],
 }
 
 
@@ -2195,7 +2853,11 @@ function displayBestiary() {
         var monster = bestiary.filter(function(monster) {
             return monster.type === options.enemiesEncountered[i];
         })[0];
-
+        if (monster === undefined) {
+            var monster = bosses.filter(function(monster) {
+                return monster.type === options.enemiesEncountered[i];
+            })[0];
+        }
         list += '<div class="row"><div class="col-2">';
         list += '<img src="img/enemies/' + monster.image + '"></div>';
         list += '<div class="col-9"><p>' + monster.type + '</p>';
@@ -2204,9 +2866,11 @@ function displayBestiary() {
 
     gameOverScreen.innerHTML = list;
 
+    var container = document.createElement('div');
     var button = document.createElement('button');
         button.className = 'main-menu-button';
-        gameOverScreen.appendChild(button);
+        container.appendChild(button);
+        gameOverScreen.appendChild(container);
 
         gameOverScreen.style.opacity = '1';
         gameOverScreen.style.display = 'flex';
@@ -2238,7 +2902,12 @@ function listFallenStats(hero,view) {
         stats += '<p>Dungeon Level: <span>' + hero.gameLevel + '</span></p>';
         stats += '<p>Math Difficulty: <span>' + hero.difficultyMath + '</span></p>';
         stats += '<p>Monster Difficulty: <span>' + hero.difficultyMonster + '</span></p>';
-        stats += '<p class="death">' + hero.death + '</p>';
+        if (hero.death === 'Quest Complete') {
+            stats += '<p class="win">' + hero.death + '</p>';
+        }
+        else {
+            stats += '<p class="death">' + hero.death + '</p>';
+        }
         stats += '<h6>Accuracy</h6>';
         stats += '<p>Multiples: <span>' + getAccuracy(hero.multiplesRight,hero.multiplesWrong) + '</span></p>';
         stats += '<p>Factors: <span>' + getAccuracy(hero.factorsRight,hero.factorsWrong) + '</span></p>';
@@ -2251,8 +2920,8 @@ function listFallenStats(hero,view) {
         stats += '<p>Attacks Evaded: <span>' + hero.attacksEvaded + '</span></p>';
         stats += '<p>Times Frozen: <span>' + hero.timesFrozen + '</span></p>';
         stats += '<p>Times Spider Webbed: <span>' + hero.timesWebbed + '</span></p>';
-
-        stats += '<button class="main-menu-button">Main menu</button>';
+        stats += '<p>Times Poisoned: <span>' + hero.timesPoisoned + '</span></p>';
+        stats += '<div><button class="main-menu-button">Main menu</button></div>';
         gameOverScreen.innerHTML = stats;
         gameOverScreen.style.opacity = '0';
         gameOverScreen.style.display = 'flex';
@@ -2261,12 +2930,15 @@ function listFallenStats(hero,view) {
         }, 200);
     if (view === 'game-over') {
         var mainMenuButton = document.querySelector('.main-menu-button');
-            mainMenuButton.addEventListener('click', fadeToMainMenu);
+            mainMenuButton.addEventListener('click', function() {
+                fadeToMainMenu(fadeIn);
+            });
     }
     else {
-        var closeButton = document.querySelector('.main-menu-button');
+        var closeButton = document.querySelector('#game-over div .main-menu-button');
             closeButton.innerHTML = '';
             closeButton.className = 'btn-back';
+            closeButton.style.paddingBottom = '25px';
             closeButton.addEventListener('click', function() {
                 gameOverScreen.style.display = 'none';
             });
@@ -2278,37 +2950,81 @@ function listFallenStats(hero,view) {
 function letTheGamesBegin() {
     if (hero.difficultyMonster == 1) {
         maxWeight = 60;
+        maxEnemies = 5;
     }
     else if (hero.difficultyMonster == 2) {
-        maxWeight = 100;
+        maxWeight = 120;
+        maxEnemies = 10;
     }
     else if (hero.difficultyMonster == 3) {
-        maxWeight = 180;
+        maxWeight = 200;
+        maxEnemies = 20;
     }
+    levelData = { redKnight: false, blueKnight: false, yellowKnight: false };
+    // Gaining levels increases max weight
+    maxWeight += ((hero.level - 1) * 10);
+    // Gaining levels increases max number of enemies
+    if (hero.level % 2 === 0) {
+        maxEnemies += (hero.level / 2);
+    }
+    // If Boss Level
+    if (hero.bossLevel !== false || hero.challengeMode) {
+        maxWeight *= 1.5;
+        maxEnemies *= 1.5;
+    }
+    console.log('maxWeight: ' + maxWeight);
+    console.log('maxEnemies: ' + maxEnemies);
     // Get list of safe spawn locations
     spawnArray = [];
-    for (var r = 0; r < numberOfRows; r++) {
-        for (var c = 0; c < numberOfColumns; c++) {
-            var cell = map[r][c];
-            if (r === 0 || r === numberOfRows - 1) {
-                if (cell.object && cell.contents !== 'trap') {
+    try {
+        for (var r = 0; r < numberOfRows; r++) {
+            for (var c = 0; c < numberOfColumns; c++) {
+                var cell = map[r][c];
+                if (r === 0 || r === numberOfRows - 1) {
+                    if (cell.object && cell.contents !== 'trap') {
+                    }
+                    else {
+                        spawnArray.push(cell);
+                    }
                 }
-                else {
-                    spawnArray.push(cell);
-                }
-            }
-            else if (c === 0 || c === numberOfColumns -1) {
-                if (cell.object && cell.contents !== 'trap') {
-                }
-                else {
-                    spawnArray.push(cell);
+                else if (c === 0 || c === numberOfColumns -1) {
+                    if (cell.object && cell.contents !== 'trap') {
+                    }
+                    else {
+                        spawnArray.push(cell);
+                    }
                 }
             }
         }
+        // Spawn first enemy
+        var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
+        getEnemy(spawn.row,spawn.col);
+    } catch(e) {
+        console.log('letTheGamesBegin ERROR');
     }
-    // Spawn first enemy
-    var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
-    getEnemy(spawn.row,spawn.col);
+    // Start spawning enemies at an interval
+    if (options.tutorial === false) {
+        spawnEnemy();
+    }
+}
+
+
+// Spawn another enemy at a random interval
+function spawnEnemy() {
+    var spawnLevel = hero.gameLevel;
+    var spawnInterval = randomNumber(1000,3000);
+    var interval = setInterval(function() {
+        if (map === null || map.length === 0 || hero.bossIsDead || spawnLevel !== hero.gameLevel) {
+            clearInterval(interval);
+        }
+        else if (totalWeight < maxWeight && numberOfEnemies < maxEnemies) {
+            var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
+            getEnemy(spawn.row,spawn.col);
+        }
+        else if (numberOfEnemies >= maxEnemies) {
+            clearInterval(interval);
+        }
+    }, spawnInterval);
 }
 
 
@@ -2348,14 +3064,63 @@ function handleTraps() {
 // Select a random enemy from the bestiary
 function getEnemy(row,col) {
     var monster = bestiary[randomNumber(0,bestiary.length - 1)];
-    if (monster.weight + totalWeight <= maxWeight) {
+    // Boss Level Spawn
+    if (hero.bossLevel === 'Spider Queen') {
+        if (hero.bossHasSpawned === false) {
+            monster = bosses[0];
+            hero.bossHasSpawned = true;
+        }
+        else {
+            // Spawn spider minions
+            monster = bestiary[2];
+        }
         addEnemy(row,col,monster);
     }
-    else if (maxWeight - totalWeight <= 20) {
-
+    else if (hero.bossLevel === 'Vampire Lord') {
+        if (hero.bossHasSpawned === false) {
+            monster = bosses[1];
+            hero.bossHasSpawned = true;
+        }
+        else {
+            // Spawn bat minions
+            monster = bestiary[0];
+        }
+        addEnemy(row,col,monster);
+    }
+    else if (hero.bossLevel === 'Red Knight') {
+        maxEnemies = 3;
+        maxWeight = 1000;
+        // Start with Red Knight
+        if (hero.bossLevel === 'Red Knight' && levelData.redKnight === false) {
+            monster = bosses[2];
+            hero.bossHasSpawned = true;
+            levelData.redKnight = 'alive';
+        }
+        else if (hero.bossLevel === 'Red Knight') {
+            // Spawn Blue Knight
+            if (levelData.blueKnight === false) {
+                monster = bosses[3];
+                levelData.blueKnight = 'alive';
+            }
+            // Spawn Yellow Knight
+            else if (levelData.yellowKnight === false) {
+                monster = bosses[4];
+                levelData.yellowKnight = 'alive';
+            }
+        }
+        addEnemy(row,col,monster);
+    }
+    else if (options.tutorial && options.newgame) {
+        monster = bestiary[1];
+        addEnemy(3,1,monster);
     }
     else {
-        getEnemy(row,col);
+        if (monster.weight + totalWeight <= maxWeight) {
+            addEnemy(row,col,monster);
+        }
+        else if (maxWeight - totalWeight <= 20) {
+
+        }
     }
 }
 
@@ -2374,96 +3139,288 @@ function enemyWarning() {
 // My Monster Manual
 var bestiary = [
     {
+        type: 'Bat',
+        boss: false,
+        image: 'bat.gif',
+        baseDamage: 2,
+        health: 30,
+        weight: 10,
+        evasion: 10,
+        moveInterval: 1500,
+        moveSpeed: 0.5,
+        moveType: 'aggressive',
+        info: 'Description of the monster goes here.'
+    },
+    {
         type: 'Gelatinous Cube',
+        boss: false,
         image: 'cube-green.gif',
-        damage: 10,
+        baseDamage: 10,
         health: 50,
         weight: 25,
         evasion: 5,
         moveInterval: 2100,
         moveSpeed: 2,
-        ability: 'acid',
-        abilityDamge: 5,
-        abilityDuration: 5500,
-        abilityChance: 100,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'acid',
+                abilityDamge: 5,
+                abilityDuration: 5500,
+                abilityChance: 100
+            }
+        ],
         info: 'Description of the monster goes here.'
     },
     {
         type: 'Giant Spider',
+        boss: false,
         image: 'spider.gif',
-        damage: 10,
+        baseDamage: 10,
         health: 65,
         weight: 35,
         evasion: 15,
         moveInterval: 2000,
         moveSpeed: 0.35,
-        ability: 'web',
-        abilityDamge: 0,
-        abilityDuration: 12000,
-        abilityChance: 10,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'web',
+                abilityDamge: 0,
+                abilityDuration: 12000,
+                abilityChance: 10
+            }
+        ],
         info: 'Description of the monster goes here.'
     },
     {
         type: 'Number Mage',
+        boss: false,
         image: 'number-mage.gif',
-        damage: 5,
+        baseDamage: 5,
         health: 85,
-        weight: 35,
+        weight: 15,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 0.5,
-        ability: 'rotate',
-        abilityDamge: 0,
-        abilityDuration: 10000,
-        abilityChance: 80,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'rotate',
+                abilityDamge: 0,
+                abilityDuration: 10000,
+                abilityChance: 80
+            }
+        ],
         info: 'Description of the monster goes here.'
     },
     {
         type: 'Oculord',
+        boss: false,
         image: 'oculord.gif',
-        damage: 15,
+        baseDamage: 15,
         health: 100,
         weight: 50,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 2.5,
-        ability: 'projectile',
-        abilityImage: ['projectile-fire.gif', 'projectile-ice.gif'],
-        abilityDamge: 15,
-        abilityDuration: 0.45,
-        abilityChance: 70,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'projectile',
+                abilityImage: ['projectile-fire.gif', 'projectile-ice.gif'],
+                abilityDamge: 15,
+                damageDuration: 3000,
+                abilityDuration: 0.45,
+                abilityChance: 70,
+                targetChance: 50
+            }
+        ],
         info: 'Description of the monster goes here.'
     },
     {
         type: 'Vampire',
+        boss: false,
         image: 'vampire.gif',
-        damage: 15,
+        baseDamage: 15,
         health: 125,
         weight: 60,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 1,
-        ability: 'invisibility',
-        abilityImage: 'vampire-shadow.gif',
-        abilityDamge: 0.5,
-        abilityDuration: 10000,
-        abilityChance: 70,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'invisibility',
+                abilityDamge: 0.6,
+                abilityDuration: 10000,
+                abilityChance: 70
+            }
+        ],
         info: 'Description of the monster goes here.'
     }
-]
+];
+
+
+// My Boss Monster Manual
+var bosses = [
+    {
+        type: 'Spider Queen',
+        boss: true,
+        image: 'spider-queen.gif',
+        baseDamage: 10,
+        health: 300,
+        weight: 50,
+        evasion: 5,
+        moveInterval: 2100,
+        moveSpeed: 2,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'acid',
+                abilityDamge: 5,
+                abilityDuration: 5500,
+                abilityChance: 80
+            },
+            {
+                ability: 'projectile',
+                abilityImage: ['projectile-poison.gif'],
+                abilityDamge: 1.25,
+                damageDuration: 3000,
+                dotStatus: 'poisoned!',
+                abilityDuration: 0.45,
+                abilityChance: 90,
+                targetChance: 100
+            },
+        ],
+        info: 'Description of the monster goes here.'
+    },
+    {
+        type: 'Vampire Lord',
+        boss: true,
+        image: 'vampire-lord.gif',
+        baseDamage: 10,
+        health: 300,
+        weight: 100,
+        evasion: 5,
+        moveInterval: 1900,
+        moveSpeed: 1.5,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'invisibility',
+                abilityDamge: 0.9,
+                abilityDuration: 7000,
+                abilityChance: 70
+            },
+            {
+                ability: 'projectile',
+                abilityImage: ['projectile-ice.gif'],
+                abilityDamge: 5,
+                damageDuration: 1900,
+                dotStatus: 'frozen!',
+                abilityDuration: 0.45,
+                abilityChance: 100,
+                targetChance: 100
+            },
+        ],
+        info: 'Description of the monster goes here.'
+    },
+    {
+        type: 'Red Knight',
+        boss: true,
+        image: 'red-knight.gif',
+        baseDamage: 10,
+        health: 150,
+        weight: 50,
+        evasion: 5,
+        moveInterval: 2200,
+        moveSpeed: 1.2,
+        moveType: 'passive',
+        cooldownTimer: 4000,
+        abilities: [
+            {
+                ability: 'burst',
+                abilityImage: ['projectile-fire.gif'],
+                abilityDamge: 8,
+                damageDuration: 3000,
+                abilityDuration: 0.35,
+                burstSpeed: 350,
+                shots: 0,
+                abilityChance: 85,
+                targetChance: 100
+            }
+        ],
+        info: 'Description of the monster goes here.'
+    },
+    {
+        type: 'Blue Knight',
+        boss: true,
+        image: 'blue-knight.gif',
+        baseDamage: 10,
+        health: 150,
+        weight: 50,
+        evasion: 5,
+        moveInterval: 2200,
+        moveSpeed: 1.2,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'ice',
+                abilityDamge: 5,
+                trapDuration: 1000,
+                abilityDuration: 5500,
+                abilityChance: 80
+            },
+            {
+                ability: 'projectile',
+                abilityImage: ['projectile-ice.gif'],
+                abilityDamge: 5,
+                damageDuration: 1900,
+                dotStatus: 'frozen!',
+                abilityDuration: 0.9,
+                abilityChance: 100,
+                targetChance: 100
+            },
+        ],
+        info: 'Description of the monster goes here.'
+    },
+    {
+        type: 'Yellow Knight',
+        boss: true,
+        image: 'yellow-knight.gif',
+        baseDamage: 10,
+        health: 150,
+        weight: 50,
+        evasion: 5,
+        moveInterval: 2200,
+        moveSpeed: 1.2,
+        moveType: 'passive',
+        abilities: [
+            {
+                ability: 'projectile',
+                abilityImage: ['projectile-poison.gif'],
+                abilityDamge: 1.25,
+                damageDuration: 3000,
+                dotStatus: 'poisoned!',
+                abilityDuration: 0.45,
+                abilityChance: 90,
+                targetChance: 100
+            }
+        ],
+        info: 'Description of the monster goes here.'
+    }
+];
 
 
 // Spawn an enemy and apply some data to it
 function addEnemy(row,col,monster) {
     enemyWarning();
     numberOfEnemies++;
-    totalWeight += monster.weight;
-    // Create new enemy object and push to array of enemies
-    var enemy = {};
+    var enemy = (JSON.parse(JSON.stringify(monster)));
+    totalWeight += enemy.weight;
     enemy.id = 'enemy-container' + numberOfEnemies;
     enemy.enemy = true;
-    enemy.type = monster.type;
-    enemy.image = monster.image;
     enemy.top = (row * cellSize) - cellSize;
     enemy.left = (col * cellSize) - cellSize;
     enemy.row = row;
@@ -2471,25 +3428,13 @@ function addEnemy(row,col,monster) {
     enemy.location = 'r' + row + 'c' + col;
     enemy.gameLevel = hero.gameLevel;
     enemy.canMove = true;
-    enemy.health = monster.health;
+    enemy.startingHealth = monster.health;
     enemy.armorRating = 1;
     enemy.attackRating = 1;
-    enemy.baseDamage = monster.damage;
-    enemy.evasion = monster.evasion;
-    enemy.weight = monster.weight;
-    enemy.moveInterval = monster.moveInterval;
-    enemy.moveSpeed = monster.moveSpeed;
-    enemy.ability = monster.ability;
-    enemy.abilityDamge = monster.abilityDamge;
-    enemy.abilityDuration = monster.abilityDuration;
-    enemy.abilityChance = monster.abilityChance;
-    enemy.invisible = false;
-    if (monster.abilityImage) {
-        enemy.abilityImage = monster.abilityImage;
-    }
+    enemy.cooldown = false;
     // Check if monster has been encountered before
-    if (options.enemiesEncountered.indexOf(monster.type) == -1) {
-        options.enemiesEncountered.unshift(monster.type);
+    if (options.enemiesEncountered.indexOf(enemy.type) == -1) {
+        options.enemiesEncountered.unshift(enemy.type);
         options.newEnemies++;
         localStorage.setItem('options', JSON.stringify(options));
     }
@@ -2502,13 +3447,39 @@ function addEnemy(row,col,monster) {
     }
     // Create DOM element for enemy
     var createEnemy = document.createElement('div');
+    if (enemy.boss) {
+        enemy.startingHealth *= hero.difficultyMonster;
+        enemy.health *= hero.difficultyMonster;
+        createEnemy.classList.add('boss');
+        var healthBar = document.createElement('span');
+            healthBar.id = 'boss-health';
+        if (enemy.type === 'Red Knight') {
+            healthBar.id = 'boss-health-redknight';
+        }
+        else if (enemy.type === 'Blue Knight') {
+            healthBar.id = 'boss-health-blueknight';
+        }
+        else if (enemy.type === 'Yellow Knight') {
+            healthBar.id = 'boss-health-yellowknight';
+        }
+            healthBar.style.width = '100%';
+            healthBar.style.opacity = '0';
+            createEnemy.appendChild(healthBar);
+    }
+    else {
         createEnemy.classList.add('enemy');
+    }
+    // Allow aggressive types to fly over objects
+    if (enemy.moveType === 'aggressive') {
+        createEnemy.classList.add('flying');
+    }
         createEnemy.id = enemy.id;
         createEnemy.style.width = cellSize + 'px';
         createEnemy.style.height = cellSize + 'px';
-        createEnemy.style.backgroundImage = 'url("img/enemies/enemy-shadow.png")';
+        createEnemy.style.backgroundImage = 'url("img/enemies/shadow.png")';
         createEnemy.style.top = '0';
         createEnemy.style.left = '0';
+        createEnemy.style.zIndex = 10;
         createEnemy.style.transitionDuration = '0';
     var message = document.createElement('span');
         message.className = 'message';
@@ -2538,6 +3509,7 @@ function addEnemy(row,col,monster) {
             enemyContainer.style.transition = enemy.moveSpeed + 's ease';
         }
     }
+
     // Move enemy in from outside of map
     setTimeout(function() {
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
@@ -2548,39 +3520,65 @@ function addEnemy(row,col,monster) {
         actionInterval();
     }, 2000);
 
-    // Spawn another enemy at a random interval
-    var spawnInterval = randomNumber(2000,7000);
-    var monsterSpawn = setInterval(function() {
-        if (map === null || map.length === 0) {
-            clearInterval(monsterSpawn);
-        }
-        else if (totalWeight < maxWeight) {
-            clearInterval(monsterSpawn);
-            var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
-            getEnemy(spawn.row,spawn.col);
-        }
-    }, spawnInterval);
-
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
-        var interval = setInterval(function() {
+        var actionInterval = setInterval(function() {
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
-                console.log('i shouldnt be here');
-                clearTimeout(interval);
+                clearTimeout(actionInterval);
                 enemy = null;
                 delete enemy;
             }
             else if (map === null || hero === null) {
-                console.log('null map: ' + enemy);
-                clearTimeout(interval);
+                clearTimeout(actionInterval);
                 enemy = null;
                 delete enemy;
+            }
+            else if (hero.bossHasSpawned && hero.bossIsDead && enemy.health > 0) {
+                enemy.evasion = 0;
+                enemy.health = 1;
+                checkForAttack('none',enemy,hero);
             }
             else {
                 // Award XP on death, then destroy
                 if (enemy.health <= 0) {
-                    clearTimeout(interval);
+                    if (enemy.boss) {
+                        if (enemy.type === 'Red Knight') {
+                            levelData.redKnight = 'dead';
+                        }
+                        else if (enemy.type === 'Blue Knight') {
+                            levelData.blueKnight = 'dead';
+                        }
+                        else if (enemy.type === 'Yellow Knight') {
+                            levelData.yellowKnight = 'dead';
+                        }
+                        if (levelData.redKnight === 'dead' && levelData.blueKnight === 'dead' && levelData.yellowKnight === 'dead') {
+                            hero.bossIsDead = true;
+                            var index = hero.bosses.indexOf('Red Knight');
+                            hero.bosses.splice(index,1);
+                        }
+                        else if (enemy.type !== 'Red Knight' && enemy.type !== 'Blue Knight' && enemy.type !== 'Yellow Knight') {
+                            hero.bossIsDead = true;
+                            var index = hero.bosses.indexOf(enemy.type);
+                            hero.bosses.splice(index,1);
+                        }
+
+                        if (hero.bossIsDead) {
+                            setTimeout(function() {
+                                for (var i = 0; i < columnArray.length; i++) {
+                                    var cage = document.getElementById(columnArray[i].location).lastChild;
+                                        cage.style.opacity = '0';
+                                    var cell = columnArray[i];
+                                        map[cell.row - 1][cell.col - 1].contents = 'empty';
+                                }
+                                textBubble('rescue',1000);
+                                if (hero.answers === hero.answersNeeded) {
+                                    openExitCover();
+                                }
+                            }, 2000);
+                        }
+                    }
+                    clearTimeout(actionInterval);
                     awardXp(enemy);
                     totalWeight -= enemy.weight;
                     hero.enemiesSlain++;
@@ -2593,22 +3591,44 @@ function addEnemy(row,col,monster) {
                 }
                 // Roll chance to use special ability, then perform an action
                 else if (enemy.health >= 0) {
-                    var useAbility = randomNumber(1,100);
-                    if (useAbility <= enemy.abilityChance) {
-                        if (enemy.ability === 'acid' || enemy.ability === 'web') {
-                            layTrap(enemy);
+                    if (enemy.abilities) {
+                        var useAbility = randomNumber(1,100);
+                        enemy.currentAbility = enemy.abilities[randomNumber(0,enemy.abilities.length - 1)];
+                        if (useAbility <= enemy.currentAbility.abilityChance) {
+                            if (enemy.currentAbility.ability === 'acid' || enemy.currentAbility.ability === 'web' || enemy.currentAbility.ability === 'poison' || enemy.currentAbility.ability === 'ice') {
+                                layTrap(enemy);
+                            }
+                            else if (enemy.currentAbility.ability === 'rotate') {
+                                rotateEquation(enemy);
+                            }
+                            else if (enemy.currentAbility.ability === 'projectile') {
+                                enemyProjectile(enemy,enemyContainer);
+                            }
+                            else if (enemy.currentAbility.ability === 'burst' && enemy.currentAbility.shots === 0) {
+                                var interval = setInterval(function() {
+                                    if (enemy.cooldown) {
+                                        clearInterval(interval);
+                                    }
+                                    else if (enemy.currentAbility.shots >= 3) {
+                                        enemy.currentAbility.shots = 0;
+                                        clearInterval(interval);
+                                        cooldown(enemy,enemy.moveInterval);
+                                    }
+                                    else if (enemy.cooldown === false) {
+                                        enemyProjectile(enemy,enemyContainer);
+                                        enemy.currentAbility.shots++;
+                                    }
+                                }, enemy.currentAbility.burstSpeed);
+                            }
+                            else if (enemy.currentAbility.ability === 'invisibility' && enemy.invisible === false) {
+                                turnInvisible(enemy,enemyContainer);
+                            }
                         }
-                        else if (enemy.ability === 'rotate') {
-                            rotateEquation(enemy);
-                        }
-                        else if (enemy.ability === 'projectile') {
-                            enemyProjectile(enemy,enemyContainer);
-                        }
-                        else if (enemy.ability === 'invisibility' && enemy.invisible === false) {
-                            turnInvisible(enemy,enemyContainer);
-                        }
+                        getMovementDirection(enemy,enemyContainer);
                     }
-                    getMovementDirection(enemy,enemyContainer,'passive');
+                    else {
+                        getMovementDirection(enemy,enemyContainer);
+                    }
                 }
                 else {
                     clearTimeout(interval);
@@ -2620,6 +3640,46 @@ function addEnemy(row,col,monster) {
             }
         }, enemy.moveInterval);
     }
+}
+
+// Add a cooldown to a skill if needed
+function cooldown(person,duration) {
+    // For the player
+    if (person.hero) {
+        hero.canMove = false;
+    }
+    // For enemies
+    else {
+        person.cooldown = true;
+    }
+    setTimeout(function() {
+        if (person.hero) {
+            hero.canMove = true;
+        }
+        else {
+            person.cooldown = false;
+        }
+    }, duration);
+}
+
+
+// Add damage over time effect
+function damageOverTime(victim,attacker) {
+    var amount = attacker.currentAbility.abilityDamge;
+    // Display status ailment
+    flashMessage(victim,attacker.currentAbility.dotStatus,attacker.currentAbility.damageDuration);
+    // Deal damage over time at set interval
+    var interval = setInterval(function() {
+        if (victim.health <= 0) {
+            clearInterval(interval);
+        }
+        else  {
+            dealDamage(amount,attacker.type);
+        }
+    }, 250);
+    setTimeout(function() {
+        clearInterval(interval);
+    }, attacker.currentAbility.damageDuration);
 }
 
 
@@ -2635,7 +3695,7 @@ function turnInvisible(enemy,enemyContainer) {
         }
         else if (enemy.invisible) {
             if (Math.abs(hero.row - enemy.row) <= 1 && Math.abs(hero.col - enemy.col) <= 1) {
-                dealDamage(enemy.abilityDamge,enemy);
+                dealDamage(enemy.currentAbility.abilityDamge,enemy);
             }
         }
         else {
@@ -2646,19 +3706,41 @@ function turnInvisible(enemy,enemyContainer) {
         enemy.invisible = false;
         enemy.evasion = 0;
         enemyContainer.lastChild.style.opacity = '1';
-    }, enemy.abilityDuration);
+    }, enemy.currentAbility.abilityDuration);
 }
 
 
 // Allow enemies to shoot stuff at you
 function enemyProjectile(enemy,enemyContainer) {
-    // Fire in a random direction
-    var directions = ['up','down','left','right'];
-    var direction = directions[randomNumber(0,3)];
+    // If enemy shoots projectiles, chance to attack if on same row or column
+    if (randomNumber(1,100) < enemy.currentAbility.targetChance) {
+        // If player is on same row and to the RIGHT
+        if (enemy.row === hero.row && enemy.col < hero.col) {
+            var direction = 'right';
+        }
+        // If player is on same row and to the LEFT
+        else if (enemy.row === hero.row && enemy.col > hero.col) {
+            var direction = 'left';
+        }
+        // If player is on same column and UP
+        else if (enemy.col === hero.col && enemy.row > hero.row) {
+            var direction = 'up';
+        }
+        // If player is on same column and UP
+        else if (enemy.col === hero.col && enemy.row < hero.row) {
+            var direction = 'down';
+        }
+    }
+    // Otherwide fire in a random direction
+    else {
+        var directions = ['up','down','left','right'];
+        var direction = directions[randomNumber(0,3)];
+    }
+
     // Create the projectile element
     var spawn = enemyContainer.getBoundingClientRect();
     var object = document.createElement('img');
-    var type = enemy.abilityImage[randomNumber(0,enemy.abilityImage.length - 1)];
+    var type = enemy.currentAbility.abilityImage[randomNumber(0,enemy.currentAbility.abilityImage.length - 1)];
         object.src = 'img/enemies/' + type;
         object.id = 'projectile' + randomNumber(1,1000);
         object.classList.add('projectile');
@@ -2675,25 +3757,25 @@ function enemyProjectile(enemy,enemyContainer) {
 
     if (direction === 'up') {
         var distance = levelContainer.clientHeight + cellSize;
-        var speed = numberOfRows * enemy.abilityDuration;
+        var speed = numberOfRows * enemy.currentAbility.abilityDuration;
             projectile.style.transition = speed + 's linear';
             projectile.style.transform = 'translateY(-' + distance + 'px)';
     }
     else if (direction === 'down') {
         var distance = levelContainer.clientHeight + cellSize;
-        var speed = numberOfRows * enemy.abilityDuration;
+        var speed = numberOfRows * enemy.currentAbility.abilityDuration;
             projectile.style.transition = speed + 's linear';
             projectile.style.transform = 'translateY(' + distance + 'px) rotate(180deg)';
     }
     else if (direction === 'left') {
         var distance = levelContainer.clientWidth + cellSize;
-        var speed = numberOfColumns * enemy.abilityDuration;
+        var speed = numberOfColumns * enemy.currentAbility.abilityDuration;
             projectile.style.transition = speed + 's linear';
             projectile.style.transform = 'translateX(-' + distance + 'px) rotate(-90deg)';
     }
     else if (direction === 'right') {
         var distance = levelContainer.clientWidth + cellSize;
-        var speed = numberOfColumns * enemy.abilityDuration;
+        var speed = numberOfColumns * enemy.currentAbility.abilityDuration;
             projectile.style.transition = speed + 's linear';
             projectile.style.transform = 'translateX(' + distance + 'px) rotate(90deg)';
     }
@@ -2709,13 +3791,19 @@ function enemyProjectile(enemy,enemyContainer) {
                 // Check for projectile type
                 type = type.split('-').pop().split('.').shift();
                 if (type === 'ice') {
-                    freezePerson(hero,enemy.moveInterval,'ice');
+                    freezePerson(hero,enemy.currentAbility.damageDuration,'ice');
+                    clearInterval(interval);
+                    projectile.style.display = 'none';
+                }
+                else if (type === 'poison') {
+                    hero.timesPoisoned++;
+                    damageOverTime(hero,enemy);
                     clearInterval(interval);
                     projectile.style.display = 'none';
                 }
                 else {
                     flashHitImage(hero,player);
-                    dealDamage(enemy.abilityDamge,enemy);
+                    dealDamage(enemy.currentAbility.abilityDamge,enemy);
                     clearInterval(interval);
                     projectile.style.display = 'none';
                 }
@@ -2725,7 +3813,7 @@ function enemyProjectile(enemy,enemyContainer) {
                 canHit = false;
                 flashMessage(hero,'evaded!');
                 hero.attacksEvaded++;
-                var safeTime = enemy.abilityDuration * 1250;
+                var safeTime = enemy.currentAbility.abilityDuration * 1250;
                 setTimeout(function() {
                     canHit = true;
                 }, safeTime);
@@ -2760,7 +3848,7 @@ function rotateEquation(enemy) {
         setTimeout(function() {
             cell.style.transform = 'rotate(0deg)';
             cell.style.color = '#fff';
-        }, enemy.abilityDuration);
+        }, enemy.currentAbility.abilityDuration);
     }
 }
 
@@ -2776,10 +3864,13 @@ function layTrap(enemy) {
         var original = mapLocation.contents;
         var originalDmg = mapLocation.trapDamage;
             mapLocation.contents = 'trap';
-            mapLocation.trapType = enemy.ability;
-            mapLocation.trapDamage = enemy.abilityDamge;
+            mapLocation.trapType = enemy.currentAbility.ability;
+            mapLocation.trapDamage = enemy.currentAbility.abilityDamge;
+        if (enemy.currentAbility.ability === 'ice') {
+            mapLocation.trapDuration = enemy.currentAbility.trapDuration;
+        }
         var trap = document.createElement('img');
-            trap.src = 'img/objects/' + enemy.ability + '-' + randomNumber(1,2) + '.gif';
+            trap.src = 'img/objects/' + enemy.currentAbility.ability + '-' + randomNumber(1,2) + '.gif';
             trap.opacity = '0';
             trap.style.animation = 'img-fade-in 1s 1';
             cell.appendChild(trap);
@@ -2793,20 +3884,20 @@ function layTrap(enemy) {
                 trap.style.display = 'none';
                 cell.removeChild(trap);
             }, 1000);
-        }, enemy.abilityDuration);
+        }, enemy.currentAbility.abilityDuration);
     }
 }
 
 
 // Determine which direction to move in
-function getMovementDirection(enemy,enemyContainer,movementType) {
+function getMovementDirection(enemy,enemyContainer) {
     var directions = ['up','down','left','right'];
     var hasAttacked = false;
     // Passive enemies have a lower chance to target you
-    if (movementType === 'passive') {
+    if (enemy.moveType === 'passive') {
         var chanceToAttack = 40;
     }
-    // A future aggressive AI will be more... aggressive
+    // Aggressive enemies are more likely to attack
     else {
         var chanceToAttack = 80;
     }
@@ -2895,19 +3986,104 @@ function getMovementDirection(enemy,enemyContainer,movementType) {
         }
     }
 
-    if (movementType === 'passive' && hasAttacked === false) {
-        moveEnemyPassive(enemy,enemyContainer,directions);
+    if (enemy.moveType === 'passive' && hasAttacked === false) {
+        moveEnemy(enemy,enemyContainer,directions);
+    }
+    else if (enemy.moveType === 'aggressive' && hasAttacked === false) {
+        getAggressiveMovement(enemy,enemyContainer);
     }
 }
 
 
-// Random movement
-function moveEnemyPassive(enemy,enemyContainer,directions) {
-    var move = directions[randomNumber(0,directions.length - 1)];
+// Calculate how to hunt the player down
+function getAggressiveMovement(enemy,enemyContainer) {
+    // If on top of the hero
+    if (enemy.row === hero.row && enemy.col === hero.col) {
+    }
+    // If on the same row
+    else if (enemy.row === hero.row) {
+        // Try to move right
+        if (enemy.col !== numberOfColumns) {
+            var mapLocation = map[enemy.row - 1][enemy.col];
+            if (enemy.col < hero.col && mapLocation.hero === false) {
+                var move = ['right'];
+            }
+        }
+        // Try to move left
+        if (enemy.col !== 1) {
+            var mapLocation = map[enemy.row - 1][enemy.col - 2];
+            if (enemy.col > hero.col && mapLocation.hero === false) {
+                var move = ['left'];
+            }
+        }
+    }
+    // If on the same column
+    else if (enemy.col === hero.col) {
+        // Try to move down
+        if (enemy.row !== numberOfRows) {
+            var mapLocation = map[enemy.row][enemy.col - 1];
+            if (enemy.row < hero.row && mapLocation.hero === false) {
+                var move = ['down'];
+            }
+        }
+        // Try to move up
+        if (enemy.row !== 1) {
+            var mapLocation = map[enemy.row - 2][enemy.col - 1];
+            if (enemy.row > hero.row && mapLocation.hero === false) {
+                var move = ['up'];
+            }
+        }
+    }
+    else if (Math.abs(enemy.row - hero.row) < Math.abs(enemy.col - hero.col)) {
+        // Try to move to the same column
+        // Try to move right
+        if (enemy.col !== numberOfColumns) {
+            var mapLocation = map[enemy.row - 1][enemy.col];
+            if (enemy.col < hero.col && mapLocation.hero === false) {
+                var move = ['right'];
+            }
+        }
+        // Try to move left
+        if (enemy.col !== 1) {
+            var mapLocation = map[enemy.row - 1][enemy.col - 2];
+            if (enemy.col > hero.col && mapLocation.hero === false) {
+                var move = ['left'];
+            }
+        }
+    }
+    // Column position is closer
+    else {
+        // Try to move to the same row
+        // Try to move down
+        if (enemy.row !== numberOfRows) {
+            var mapLocation = map[enemy.row][enemy.col - 1];
+            if (enemy.row < hero.row && mapLocation.hero === false) {
+                var move = ['down'];
+            }
+        }
+        // Try to move up
+        if (enemy.row !== 1) {
+            var mapLocation = map[enemy.row - 2][enemy.col - 1];
+            if (enemy.row > hero.row && mapLocation.hero === false) {
+                var move = ['up'];
+            }
+        }
+    }
+    moveEnemy(enemy,enemyContainer,move);
+}
+
+
+// Move enemy based on passive or aggressive AI
+function moveEnemy(enemy,enemyContainer,directions) {
+    if (directions === undefined) {
+        var move = 'none';
+    }
+    else {
+        var move = directions[randomNumber(0,directions.length - 1)];
+    }
 
     // MOVE UP
     if (move === 'up') {
-        var mapLocation = map[enemy.row - 2][enemy.col - 1];
         map[enemy.row - 1][enemy.col - 1].enemy = false;
         enemy.top -= cellSize;
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
@@ -2917,7 +4093,6 @@ function moveEnemyPassive(enemy,enemyContainer,directions) {
 
     // MOVE DOWN
     else if (move === 'down') {
-        var mapLocation = map[enemy.row][enemy.col - 1];
         map[enemy.row - 1][enemy.col - 1].enemy = false;
         enemy.top += cellSize;
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
@@ -2927,7 +4102,6 @@ function moveEnemyPassive(enemy,enemyContainer,directions) {
 
     // MOVE LEFT
     else if (move === 'left') {
-        var mapLocation = map[enemy.row - 1][enemy.col - 2];
         map[enemy.row - 1][enemy.col - 1].enemy = false;
         enemy.left -= cellSize;
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
@@ -2937,7 +4111,6 @@ function moveEnemyPassive(enemy,enemyContainer,directions) {
 
     // MOVE RIGHT
     else if (move === 'right') {
-        var mapLocation = map[enemy.row - 1][enemy.col];
         map[enemy.row - 1][enemy.col - 1].enemy = false;
         enemy.left += cellSize;
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + enemy.top + 'px)';
@@ -2958,7 +4131,45 @@ function getAccuracy(right,wrong) {
     }
 }
 
+
 // Random number generator within a range
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+
+// The player won, show a scene and end game
+function theEnd() {
+    heroContainer.style.opacity = '0';
+    var topBar = document.getElementById('top-bar');
+        topBar.style.opacity = '0';
+    var bottomBar = document.getElementById('bottom-bar');
+        bottomBar.style.opacity = '0';
+    hero.canMove = false;
+    fadeIn();
+    var message1 =  ['The Number Knights have been reunited and are now stronger than ever.',
+                    'The evil beasts within this dungeon have all been slain, and peace has once again returned to this world.',
+                    'Thank you for playing!'];
+    textBubble(message1);
+    var interval = setInterval(function() {
+        if (multipart === 'done') {
+            clearInterval(interval);
+            var message2 = ['theend'];
+            textBubble(message2,3000);
+            var ending = setInterval(function() {
+                if (multipart === 'done') {
+                    clearInterval(ending);
+                    youDied('Quest Complete');
+                    setTimeout(function() {
+                        heroContainer.style.opacity = '1';
+                        topBar.style.opacity = '1';
+                        bottomBar.style.opacity = '1';
+                    }, 1000);
+                    options.endgame = false;
+                    localStorage.setItem('options', JSON.stringify(options));
+                }
+            }, 500);
+        }
+    }, 500);
+
 }

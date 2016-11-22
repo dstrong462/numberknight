@@ -11,6 +11,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    background-color: #262626;
     background-image: url('../img/backgrounds/background-01.gif');
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
@@ -30,7 +31,7 @@ body {
 
 #splash img {
     width: 75%;
-    max-width: 400px;
+    max-width: 300px;
     opacity: 0;
     margin: auto;
     image-rendering: optimizeQuality;
@@ -40,7 +41,8 @@ body {
     position: relative;
     width: 100vw;
     max-width: 768px;
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
     overflow: auto;
     margin: 0 auto;
 }
@@ -83,13 +85,19 @@ button {
     font-weight: bold;
     text-shadow: 1px 1px #ececee;
     background-color: transparent;
-    outline: none;
+    outline: '1px solid yellow';
     border-style: none;
     background-image: url('../img/gui/button-lg.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 100% 100%;
     margin: 10px;
+}
+
+button.main-menu-button {
+    height: 60px;
+    display: flex !important;
+    z-index: 10000;
 }
 
 .btn-options,
@@ -197,6 +205,7 @@ button {
     height: 100vh;
     perspective: 1000px;
     background-image: url('../img/backgrounds/background-01.gif');
+    overflow: hidden;
     z-index: 50;
 }
 
@@ -279,6 +288,10 @@ button {
     font-style: italic;
     line-height: 1.2em;
     margin: 0 auto 0 0;
+}
+
+#fallen-heroes p.complete {
+    color: #24e35a;
 }
 
 #fallen-heroes .row {
@@ -373,7 +386,8 @@ button {
 /* GAME LEVELS
 ================================== */
 
-#fade-to-black {
+#fade-to-black,
+#level-splash {
     display: none;
     justify-content: center;
     align-items: center;
@@ -385,7 +399,28 @@ button {
     background-color: #262626;
     opacity: 0;
     animation: fade-out 1s 1 forwards;
+    cursor: default;
     z-index: 1000;
+}
+
+#level-splash {
+    color: #fff;
+    background-color: transparent;
+    text-shadow: 2px 2px rgba(0,0,0,.9);
+}
+
+#level-splash div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    text-align: center;
+    background-color: rgba(0,0,0,.55);
+    padding: 50px 25px;
+}
+
+#level-splash p {
+    margin: 20px;
 }
 
 @keyframes fade-out {
@@ -429,6 +464,7 @@ button {
     font-size: 1.25em;
     line-height: 50px;
     padding: 0 20px;
+    transition: .5s;
     z-index: 20;
 }
 
@@ -514,11 +550,16 @@ button {
     width: 65%;
 }
 
+.cell img.prisoner {
+    width: 75%;
+}
+
 img.wall {
     width: 100%;
     height: 110%;
     transform: translateY(-10%);
     box-shadow: 0 25px 5px rgba(0,0,0,.45);
+    pointer-events: none;
     z-index: 20;
 }
 
@@ -676,7 +717,8 @@ img.wall {
     background-color: #ffd700;
 }
 
-.enemy {
+.enemy,
+.boss {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -685,15 +727,45 @@ img.wall {
     background-repeat: no-repeat;
     background-position: center;
     background-size: 80%;
+    pointer-events: none;
     z-index: 10;
 }
 
-.enemy img {
+.boss {
+    background-size: 100%;
+}
+
+.enemy img,
+.boss img {
     position: relative;
     width: 75%;
     height: 75%;
     transition: opacity 1s;
     z-index: 1;
+}
+
+.boss img {
+    width: 100%;
+    height: 100%;
+}
+
+[id^='boss-health'] {
+    display: flex;
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 4px;
+    background-color: #E22727;
+    box-shadow: 4px 4px 0 rgba(0,0,0,.4);
+    outline: 1px solid white;
+    transition: .5s;
+    z-index: 2;
+}
+
+.flying {
+    z-index: 25 !important;
 }
 
 .projectile {
@@ -730,6 +802,7 @@ img.wall {
     100%  { opacity: 0; }
 }
 
+
 /* PLAYER STATS SCREEN
 ================================== */
 
@@ -739,6 +812,7 @@ img.wall {
     top: 0;
     left: 0;
     width: 100vw;
+    height: 100%;
     min-height: 100vh;
     display: none;
     flex-direction: column;
@@ -747,7 +821,7 @@ img.wall {
     align-content: center;
     text-align: center;
     background-image: url('../img/backgrounds/background-02.gif');
-    overflow-y: auto;
+    overflow-y: scroll;
     opacity: 0;
     transition: 1s;
     padding: 25px;
@@ -800,6 +874,16 @@ img.wall {
     margin-top: 20px;
 }
 
+#game-over .win {
+    color: #24e35a;
+    font-size: 1.25em;
+    margin-top: 20px;
+}
+
+#game-over img {
+    max-width: 100px;
+}
+
 #game-over button {
     margin-top: 50px;
 }
@@ -847,10 +931,37 @@ img.wall {
 }
 
 #hero-container div {
+    display: flex;
     width: 50px;
     height: 50px;
     padding: 0;
     margin: 0;
+}
+
+#move-up img,
+#move-right img,
+#move-down img,
+#move-left img {
+    width: 40%;
+    height: 40%;
+    margin: auto;
+    pointer-events: none;
+}
+
+#move-right img {
+    transform: rotate(90deg);
+}
+#move-down img {
+    transform: rotate(180deg);
+}
+#move-left img {
+    transform: rotate(-90deg);
+}
+
+#hero-container div:nth-child(even) {
+    opacity: 0;
+    background-color: rgba(12,126,180,0.75);
+    border-radius: 6px;
 }
 
 #hero {
@@ -858,13 +969,14 @@ img.wall {
     position: relative;
     justify-content: center;
     align-items: center;
-    background-image: url('../img/enemies/enemy-shadow.png');
+    background-image: url('../img/enemies/shadow.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 80% 80%;
 }
 
-#hero img {
+#hero img,
+img.knight {
     width: 75%;
     height: 75%;
     margin: auto;
@@ -881,7 +993,7 @@ img.wall {
     height: 4px;
     background-color: #24e35a;
     box-shadow: 4px 4px 0 rgba(0,0,0,.4);
-    outline: 2px solid white;
+    outline: 1px solid white;
 }
 
 @keyframes status-effect {
@@ -932,11 +1044,14 @@ img.wall {
     #new-game,
     #fallen-heroes,
     #options-menu,
+    #tutorial,
     #main-container,
     #level-up-menu,
+    #level-splash,
     #game-over {
         max-width: 768px;
         height: 100vh;
+        min-height: 100%;
         margin: 0 auto;
     }
     .cell {
