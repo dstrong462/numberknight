@@ -14,7 +14,9 @@
         Daniel Strong
     </author>
 
-    <platform name="android" />
+    <platform name="android">
+        <icon src="img/icon.png" />
+    </platform>
 
     <content src="index.html" />
     <access origin="*" />

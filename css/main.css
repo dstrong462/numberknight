@@ -40,7 +40,7 @@ body {
 #game-container {
     position: relative;
     width: 100vw;
-    max-width: 768px;
+    max-width: 700px;
     height: 100%;
     min-height: 100vh;
     overflow: auto;
@@ -85,7 +85,7 @@ button {
     font-weight: bold;
     text-shadow: 1px 1px #ececee;
     background-color: transparent;
-    outline: '1px solid yellow';
+    outline: none;
     border-style: none;
     background-image: url('../img/gui/button-lg.svg');
     background-repeat: no-repeat;
@@ -97,6 +97,7 @@ button {
 button.main-menu-button {
     height: 60px;
     display: flex !important;
+    justify-content: center;
     z-index: 10000;
 }
 
@@ -881,10 +882,13 @@ img.wall {
 }
 
 #game-over img {
+    /*width: 100%;*/
     max-width: 100px;
 }
 
 #game-over button {
+    align-self: center;
+    margin: auto;
     margin-top: 50px;
 }
 
@@ -1037,7 +1041,7 @@ img.knight {
 /* DESKTOP MAX SIZING
 ================================== */
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
 
     .flip-container,
     #title-screen,
@@ -1049,7 +1053,7 @@ img.knight {
     #level-up-menu,
     #level-splash,
     #game-over {
-        max-width: 768px;
+        max-width: 700px;
         height: 100vh;
         min-height: 100%;
         margin: 0 auto;

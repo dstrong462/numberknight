@@ -2,9 +2,9 @@
 
 // Minimum cell width in pixels
 var minimumCellWidth = 60;
-var maxiumumCellWidth = 85;
-var maxScreenWidth = 768;
-var maxColumns = 7;
+var maxiumumCellWidth = 90;
+var maxScreenWidth = 700;
+var maxColumns = 8;
 var maxRows = 8;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 125;
@@ -141,9 +141,9 @@ if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
 // Resize UI bars for desktop
-if (screenWidth > maxScreenWidth) {
+if (screenWidth >= maxScreenWidth) {
     var topBar = document.getElementById('top-bar');
-    var uiWidth = (numberOfColumns * cellSize) + reservedSides * 2 + 'px';
+    var uiWidth = (numberOfColumns * cellSize) + 'px';
         topBar.style.width = uiWidth;
         topBar.style.height = '75px';
     var bottomBar = document.getElementById('bottom-bar');
@@ -1155,7 +1155,7 @@ function getObjectLocations() {
             locationArray.push(cell);
             fullArray.splice(index,1);
     }
-
+    console.log(total + ' / ' + locationArray.length);
     randomizeDebris();
 }
 
