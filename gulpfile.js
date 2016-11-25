@@ -31,14 +31,14 @@ gulp.task('concat-scripts', function() {
     .pipe(maps.init())
     .pipe(concat('app.js'))
     .pipe(maps.write('./'))
-    .pipe(gulp.dest('docs/js'));
+    .pipe(gulp.dest('js'));
 });
 
 gulp.task('minify-scripts', ['concat-scripts'], function() {
-    return gulp.src('docs/js/app.js')
+    return gulp.src('js/app.js')
     .pipe(uglify())
     .pipe(rename('app.min.js'))
-    .pipe(gulp.dest('docs/js'));
+    .pipe(gulp.dest('js'));
 });
 
 // CSS
@@ -51,14 +51,14 @@ gulp.task('concat-css', function() {
     .pipe(maps.init())
     .pipe(concat('stylesheet.css'))
     .pipe(maps.write('./'))
-    .pipe(gulp.dest('docs/css'));
+    .pipe(gulp.dest('css'));
 });
 
 gulp.task('minify-css', ['concat-css'], function() {
-    return gulp.src('docs/css/stylesheet.css')
+    return gulp.src('css/stylesheet.css')
     .pipe(cleanCSS({compatibility: 'ie8'}))
     .pipe(rename('stylesheet.min.css'))
-    .pipe(gulp.dest('docs/css'));
+    .pipe(gulp.dest('css'));
 });
 
 // Watch Files
@@ -68,14 +68,11 @@ gulp.task('watchFiles', function() {
 
 // Clean
 gulp.task('clean', function() {
-    del(['docs', 'src/js/app*.js*','src/css/stylesheet*.css*']);
+    del(['src/js/app*.js*','src/css/stylesheet*.css*','css','js']);
 });
 
 // Build
 gulp.task('build', ['minify-scripts', 'minify-css'], function() {
-    return gulp.src(['src/index.html', 'src/config.xml', 'src/img/**', 'src/fonts/**'], { base: './src/' })
-    .pipe(gulp.dest('docs/'))
-
 });
 
 gulp.task('serve', ['watchFiles']);

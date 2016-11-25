@@ -467,8 +467,7 @@ function buildRow(row) {
             cell.style.backgroundImage = tileGraphic;
             if (map[row][i].object) {
                 var object = document.createElement('img');
-                    object.src = '/img/objects/' + map[row][i].object + '.gif';
-                    console.log(object.src);
+                    object.src = 'img/objects/' + map[row][i].object + '.gif';
                 if (map[row][i].object === 'wall') {
                     if (hero.bossLevel) {
                         wallTorches = 0;
