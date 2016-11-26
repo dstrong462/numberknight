@@ -11,7 +11,7 @@ var bestiary = [
         moveInterval: 1500,
         moveSpeed: 0.5,
         moveType: 'aggressive',
-        info: 'Description of the monster goes here.'
+        info: 'Description of the monster goes here. Description of the monster goes here. Description of the monster goes here. Description of the monster goes here. Description of the monster goes here.'
     },
     {
         type: 'Gelatinous Cube',

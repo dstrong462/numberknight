@@ -11,7 +11,7 @@ var minimumCellWidth = 60;
 var maxiumumCellWidth = 90;
 var maxScreenWidth = 700;
 var maxColumns = 8;
-var maxRows = 8;
+var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 125;
 // Side wall in pixels

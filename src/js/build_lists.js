@@ -163,9 +163,9 @@ function displayBestiary() {
                 return monster.type === options.enemiesEncountered[i];
             })[0];
         }
-        list += '<div class="row"><div class="col-2">';
-        list += '<img src="img/enemies/' + monster.image + '"></div>';
-        list += '<div class="col-9"><p>' + monster.type + '</p>';
+        list += '<div class="bestiary">';
+        list += '<img src="img/enemies/' + monster.image + '">';
+        list += '<div><h6>' + monster.type + '</h6>';
         list += '<p>' + monster.info + '</p></div></div>';  
     }
 
@@ -183,6 +183,7 @@ function displayBestiary() {
     var closeButton = document.querySelector('.main-menu-button');
         closeButton.innerHTML = '';
         closeButton.className = 'btn-back';
+        closeButton.style.marginBottom = '25px';
         closeButton.addEventListener('click', function() {
             gameOverScreen.style.display = 'none';
             gameOverScreen.innerHTML = '';
@@ -243,7 +244,7 @@ function listFallenStats(hero,view) {
         var closeButton = document.querySelector('#game-over div .main-menu-button');
             closeButton.innerHTML = '';
             closeButton.className = 'btn-back';
-            closeButton.style.paddingBottom = '25px';
+            closeButton.style.marginBottom = '25px';
             closeButton.addEventListener('click', function() {
                 gameOverScreen.style.display = 'none';
             });

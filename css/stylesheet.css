@@ -2062,6 +2062,33 @@ img.wall {
     word-wrap: normal;
 }
 
+#game-over .bestiary {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 50px;
+}
+
+#game-over .bestiary img {
+    width: 85px;
+    margin-top: 0;
+    margin-bottom: auto;
+}
+
+#game-over .bestiary h6 {
+    margin-top: 0;
+}
+
+#game-over .bestiary p {
+    line-height: 1.1em;
+}
+
+#game-over .bestiary div {
+    text-align: left;
+    margin-left: 25px;
+}
+
 
 /* THE HERO
 ================================== */
