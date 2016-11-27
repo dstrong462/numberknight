@@ -12,6 +12,7 @@
     "gulp-sourcemaps": "^1.9.1"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
     "gulp-clean-css": "^2.0.13"
   },
   "scripts": {

@@ -1,3 +1,6 @@
+/*  GLOBAL SETTINGS
+================================== */
+
 @font-face {
     font-family: 'Silkscreen';
     src: url(../fonts/slkscr.ttf);
@@ -16,6 +19,10 @@ body {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
 }
+
+
+/*  SPLASH SCREEN
+================================== */
 
 #splash {
     display: flex;
@@ -46,6 +53,7 @@ body {
     overflow: auto;
     margin: 0 auto;
 }
+
 
 /* GUI ELEMENTS
 ================================== */
@@ -260,6 +268,10 @@ button.main-menu-button {
     height: 2em;
     margin-right: 10px;
 }
+
+
+/*  FALLEN HEROES LIST
+================================== */
 
 #fallen-heroes {
     position: fixed;
@@ -808,7 +820,8 @@ img.wall {
 ================================== */
 
 #game-over,
-#tutorial {
+#tutorial,
+#bestiary {
     position: absolute;
     top: 0;
     left: 0;
@@ -913,31 +926,39 @@ img.wall {
     word-wrap: normal;
 }
 
-#game-over .bestiary {
+#bestiary .bestiary {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: flex-start;
-    margin-bottom: 50px;
+    margin-bottom: 25px;
 }
 
-#game-over .bestiary img {
-    width: 85px;
+#bestiary .bestiary img {
+    width: 70px;
     margin-top: 0;
     margin-bottom: auto;
 }
 
-#game-over .bestiary h6 {
+#bestiary h5 {
+    color: #149ce0;
+    letter-spacing: -1px;
+    margin-bottom: 30px;
+}
+
+#bestiary .bestiary h6 {
+    color: #24e35a;
     margin-top: 0;
 }
 
-#game-over .bestiary p {
+#bestiary .bestiary p {
+    font-size: .95em;
     line-height: 1.1em;
 }
 
-#game-over .bestiary div {
+#bestiary .bestiary div {
     text-align: left;
-    margin-left: 25px;
+    margin-left: 15px;
 }
 
 
@@ -1065,7 +1086,7 @@ img.knight {
 }*/
 
 
-/* DESKTOP MAX SIZING
+/* DESKTOP SIZING
 ================================== */
 
 @media (min-width: 700px) {
@@ -1076,6 +1097,7 @@ img.knight {
     #fallen-heroes,
     #options-menu,
     #tutorial,
+    #bestiary,
     #main-container,
     #level-up-menu,
     #level-splash,

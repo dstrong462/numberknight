@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     cleanCSS = require('gulp-clean-css'),
     rename = require('gulp-rename'),
     maps = require('gulp-sourcemaps'),
+    watch = require('gulp-watch'),
     del = require('del');
 
 // Concat Scripts

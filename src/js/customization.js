@@ -8,10 +8,10 @@ function cheat() {
 
 // Minimum cell width in pixels
 var minimumCellWidth = 60;
-var maxiumumCellWidth = 90;
+var maxiumumCellWidth = 100;
 var maxScreenWidth = 700;
 var maxColumns = 8;
-var maxRows = 10;
+var maxRows = 11;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 125;
 // Side wall in pixels

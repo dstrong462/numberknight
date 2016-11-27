@@ -148,11 +148,11 @@ function showGamemodes(e) {
 
 // Display bestiary
 function displayBestiary() {
-    var gameOverScreen = document.getElementById('game-over');
-        gameOverScreen.innerHTML = '';
-        gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    var bestiaryScreen = document.getElementById('bestiary');
+        bestiaryScreen.innerHTML = '';
+        bestiaryScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     
-    var list = '<h5>Bestiary</h5>';
+    var list = '<h5>Monster Manual</h5>';
 
     for (var i = 0; i < options.enemiesEncountered.length; i++) {
         var monster = bestiary.filter(function(monster) {
@@ -164,29 +164,30 @@ function displayBestiary() {
             })[0];
         }
         list += '<div class="bestiary">';
-        list += '<img src="img/enemies/' + monster.image + '">';
+        list += '<img src="img/enemies/' + monster.image + '" />';
         list += '<div><h6>' + monster.type + '</h6>';
         list += '<p>' + monster.info + '</p></div></div>';  
     }
 
-    gameOverScreen.innerHTML = list;
+    bestiaryScreen.innerHTML = list;
+    bestiaryScreen.style.height = 'auto';
 
     var container = document.createElement('div');
     var button = document.createElement('button');
         button.className = 'main-menu-button';
         container.appendChild(button);
-        gameOverScreen.appendChild(container);
+        bestiaryScreen.appendChild(container);
 
-        gameOverScreen.style.opacity = '1';
-        gameOverScreen.style.display = 'flex';
+        bestiaryScreen.style.opacity = '1';
+        bestiaryScreen.style.display = 'flex';
 
     var closeButton = document.querySelector('.main-menu-button');
         closeButton.innerHTML = '';
         closeButton.className = 'btn-back';
         closeButton.style.marginBottom = '25px';
         closeButton.addEventListener('click', function() {
-            gameOverScreen.style.display = 'none';
-            gameOverScreen.innerHTML = '';
+            bestiaryScreen.style.display = 'none';
+            bestiaryScreen.innerHTML = '';
         });
 
     options.newEnemies = 0;
