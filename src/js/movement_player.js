@@ -1,12 +1,42 @@
+/////////////// MOVEMENT_PLAYER ///////////////
+
 // Add event listeners for the 4 movement buttons
 var moveUp = document.getElementById('move-up');
-    moveUp.addEventListener('click', moveHero);
+    moveUp.addEventListener('click', function(e) {
+        if (hero.fastTravel) {
+            hero.fastTravel = false;
+        }
+        else {
+            moveHero('move-up');
+        }
+    });
 var moveDown = document.getElementById('move-down');
-    moveDown.addEventListener('click', moveHero);
+    moveDown.addEventListener('click', function(e) {
+        if (hero.fastTravel) {
+            hero.fastTravel = false;
+        }
+        else {
+            moveHero('move-down');
+        }
+    });
 var moveLeft = document.getElementById('move-left');
-    moveLeft.addEventListener('click', moveHero);
+    moveLeft.addEventListener('click', function(e) {
+        if (hero.fastTravel) {
+            hero.fastTravel = false;
+        }
+        else {
+            moveHero('move-left');
+        }
+    });
 var moveRight = document.getElementById('move-right');
-    moveRight.addEventListener('click', moveHero);
+    moveRight.addEventListener('click', function(e) {
+        if (hero.fastTravel) {
+            hero.fastTravel = false;
+        }
+        else {
+            moveHero('move-right');
+        }
+    });
 
 // Listen for keyboard events for desktop users that like to kick it oldschool
 document.onkeyup = checkKey;
@@ -14,117 +44,232 @@ document.onkeyup = checkKey;
 function checkKey(e) {
     if (hero.canMove) {
         e = e || window.event;
-        if (e.keyCode == '37' ||
-            e.keyCode == '38' ||
-            e.keyCode == '39' ||
-            e.keyCode == '40') {
-            moveHero(e);
+        var move = false;
+        // Assign movement direction
+        if (e.keyCode == '37') {
+            move = 'move-left';
+        }
+        else if (e.keyCode == '38') {
+            move = 'move-up';
+        }
+        else if (e.keyCode == '39') {
+            move = 'move-right';
+        }
+        else if (e.keyCode == '40') {
+            move = 'move-down';
         }
         else if (e.keyCode == '32') {
+            hero.fastTravel = false;
             checkMath();
+        }
+        // Pass movement direction to movement function
+        if (move !== false) {
+            hero.fastTravel = false;
+            moveHero(move);
         }
     }
 }
 
-var taps = [];
 
-// Move hero with screen swipes
-function swipe() {
-
-    var touchSurface = document.getElementById('touch-surface');
-
-    var xStart;
-    var xEnd;
-    var yStart;
-    var yEnd;
-    var xDistance;
-    var yDistance;
-    var minDistance = 75;
-    var tolerance = 75;
-    var startTime;
-    var totalTime;
-    var timeLimit = 250;
-
-    touchSurface.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        if (hero.canMove) {
-            xStart = e.changedTouches[0].clientX;
-            yStart = e.changedTouches[0].clientY;
-            startTime = new Date().getTime();
-        }
-    });
-
-    touchSurface.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-    });
-
-    touchSurface.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        if (hero.canMove) {
-            xEnd = e.changedTouches[0].clientX;
-            yEnd = e.changedTouches[0].clientY;
-            totalTime = new Date().getTime() - startTime;
-
-            xDistance = xEnd - xStart;
-            yDistance = yEnd - yStart;
-
-            // Weird method I came up with to check for a double tap
-            // if (totalTime <= timeLimit && Math.abs(xDistance) < 50 && Math.abs(yDistance) < 50) {
-            //     var tap = new Date().getTime();
-            //         taps.push(tap);
-            //     setTimeout(function() {
-            //         taps = [];
-            //     }, timeLimit);
-            //     if (taps.length === 2) {
-            //         if (taps[1] - taps[0] < timeLimit) {
-            //             checkMath();
-            //         }
-            //     }
-            // }
-
-
-            // Make sure swipe is fast enough, and prevent swiping the hero
-            if (totalTime <= timeLimit && e.target.id !== 'hero') {
-
-                // Check for LEFT or RIGHT movement
-                if (Math.abs(xDistance) > minDistance && Math.abs(yDistance) < tolerance) {
-                    // Move RIGHT
-                    if (xEnd - xStart > 0) {
-                        e.target.id = 'move-right';
-                        moveHero(e);
-                    }
-                    // Move LEFT
-                    else if (xEnd - xStart < 0) {
-                        e.target.id = 'move-left';
-                        moveHero(e);
-                    }
-                }
-                // Check for UP or DOWN movement
-                else if (Math.abs(yDistance) > minDistance && Math.abs(xDistance) < tolerance) {
-                    // Move DOWN
-                    if (yEnd - yStart > 0) {
-                        e.target.id = 'move-down';
-                        moveHero(e);
-                    }
-                    // Move UP
-                    else if (yEnd - yStart < 0) {
-                        e.target.id = 'move-up';
-                        moveHero(e);
-                    }
+// Allow player to automate travel for greater distances
+function fastTravel(e) {
+    if (hero.fastTravel) {
+        hero.fastTravel = false;
+    }
+    else {
+        var mapCell;
+        for (var r = 0; r < numberOfRows; r++) {
+            for (var c = 0; c < numberOfColumns; c++) {
+                if (map[r][c].location === e.target.id && map[r][c].contents !== 'blocked') {
+                    mapCell = map[r][c];
+                    hero.fastTravel = mapCell;
+                    var square = document.getElementById(mapCell.location);
+                        square.style.zIndex = 1;
+                        square.style.border = '2px solid rgba(0,0,0,0)';
+                        square.style.borderRadius = '6px';
+                        square.style.transition = 'border-color 0.5s';
+                        square.style.borderColor = 'rgba(12,126,180,1)';
+                    var interval = setInterval(function() {
+                        if (hero.fastTravel !== false && hero.canMove) {
+                            var end = hero.fastTravel;
+                            fastTravelPathing(square);
+                        }
+                        else {
+                            clearInterval(interval);
+                            square.style.borderColor = 'rgba(0,0,0,0)';
+                        }
+                    }, 450);
                 }
             }
         }
-    });
+    }
+}
 
+
+// Automate travelling from one location to another with some basic obstacle avoidance
+function fastTravelPathing(square) {
+    var end = hero.fastTravel;
+    // Determine greatest distance to close
+    var rows = Math.abs(hero.row - end.row);
+    var cols = Math.abs(hero.col - end.col);
+    if (rows > cols) {
+        var direction = 'vertical';
+    }
+    else {
+        var direction = 'horizontal';
+    }
+    // Fade out outline if 1 square away from target
+    if (Math.abs(hero.row - end.row) <= 1 && Math.abs(hero.col - end.col) <= 1) {
+        setTimeout(function() {
+            square.style.borderColor = 'rgba(0,0,0,0)';
+        }, 350);
+    }
+    // Stop moving if the end has been reached
+    if (hero.location === end.location) {
+        hero.fastTravel = false;
+    }
+    // If on the same row
+    else if (hero.row === end.row) {
+        // If location is left
+        if (hero.col > end.col) {
+            // If next cell is clear
+            if (map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
+                moveHero('move-left');
+            }
+            // If blocked
+            else {
+                // If not on bottom row, move down
+                if (hero.row !== numberOfRows && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
+                    moveHero('move-down');
+                }
+                // Otherwise, move up
+                else if (hero.row === numberOfRows && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
+                    moveHero('move-up');
+                }
+                else {
+                    hero.fastTravel = false;
+                }
+            }
+        }
+        // If location is right
+        else if (hero.col < end.col) {
+            // If next cell is clear
+            if (map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
+                moveHero('move-right');
+            }
+            // If blocked
+            else {
+                // If not on bottom row, move down
+                if (hero.row !== numberOfRows && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
+                    moveHero('move-down');
+                }
+                // Otherwise, move up
+                else if (hero.row === numberOfRows && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
+                    moveHero('move-up');
+                }
+                else {
+                    hero.fastTravel = false;
+                }
+            }
+        }
+    }
+    // If target location is up
+    else if (hero.row > end.row && direction === 'vertical') {
+        // If next cell is clear
+        if (map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
+            moveHero('move-up');
+        }
+        // If blocked
+        else {
+            // If not on right most column, move right
+            if (hero.col !== numberOfColumns && map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
+                moveHero('move-right');
+            }
+            // Otherwise, move left
+            else if (hero.col === numberOfColumns && map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
+                moveHero('move-left');
+            }
+            else {
+                hero.fastTravel = false;
+            }
+        }
+    }
+    // If target location is down
+    else if (hero.row < end.row && direction === 'vertical') {
+        // If next cell is clear
+        if (map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
+            moveHero('move-down');
+        }
+        // If blocked
+        else {
+            // If target is to the left
+            if (hero.col > end.col || hero.col === numberOfColumns && map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
+                moveHero('move-left');
+            }
+            // If not on right most column, move right
+            else if (hero.col !== numberOfColumns && map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
+                moveHero('move-right');
+            }
+            else {
+                hero.fastTravel = false;
+            }
+        }
+    }
+
+    // If target location is left
+    else if (hero.col > end.col && direction === 'horizontal') {
+        // If next cell is clear
+        if (map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
+            moveHero('move-left');
+        }
+        // If blocked
+        else {
+            // If target location is down
+            if (hero.row < end.row && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
+                moveHero('move-down');
+            }   
+            // If target is up
+            else if (hero.row > end.row && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
+                moveHero('move-up');
+            }
+            else {
+                hero.fastTravel = false;
+            }
+        }
+    }
+    // If target location is right
+    else if (hero.col < end.col && direction === 'horizontal') {
+        // If next cell is clear
+        if (map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
+            moveHero('move-right');
+        }
+        // If blocked
+        else {
+            // If target location is down
+            if (hero.row < end.row && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
+                moveHero('move-down');
+            }   
+            // If target is up
+            else if (hero.row > end.row && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
+                moveHero('move-up');
+            }
+            else {
+                hero.fastTravel = false;
+            }
+        }
+    }
+    else {
+        hero.fastTravel = false;
+    }
 }
 
 
 // Check collision of movement, and move accordingly
-function moveHero(e) {
+function moveHero(move) {
     if (hero.canMove) {
         cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
-        if (e.target.id === 'move-up' || e.keyCode == '38') {
+        if (move === 'move-up') {
             if (hero.row === 1) {
 
             }
@@ -152,7 +297,7 @@ function moveHero(e) {
                 }
             }
         }
-        else if (e.target.id === 'move-down' || e.keyCode == '40') {
+        else if (move === 'move-down') {
             if (hero.row === numberOfRows) {
 
             }
@@ -180,7 +325,7 @@ function moveHero(e) {
                 }
             }
         }
-        else if (e.target.id === 'move-left' || e.keyCode == '37') {
+        else if (move === 'move-left') {
             if (hero.col === 1) {
 
             }
@@ -208,7 +353,7 @@ function moveHero(e) {
                 }
             }
         }
-        else if (e.target.id === 'move-right' || e.keyCode == '39') {
+        else if (move === 'move-right') {
             if (hero.col === numberOfColumns) {
             }
             else {

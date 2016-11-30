@@ -1,3 +1,5 @@
+/////////////// ENEMY_ABILITIES ///////////////
+
 // Add damage over time effect
 function damageOverTime(victim,attacker) {
     var amount = attacker.currentAbility.abilityDamge;

@@ -1,3 +1,5 @@
+/////////////// BUILD_LEVELS ///////////////
+
 // Start Game
 function startGame() {
     fadeOut();
@@ -162,6 +164,7 @@ function addHero() {
         hero.evasion = 10;
         hero.factorsRight = 0;
         hero.factorsWrong = 0;
+        hero.fastTravel = false;
         hero.gameLevel = 1;
         hero.health = 100;
         hero.hero = true;
@@ -219,6 +222,7 @@ function addHero() {
     xpBar.style.transition = '0s';
     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
     hero.canMove = true;
+    hero.canCapture = true;
 
     getObjectLocations();
 }
@@ -488,6 +492,7 @@ function buildRow(row) {
                 }
                 cell.appendChild(object);
             }
+        cell.addEventListener('click', fastTravel);
         newRow.appendChild(cell);
     }
     levelContainer.appendChild(newRow);

@@ -1,3 +1,5 @@
+/////////////// SPAWN_ENEMIES ///////////////
+
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
     if (hero.difficultyMonster == 1) {
@@ -24,8 +26,6 @@ function letTheGamesBegin() {
         maxWeight *= 1.5;
         maxEnemies *= 1.5;
     }
-    console.log('maxWeight: ' + maxWeight);
-    console.log('maxEnemies: ' + maxEnemies);
     // Get list of safe spawn locations
     spawnArray = [];
     try {

@@ -1,3 +1,5 @@
+/////////////// TUTORIAL ///////////////
+
 var rescueText = ['Random rescue text 1','Random rescue text 2','Random rescue text 3','Random rescue text 4',];
 
 // Display story and message text on screen
@@ -141,7 +143,7 @@ function startTutorial() {
                 setTimeout(function() {
                     var square = document.getElementById(tutorialData.highlightedSquare);
                         square.style.border = '2px solid rgba(0,0,0,0)';
-                        square.style.borderRadius = '6px'
+                        square.style.borderRadius = '6px';
                         square.style.transition = 'border-color 1s';
                         square.style.borderColor = 'rgba(255,215,0,1)';
                 }, 1000);
@@ -178,7 +180,7 @@ function startTutorial() {
         document.getElementById('healthbar').style.opacity = 1;
         for (var i = 0; i < 2; i++) {
             document.getElementById(trapArray[i].location).style.border = '2px solid rgba(0,0,0,0)';
-            document.getElementById(trapArray[i].location).style.borderRadius = '6px'
+            document.getElementById(trapArray[i].location).style.borderRadius = '6px';
             document.getElementById(trapArray[i].location).style.transition = 'border-color 1s';
             document.getElementById(trapArray[i].location).style.borderColor = 'rgba(226,39,39,1)';
         }
@@ -210,7 +212,7 @@ function startTutorial() {
             objects.push(object1,object2);
         for (var i = 0; i < 2; i++) {
             objects[i].style.border = '2px solid rgba(0,0,0,0)';
-            objects[i].style.borderRadius = '6px'
+            objects[i].style.borderRadius = '6px';
             objects[i].style.transition = 'border-color 1s';
             objects[i].style.borderColor = 'rgba(255,215,0,1)';
         }

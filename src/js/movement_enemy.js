@@ -1,3 +1,5 @@
+/////////////// MOVEMENT_ENEMY ///////////////
+
 // Determine which direction to move in
 function getMovementDirection(enemy,enemyContainer) {
     var directions = ['up','down','left','right'];

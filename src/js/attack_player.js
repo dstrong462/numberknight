@@ -1,3 +1,5 @@
+/////////////// ATTACK_PLAYER ///////////////
+
 // Flash hit image on character
 function flashHitImage(victim,victimContainer) {
     if (victim.hasOwnProperty('id')) {

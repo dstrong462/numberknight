@@ -1,3 +1,5 @@
+/////////////// MONSTER_MANUAL ///////////////
+
 // My Monster Manual
 var bestiary = [
     {

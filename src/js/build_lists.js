@@ -1,3 +1,5 @@
+/////////////// BUILD_LISTS ///////////////
+
 var fallenButton = document.getElementById('btn-fallen-heroes');
     fallenButton.addEventListener('click', displayHeroes);
 
@@ -116,6 +118,7 @@ function showGamemodes(e) {
         list += '<div class="row"><button class="btn-back"></button></div>';
 
         tutorial.innerHTML = list;
+        tutorial.style.height = 'auto';
 
     var backButton = document.querySelector('#tutorial .btn-back');
         backButton.addEventListener('click', function() {

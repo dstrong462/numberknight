@@ -1,3 +1,5 @@
+/////////////// MENUS ///////////////
+
 // Add functionality to title menu buttons
 function titleScreen() {
 document.body.style.height = '100vh';

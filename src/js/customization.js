@@ -4,7 +4,7 @@ function cheat() {
 }
 //////////////////////
 
-// VARIABLES FOR GAME CUSTOMIZATION //
+/////////////// CUSTOMIZATION ///////////////
 
 // Minimum cell width in pixels
 var minimumCellWidth = 60;
@@ -22,7 +22,6 @@ var correctMaxThreshold = 50;
 
 // Customize variables for healing
 var healthRestoreFromCapture = 1;
-var healthRestoreFromPotion = 30;
 
 // Customize variables for damage
 var heroBaseDamage = 25;

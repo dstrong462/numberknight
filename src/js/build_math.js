@@ -1,3 +1,5 @@
+/////////////// BUILD_MATH ///////////////
+
 // Reset variables and route to the selected game mode
 function addMath() {
     console.log('addMath');
@@ -18,6 +20,8 @@ function addMath() {
     else {
         var mode = gameMode[randomNumber(0,gameMode.length - 1)];
     }
+
+    var mode = gameMode[3];
 
     hero.gameMode = mode;
     hero.answers = 0;
@@ -236,17 +240,17 @@ function equality(total,correct,incorrect,callback) {
         {
             // EASY
             min: 1,
-            max: 20,
+            max: 20
         },
         {
             // MEDIUM
             min: 20,
-            max: 70,
+            max: 70
         },
         {
             // HARD
             min: 70,
-            max: 150,
+            max: 150
         }
     ];
     target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
@@ -484,9 +488,18 @@ function openExitCover() {
         if (exitAnswer !== null) {
             exitAnswer.style.opacity = '0';
         }
-        var exitCover = document.querySelector('#' + levelExit.id + ' img');
-            exitCover.style.transition = '2.25s ease-in-out';
-            exitCover.style.transform = 'translateY(-100%)';
+        setTimeout(function() {
+            var exitCover = document.querySelector('#' + levelExit.id + ' img');
+                exitCover.style.transition = '2.25s ease-in-out';
+                exitCover.style.transform = 'translateY(-100%)';
+            document.getElementById('game-mode').innerHTML = 'Level Complete!';
+        }, 1500);
+        // Fade out all incorrect answers
+        var maths = document.querySelectorAll('.cell p');
+        for (var i = 0; i < maths.length; i++) {
+            maths[i].style.opacity = '0';
+            hero.canCapture = false;
+        }
     }
 }
 

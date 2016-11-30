@@ -1,3 +1,5 @@
+/////////////// UTILITIES ///////////////
+
 // Randomize loot drop
 function rollLoot(victim) {
     if (options.tutorial || randomNumber(1,100) <= lootChance) {

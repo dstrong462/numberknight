@@ -41,7 +41,6 @@ body {
     max-width: 300px;
     opacity: 0;
     margin: auto;
-    image-rendering: optimizeQuality;
 }
 
 #game-container {
@@ -546,6 +545,7 @@ button.main-menu-button {
 }
 
 .cell p {
+    pointer-events: none;
     line-height: 1.05em;
     transition: .5s;
     margin: auto;
@@ -553,6 +553,7 @@ button.main-menu-button {
 }
 
 .cell img {
+    pointer-events: none;
     position: absolute;
     top: 0;
     right: 0;
@@ -574,6 +575,13 @@ img.wall {
     box-shadow: 0 25px 5px rgba(0,0,0,.45);
     pointer-events: none;
     z-index: 20;
+}
+
+.exit-outline {
+    width: 110%;
+    height: 110%;
+    border: 2px solid yellow;
+    border-radius: 6px;
 }
 
 .torch:after {
@@ -966,6 +974,7 @@ img.wall {
 ================================== */
 
 #hero-container {
+    pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;
@@ -1011,12 +1020,18 @@ img.wall {
 }
 
 #hero-container div:nth-child(even) {
+    pointer-events: auto;
     opacity: 0;
     background-color: rgba(12,126,180,0.75);
     border-radius: 6px;
 }
 
+.hero-spacer {
+    pointer-events: none;
+}
+
 #hero {
+    pointer-events: auto;
     display: flex;
     position: relative;
     justify-content: center;

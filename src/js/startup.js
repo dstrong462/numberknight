@@ -1,3 +1,5 @@
+/////////////// STARTUP ///////////////
+
 // Show splash screen
 (function splashScreen() {
     var splash = document.querySelector('#splash img');

@@ -1,3 +1,5 @@
+/////////////// DEATH ///////////////
+
 // Add player to fallen heroes and display final summary
 function youDied(deathBy) {
     healthBar.style.width = '0';
@@ -172,5 +174,4 @@ function theEnd() {
             }, 500);
         }
     }, 500);
-
 }
