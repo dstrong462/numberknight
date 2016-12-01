@@ -83,14 +83,12 @@ function fastTravel(e) {
                 if (map[r][c].location === e.target.id && map[r][c].contents !== 'blocked') {
                     mapCell = map[r][c];
                     hero.fastTravel = mapCell;
-                    var square = document.getElementById(mapCell.location);
-                        square.style.zIndex = 1;
-                        square.style.border = '2px solid rgba(0,0,0,0)';
-                        square.style.borderRadius = '6px';
-                        square.style.transition = 'border-color 0.5s';
+                    var square = document.createElement('span');
+                        square.classList.add('highlight');
+                    document.getElementById(mapCell.location).appendChild(square);
                         square.style.borderColor = 'rgba(12,126,180,1)';
                     var interval = setInterval(function() {
-                        if (hero.fastTravel !== false && hero.canMove) {
+                        if (hero.fastTravel !== false && hero.canMove !== false) {
                             var end = hero.fastTravel;
                             fastTravelPathing(square);
                         }
@@ -140,11 +138,23 @@ function fastTravelPathing(square) {
             else {
                 // If not on bottom row, move down
                 if (hero.row !== numberOfRows && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
-                    moveHero('move-down');
+                    // Keep from geting stuck in a loop
+                    if (hero.lastLocation.lastMove === 'move-down') {
+                        moveHero('move-down');
+                    }
+                    else {
+                        moveHero('move-up');
+                    }
                 }
                 // Otherwise, move up
                 else if (hero.row === numberOfRows && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
-                    moveHero('move-up');
+                    // Keep from geting stuck in a loop
+                    if (hero.lastLocation.lastMove === 'move-up') {
+                        moveHero('move-up');
+                    }
+                    else {
+                        moveHero('move-down');
+                    }
                 }
                 else {
                     hero.fastTravel = false;
@@ -161,11 +171,23 @@ function fastTravelPathing(square) {
             else {
                 // If not on bottom row, move down
                 if (hero.row !== numberOfRows && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
-                    moveHero('move-down');
+                    // Keep from geting stuck in a loop
+                    if (hero.lastLocation.lastMove === 'move-down') {
+                        moveHero('move-down');
+                    }
+                    else {
+                        moveHero('move-up');
+                    }
                 }
                 // Otherwise, move up
                 else if (hero.row === numberOfRows && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
-                    moveHero('move-up');
+                    // Keep from geting stuck in a loop
+                    if (hero.lastLocation.lastMove === 'move-up') {
+                        moveHero('move-up');
+                    }
+                    else {
+                        moveHero('move-down');
+                    }
                 }
                 else {
                     hero.fastTravel = false;
@@ -183,11 +205,23 @@ function fastTravelPathing(square) {
         else {
             // If not on right most column, move right
             if (hero.col !== numberOfColumns && map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
-                moveHero('move-right');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-right') {
+                    moveHero('move-right');
+                }
+                else {
+                    moveHero('move-left');
+                }
             }
             // Otherwise, move left
             else if (hero.col === numberOfColumns && map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
-                moveHero('move-left');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-left') {
+                    moveHero('move-left');
+                }
+                else {
+                    moveHero('move-right');
+                }
             }
             else {
                 hero.fastTravel = false;
@@ -204,11 +238,23 @@ function fastTravelPathing(square) {
         else {
             // If target is to the left
             if (hero.col > end.col || hero.col === numberOfColumns && map[hero.row - 1][hero.col - 2].contents !== 'blocked' && map[hero.row - 1][hero.col - 2].enemy.length === 0) {
-                moveHero('move-left');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-left') {
+                    moveHero('move-left');
+                }
+                else {
+                    moveHero('move-right');
+                }
             }
             // If not on right most column, move right
             else if (hero.col !== numberOfColumns && map[hero.row - 1][hero.col].contents !== 'blocked' && map[hero.row - 1][hero.col].enemy.length === 0) {
-                moveHero('move-right');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-right') {
+                    moveHero('move-right');
+                }
+                else {
+                    moveHero('move-left');
+                }
             }
             else {
                 hero.fastTravel = false;
@@ -226,11 +272,23 @@ function fastTravelPathing(square) {
         else {
             // If target location is down
             if (hero.row < end.row && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
-                moveHero('move-down');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-down') {
+                    moveHero('move-down');
+                }
+                else {
+                    moveHero('move-up');
+                }
             }   
             // If target is up
             else if (hero.row > end.row && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
-                moveHero('move-up');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-up') {
+                    moveHero('move-up');
+                }
+                else {
+                    moveHero('move-down');
+                }
             }
             else {
                 hero.fastTravel = false;
@@ -247,11 +305,23 @@ function fastTravelPathing(square) {
         else {
             // If target location is down
             if (hero.row < end.row && map[hero.row][hero.col - 1].contents !== 'blocked' && map[hero.row][hero.col - 1].enemy.length === 0) {
-                moveHero('move-down');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-down') {
+                    moveHero('move-down');
+                }
+                else {
+                    moveHero('move-up');
+                }
             }   
             // If target is up
             else if (hero.row > end.row && map[hero.row - 2][hero.col - 1].contents !== 'blocked' && map[hero.row - 2][hero.col - 1].enemy.length === 0) {
-                moveHero('move-up');
+                // Keep from geting stuck in a loop
+                if (hero.lastLocation.lastMove === 'move-up') {
+                    moveHero('move-up');
+                }
+                else {
+                    moveHero('move-down');
+                }
             }
             else {
                 hero.fastTravel = false;
@@ -269,6 +339,8 @@ function moveHero(move) {
     if (hero.canMove) {
         cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
+        hero.lastLocation = munchLocation;
+        hero.lastLocation.lastMove = move;
         if (move === 'move-up') {
             if (hero.row === 1) {
 

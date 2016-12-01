@@ -40,6 +40,7 @@ function restoreHealth(amount) {
 // Freeze anyone who walks through ice for set number of seconds
 function freezePerson(person,duration,type) {
     person.canMove = false;
+    person.frozen = true;
     var timer = document.getElementById('hero-status');
         timer.style.width = '100%';
     if (type === 'ice') {
@@ -54,6 +55,7 @@ function freezePerson(person,duration,type) {
     setTimeout(function() {
         timer.style.display = 'none';
         person.canMove = true;
+        person.frozen = false;
     }, duration);
 }
 
@@ -70,14 +72,14 @@ function checkForTraps() {
         if (location.trapType === 'ice') {
             hero.timesFrozen++;
             var duration = location.trapDuration;
-            flashMessage(hero,'frozen!',duration);
             freezePerson(hero,duration,'ice');
+            flashMessage(hero,'frozen!',duration);
         }
         else if (location.trapType === 'web') {
             hero.timesWebbed++;
-            var duration = 4000;
-            flashMessage(hero,'trapped!',duration);
+            var duration = location.trapDuration;
             freezePerson(hero,duration,'web');
+            flashMessage(hero,'trapped!',duration);
         }
         else if (location.contents === 'trap') {
             flashHitImage(hero,player);
@@ -255,7 +257,12 @@ function cooldown(person,duration) {
     }
     setTimeout(function() {
         if (person.hero) {
-            hero.canMove = true;
+            if (hero.frozen) {
+
+            }
+            else {
+                hero.canMove = true;
+            }
         }
         else {
             person.cooldown = false;

@@ -51,8 +51,9 @@ var bestiary = [
             {
                 ability: 'web',
                 abilityDamge: 0,
+                trapDuration: 3000,
                 abilityDuration: 12000,
-                abilityChance: 10
+                abilityChance: 20
             }
         ],
         info: 'Description of the monster goes here.'
@@ -96,8 +97,8 @@ var bestiary = [
                 abilityDamge: 15,
                 damageDuration: 3000,
                 abilityDuration: 0.45,
-                abilityChance: 70,
-                targetChance: 50
+                abilityChance: 75,
+                targetChance: 75
             }
         ],
         info: 'Description of the monster goes here.'

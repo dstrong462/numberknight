@@ -83,8 +83,16 @@ function checkForAttack(direction,victim,attacker) {
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
                                 object.parentElement.classList.remove('torch');
-                            // Roll for loot
-                            rollLoot(victim);
+                            // If it is a column
+                            if (victim.object === 'wall') {
+                                // Remove from columnArray
+                                var colIndex = columnArray.map(function(e) { return e.location; }).indexOf(victim.location);
+                                columnArray.splice(colIndex,1);
+                                victim.contents = 'empty';
+                            }
+                            else {
+                                rollLoot(victim);
+                            }
                         }
                         else {
                             map[victim.row - 1][victim.col - 1].enemy.splice(0,1);

@@ -203,7 +203,7 @@ function layTrap(enemy) {
             mapLocation.contents = 'trap';
             mapLocation.trapType = enemy.currentAbility.ability;
             mapLocation.trapDamage = enemy.currentAbility.abilityDamge;
-        if (enemy.currentAbility.ability === 'ice') {
+        if (enemy.currentAbility.ability === 'ice' || enemy.currentAbility.ability === 'web') {
             mapLocation.trapDuration = enemy.currentAbility.trapDuration;
         }
         var trap = document.createElement('img');

@@ -165,12 +165,14 @@ function addHero() {
         hero.factorsRight = 0;
         hero.factorsWrong = 0;
         hero.fastTravel = false;
+        hero.frozen = false;
         hero.gameLevel = 1;
         hero.health = 100;
         hero.hero = true;
         hero.id = 'hero-container';
         hero.knights = [{ number: 0, color: '#888888' }, { number: 2, color: '#cc3234' }, { number: 3, color: '#1cba4c' }, { number: 4, color: '#7c629c' }, { number: 5, color: '#fc8a04' },
                         { number: 6, color: '#cccacc' }, { number: 7, color: '#ffffff' }, { number: 8, color: '#f4fe04' },{ number: 9, color: '#a47644' }];
+        hero.lastLocation = map[hero.row - 1][hero.col - 1];
         hero.left = 0;
         hero.level = 1;
         hero.location = 'r' + hero.row + 'c' + hero.col;
