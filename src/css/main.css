@@ -7,6 +7,12 @@
     font-weight: normal;
 }
 
+@font-face {
+    font-family: 'Ubuntu';
+    src: url(../fonts/Ubuntu-Medium.ttf);
+    font-weight: normal;
+}
+
 body {
     color: #fff;
     font-family: 'Silkscreen';
@@ -180,6 +186,11 @@ button.main-menu-button {
 }
 #soundfx:checked + label span {
     background-image: url('../img/gui/soundfx-on.svg');
+}
+
+/* Disabling this for now, I might add later when I have more time */
+#soundmenu {
+    display: none;
 }
 
 #math-difficulty input + label span,
@@ -529,8 +540,10 @@ button.main-menu-button {
     width: 60px;
     height: 60px;
     color: #fff;
+    font-family: 'Ubuntu';
     font-size: .95em;
-    letter-spacing: 1px;
+    line-height: 1.05em;
+    letter-spacing: 2px;
     text-align: center;
     text-shadow: 2px 2px rgba(0,0,0,.9);
     background-repeat: no-repeat;
@@ -546,7 +559,6 @@ button.main-menu-button {
 
 .cell p {
     pointer-events: none;
-    line-height: 1.05em;
     transition: .5s;
     margin: auto;
     z-index: 1;
@@ -714,7 +726,7 @@ img.wall {
     font-size: .9em;
     font-weight: bold;
     line-height: 20px;
-    text-shadow: 1px 1px rgba(0,0,0,.5);
+    text-shadow: 2px 2px rgba(0,0,0,.75);
 }
 
 #health:before {

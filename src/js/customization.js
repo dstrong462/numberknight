@@ -10,15 +10,15 @@ function cheat() {
 var minimumCellWidth = 60;
 var maxiumumCellWidth = 100;
 var maxScreenWidth = 700;
-var maxColumns = 8;
-var maxRows = 11;
+var maxColumns = 7;
+var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 125;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
 var correctMinThreshold = 20;
-var correctMaxThreshold = 50;
+var correctMaxThreshold = 60;
 
 // Customize variables for healing
 var healthRestoreFromCapture = 1;

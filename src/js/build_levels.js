@@ -247,7 +247,7 @@ function getObjectLocations() {
     console.log('getObjectLocations');
     debrisToBuild = randomNumber(3,5);
     columnsToBuild = randomNumber(1,3);
-    trapsToBuild = [randomNumber(1,2),randomNumber(3,4),randomNumber(4,6)];
+    trapsToBuild = [randomNumber(2,4),randomNumber(5,6),randomNumber(7,8)];
 
     var total = trapsToBuild[hero.difficultyMonster - 1] + debrisToBuild + columnsToBuild;
     if (options.endgame) {

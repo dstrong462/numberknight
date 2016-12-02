@@ -21,8 +21,6 @@ function addMath() {
         var mode = gameMode[randomNumber(0,gameMode.length - 1)];
     }
 
-    var mode = gameMode[3];
-
     hero.gameMode = mode;
     hero.answers = 0;
     hero.answersNeeded = 0;

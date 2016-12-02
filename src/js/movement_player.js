@@ -87,6 +87,10 @@ function fastTravel(e) {
                         square.classList.add('highlight');
                     document.getElementById(mapCell.location).appendChild(square);
                         square.style.borderColor = 'rgba(12,126,180,1)';
+                    if (hero.fastTravel !== false && hero.canMove !== false) {
+                        var end = hero.fastTravel;
+                        fastTravelPathing(square);
+                    }
                     var interval = setInterval(function() {
                         if (hero.fastTravel !== false && hero.canMove !== false) {
                             var end = hero.fastTravel;
@@ -95,8 +99,11 @@ function fastTravel(e) {
                         else {
                             clearInterval(interval);
                             square.style.borderColor = 'rgba(0,0,0,0)';
+                            setTimeout(function() {
+                                square.remove();
+                            }, 500);
                         }
-                    }, 450);
+                    }, 500);
                 }
             }
         }

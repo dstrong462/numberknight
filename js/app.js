@@ -10,15 +10,15 @@ function cheat() {
 var minimumCellWidth = 60;
 var maxiumumCellWidth = 100;
 var maxScreenWidth = 700;
-var maxColumns = 8;
-var maxRows = 11;
+var maxColumns = 7;
+var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 125;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
 var correctMinThreshold = 20;
-var correctMaxThreshold = 50;
+var correctMaxThreshold = 60;
 
 // Customize variables for healing
 var healthRestoreFromCapture = 1;
@@ -892,7 +892,7 @@ function getObjectLocations() {
     console.log('getObjectLocations');
     debrisToBuild = randomNumber(3,5);
     columnsToBuild = randomNumber(1,3);
-    trapsToBuild = [randomNumber(1,2),randomNumber(3,4),randomNumber(4,6)];
+    trapsToBuild = [randomNumber(2,4),randomNumber(5,6),randomNumber(7,8)];
 
     var total = trapsToBuild[hero.difficultyMonster - 1] + debrisToBuild + columnsToBuild;
     if (options.endgame) {
@@ -1271,8 +1271,6 @@ function addMath() {
     else {
         var mode = gameMode[randomNumber(0,gameMode.length - 1)];
     }
-
-    var mode = gameMode[3];
 
     hero.gameMode = mode;
     hero.answers = 0;
@@ -3037,6 +3035,10 @@ function fastTravel(e) {
                         square.classList.add('highlight');
                     document.getElementById(mapCell.location).appendChild(square);
                         square.style.borderColor = 'rgba(12,126,180,1)';
+                    if (hero.fastTravel !== false && hero.canMove !== false) {
+                        var end = hero.fastTravel;
+                        fastTravelPathing(square);
+                    }
                     var interval = setInterval(function() {
                         if (hero.fastTravel !== false && hero.canMove !== false) {
                             var end = hero.fastTravel;
@@ -3045,8 +3047,11 @@ function fastTravel(e) {
                         else {
                             clearInterval(interval);
                             square.style.borderColor = 'rgba(0,0,0,0)';
+                            setTimeout(function() {
+                                square.remove();
+                            }, 500);
                         }
-                    }, 450);
+                    }, 500);
                 }
             }
         }
