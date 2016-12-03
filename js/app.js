@@ -349,10 +349,12 @@ function setOptions() {
 
 
 var mathradio = document.querySelectorAll('#math-difficulty input');
+    mathradio[0].checked = true;
     for (var i = 0; i < mathradio.length; i++) {
         mathradio[i].addEventListener('click', adjustDifficulty);
     }
 var monsterradio = document.querySelectorAll('#monster-difficulty input');
+    monsterradio[0].checked = true;
     for (var i = 0; i < monsterradio.length; i++) {
         monsterradio[i].addEventListener('click', adjustDifficulty);
     }
@@ -1342,25 +1344,47 @@ function multiples(total,correct,incorrect,callback) {
     }
     var correctArray = [];
     var incorrectArray = [];
-    // Route random numbers to one of two arrays
+    var highestValue = difficulty[hero.difficultyMath - 1].highest;
+    var highestMultiple = Math.floor(highestValue / target);
+
+    var correctCounter = 0;
+    var incorrectCounter = 0;
+
+    // Route answers to one of two arrays
     for (var i = 0; i < total; i++) {
-        answer = { number: randomNumber(1,difficulty[hero.difficultyMath - 1].highest), answer: false };
-        if (answer.number % target === 0 && correctArray.length < correct) {
-            answer.answer = true;
-            correctArray.push(answer);
+        // Generate correct answers
+        if (correctArray.length < correct) {
+            answer = { number: randomNumber(1,highestMultiple) * target, answer: true };
+            if (answer.number % target === 0) {
+                correctArray.push(answer);
+            }
+            correctCounter++;
         }
-        else if (answer.number % target !== 0 && incorrectArray.length < incorrect){
-            incorrectArray.push(answer);
-        }
-        else {
-            i--;
+        // Generate false answers
+        else if (incorrectArray.length < incorrect) {
+            answer = { number: randomNumber(2,highestValue), answer: false };
+            if (answer.number % target !== 0) {
+                incorrectArray.push(answer);
+            }
+            else {
+                answer.number--;
+                if (answer.number % target !== 0) {
+                    incorrectArray.push(answer);
+                }
+                else {
+                    i--;
+                }
+            }
+            incorrectCounter++;
         }
     }
+
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
+    console.log('Total: ' + finalArray.length + ' correctCounter: ' + correctCounter + ' incorrectCounter: ' + incorrectCounter);
     callback(finalArray,fadeIn);
 }
 
@@ -1368,6 +1392,7 @@ function multiples(total,correct,incorrect,callback) {
 // Generate list of correct and incorrect factors
 function factors(total,correct,incorrect,callback) {
     console.log('factors');
+
     var difficulty = [
         {
             // EASY
@@ -1386,32 +1411,46 @@ function factors(total,correct,incorrect,callback) {
             max: 200,
         }
     ];
+
     target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
-    if (target % 2 !== 0) {
-        target++;
-    }
+    var safeArray = [];
+    var unsafeArray = [];
     var correctArray = [];
     var incorrectArray = [];
-    // Route random numbers to one of two arrays
-    for (var i = 0; i < total; i++) {
-        answer = { number: randomNumber(1,difficulty[hero.difficultyMath - 1].max), answer: false };
-        if (target % answer.number === 0 && correctArray.length < correct) {
-            answer.answer = true;
-            correctArray.push(answer);
+
+    var counter = 0;
+
+    // Generate list of safe numbers
+    for (var i = 1; i <= target; i++) {
+        if (target % i === 0) {
+            safeArray.push(i);
         }
-        else if (target % answer.number !== 0 && incorrectArray.length < incorrect){
-            incorrectArray.push(answer);
-        }
+        // Add to wrong answers
         else {
-            i--;
+            unsafeArray.push(i);
         }
     }
+
+    // Route random numbers to one of two arrays
+    for (var i = 0; i < total; i++) {
+        if (correctArray.length < correct) {
+            answer = { number: safeArray[randomNumber(0,safeArray.length - 1)], answer: true };
+            correctArray.push(answer);
+        }
+        else if (incorrectArray.length < incorrect){
+            answer = { number: unsafeArray[randomNumber(0,unsafeArray.length - 1)], answer: false };
+            incorrectArray.push(answer);
+        }
+        counter++;
+    }
+
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
     callback(finalArray,fadeIn);
+    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
@@ -1436,27 +1475,33 @@ function primes(total,correct,incorrect,callback) {
     var correctArray = [];
     var incorrectArray = [];
     generatePrimeNumbers(difficulty[hero.difficultyMath - 1].max);
+
+    var counter = 0;
+
     // Route random numbers to one of two arrays
     for (var i = 0; i < total; i++) {
         answer = { number: nonPrimes[randomNumber(0,nonPrimes.length - 1)], answer: false };
         if (correctArray.length < correct) {
-            answer.number = primes[randomNumber(0,primes.length - 1)];
-            answer.answer = true;
+            answer = { number: primes[randomNumber(0,primes.length - 1)], answer: true };
             correctArray.push(answer);
         }
-        else if (incorrectArray.length < incorrect){
+        else if (incorrectArray.length < incorrect) {
+            answer = { number: nonPrimes[randomNumber(0,nonPrimes.length - 1)], answer: false };
             incorrectArray.push(answer);
         }
         else {
             i--;
         }
+        counter++;
     }
+
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
     callback(finalArray,fadeIn);
+    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
@@ -1506,7 +1551,7 @@ function equality(total,correct,incorrect,callback) {
     var correctArray = [];
     var incorrectArray = [];
     var symbols = ['+','-','*','/'];
-
+    var counter = 0;
     // Loop through the total number of formulas needed
     for (var i = 0; i < total; i++) {
         var equation = '';
@@ -1542,6 +1587,7 @@ function equality(total,correct,incorrect,callback) {
             }
             // Create valid multiplication formula
             else if (symbol === '*') {
+                var multiplicationCounter = 0;
                 // Loop it until a valid number is given
                 for (var i = 0; i < 1; i++) {
                     var num1 = randomNumber(1,target);
@@ -1559,10 +1605,12 @@ function equality(total,correct,incorrect,callback) {
                     else {
                         i--;
                     }
+                    multiplicationCounter++;
                 }
             }
             // Create valid division formulas
             else if (symbol === '/') {
+                var divisionCounter = 0;
                 // Loop it until a valid number is given
                 for (var i = 0; i < 1; i++) {
                     var num1 = randomNumber(target, target * 3);
@@ -1580,11 +1628,13 @@ function equality(total,correct,incorrect,callback) {
                     else {
                         i--;
                     }
+                    divisionCounter++;
                 }
             }
         }
         // Create invalid formulas
         else if (incorrectArray.length < incorrect) {
+            var wrongCounter = 0;
             var num2 = randomNumber(1,target);
             equationString = num1 + symbol + num2;
             // Make sure it is invalid
@@ -1611,7 +1661,9 @@ function equality(total,correct,incorrect,callback) {
             else {
                 i--;
             }
+            wrongCounter++;
         }
+        counter++;
     }
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
@@ -1619,6 +1671,10 @@ function equality(total,correct,incorrect,callback) {
     document.getElementById('game-mode').innerHTML = 'Equals ' + target;
     // Send to the display function
     callback(finalArray,fadeIn);
+    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
+    console.log('multiplicationCounter: ' + multiplicationCounter);
+    console.log('divisionCounter: ' + divisionCounter);
+    console.log('wrongCounter: ' + wrongCounter);
 }
 
 // Generate list of ascending or descending random values

@@ -177,10 +177,12 @@ function setOptions() {
 
 
 var mathradio = document.querySelectorAll('#math-difficulty input');
+    mathradio[0].checked = true;
     for (var i = 0; i < mathradio.length; i++) {
         mathradio[i].addEventListener('click', adjustDifficulty);
     }
 var monsterradio = document.querySelectorAll('#monster-difficulty input');
+    monsterradio[0].checked = true;
     for (var i = 0; i < monsterradio.length; i++) {
         monsterradio[i].addEventListener('click', adjustDifficulty);
     }
