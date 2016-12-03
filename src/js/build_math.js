@@ -277,28 +277,61 @@ function generatePrimeNumbers(max) {
 // Generate list of correct and incorrect equality formulas
 function equality(total,correct,incorrect,callback) {
     console.log('equality');
+
         var difficulty = [
         {
             // EASY
-            min: 1,
-            max: 20
+            min: 4,
+            max: 15,
+            highest: 25
         },
         {
             // MEDIUM
-            min: 20,
-            max: 70
+            min: 15,
+            max: 75,
+            highest: 100
         },
         {
             // HARD
             min: 70,
-            max: 150
+            max: 150,
+            highest: 200
         }
     ];
+
     target = randomNumber(difficulty[hero.difficultyMath - 1].min, difficulty[hero.difficultyMath - 1].max);
     var correctArray = [];
     var incorrectArray = [];
+    var safeMultiples = [];
+    var unsafeMultiples = [];
+    var safeFactors = [];
+    var unsafeFactors = [];
     var symbols = ['+','-','*','/'];
-    var counter = 0;
+    var highestValue = difficulty[hero.difficultyMath - 1].highest;
+    var deviation = 10;
+
+    // Generate list of safe multiples
+    for (var i = 1; i <= target; i++) {
+        if (target % i === 0) {
+            safeMultiples.push(i);
+        }
+        // Add to wrong answers
+        else {
+            unsafeMultiples.push(i);
+        }
+    }
+
+    // Generate list of safe factors
+    for (var i = 1; i <= highestValue; i++) {
+        if (i % target === 0) {
+            safeFactors.push(i);
+        }
+        // Add to wrong answers
+        else {
+            unsafeFactors.push(i);
+        }
+    }
+
     // Loop through the total number of formulas needed
     for (var i = 0; i < total; i++) {
         var equation = '';
@@ -306,10 +339,10 @@ function equality(total,correct,incorrect,callback) {
         var symbol = symbols[randomNumber(0,symbols.length - 1)];
         var num1 = randomNumber(1,target);
         
-        // Create valid formulas
-        if (correctArray.length < correct) {
-            // Create valid addition formula
-            if (symbol === '+') {
+        // Create addition equations
+        if (symbol === '+') {
+            // Generate correct answers
+            if (correctArray.length < correct) {
                 var num2 = target - num1;
                 if (hero.difficultyMath === '3') {
                     equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
@@ -320,8 +353,25 @@ function equality(total,correct,incorrect,callback) {
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
-            // Create valid subtraction formula
-            else if (symbol === '-') {
+            // Generate false answers
+            else if (incorrectArray.length < incorrect) {
+                var num2 = target - num1;
+                    num2 += randomNumber(1,deviation);
+                if (hero.difficultyMath === '3') {
+                    equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
+                }
+                else {
+                    equationString = num1 + symbol + num2;
+                }
+                answer = { number: equationString, answer: false };
+                incorrectArray.push(answer);
+            }
+        }
+
+        // Create subtraction equations
+        else if (symbol === '-') {
+            // Generate correct answers
+            if (correctArray.length < correct) {
                 var num2 = target + num1;
                 if (hero.difficultyMath === '3') {
                     equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
@@ -332,70 +382,40 @@ function equality(total,correct,incorrect,callback) {
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
-            // Create valid multiplication formula
-            else if (symbol === '*') {
-                var multiplicationCounter = 0;
-                // Loop it until a valid number is given
-                for (var i = 0; i < 1; i++) {
-                    var num1 = randomNumber(1,target);
-                    if (target % num1 === 0) {
-                        var num2 = target / num1;
-                        if (hero.difficultyMath === '3') {
-                            equationString = num1 + '</p><p>&times;</p><p>' + num2;
-                        }
-                        else {
-                            equationString = num1 + '&times;' + num2;
-                        }
-                        answer = { number: equationString, answer: true };
-                        correctArray.push(answer);
-                    }
-                    else {
-                        i--;
-                    }
-                    multiplicationCounter++;
-                }
-            }
-            // Create valid division formulas
-            else if (symbol === '/') {
-                var divisionCounter = 0;
-                // Loop it until a valid number is given
-                for (var i = 0; i < 1; i++) {
-                    var num1 = randomNumber(target, target * 3);
-                    if (num1 % target === 0) {
-                        var num2 = num1 / target;
-                        if (hero.difficultyMath === '3') {
-                            equationString = num1 + '</p><p>&divide;</p><p>' + num2;
-                        }
-                        else {
-                            equationString = num1 + '&divide;' + num2;
-                        }
-                        answer = { number: equationString, answer: true };
-                        correctArray.push(answer);
-                    }
-                    else {
-                        i--;
-                    }
-                    divisionCounter++;
-                }
-            }
-        }
-        // Create invalid formulas
-        else if (incorrectArray.length < incorrect) {
-            var wrongCounter = 0;
-            var num2 = randomNumber(1,target);
-            equationString = num1 + symbol + num2;
-            // Make sure it is invalid
-            if (eval(equationString) !== target && symbol === '/') {
+            // Generate false answers
+            else if (incorrectArray.length < incorrect) {
+                var num2 = target + num1;
+                    num2 += randomNumber(1,deviation);
                 if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
+                    equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
                 }
                 else {
-                    equationString = num1 + '&divide;' + num2;
+                    equationString = num2 + symbol + num1;
                 }
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
-            else if (eval(equationString) !== target && symbol === '*') {
+        }
+
+        // Create multiplication equations
+        else if (symbol === '*') {
+            // Generate correct answers
+            if (correctArray.length < correct) {
+                var num1 = safeMultiples[randomNumber(0,safeMultiples.length - 1)];
+                var num2 = target / num1;
+                if (hero.difficultyMath === '3') {
+                    equationString = num1 + '</p><p>&times;</p><p>' + num2;
+                }
+                else {
+                    equationString = num1 + '&times;' + num2;
+                }
+                answer = { number: equationString, answer: true };
+                correctArray.push(answer);
+            }
+            // Generate false answers
+            else if (incorrectArray.length < incorrect) {
+                var num1 = unsafeMultiples[randomNumber(0,unsafeMultiples.length - 1)];
+                var num2 = randomNumber(1,target);
                 if (hero.difficultyMath === '3') {
                     equationString = num1 + '</p><p>&times;</p><p>' + num2;
                 }
@@ -405,23 +425,45 @@ function equality(total,correct,incorrect,callback) {
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
-            else {
-                i--;
-            }
-            wrongCounter++;
         }
-        counter++;
+
+        // Create division equations
+        else if (symbol === '/') {
+            // Generate correct answers
+            if (correctArray.length < correct) {
+                var num1 = safeFactors[randomNumber(0,safeFactors.length - 1)];
+                var num2 = num1 / target;
+                if (hero.difficultyMath === '3') {
+                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
+                }
+                else {
+                    equationString = num1 + '&divide;' + num2;
+                }
+                answer = { number: equationString, answer: true };
+                correctArray.push(answer);
+            }
+            // Generate false answers
+            else if (incorrectArray.length < incorrect) {
+                var num1 = unsafeFactors[randomNumber(0,unsafeFactors.length - 1)];
+                var num2 = randomNumber(1,target);
+                if (hero.difficultyMath === '3') {
+                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
+                }
+                else {
+                    equationString = num1 + '&divide;' + num2;
+                }
+                answer = { number: equationString, answer: false };
+                incorrectArray.push(answer);
+            }
+        }
     }
+
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Equals ' + target;
     // Send to the display function
     callback(finalArray,fadeIn);
-    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
-    console.log('multiplicationCounter: ' + multiplicationCounter);
-    console.log('divisionCounter: ' + divisionCounter);
-    console.log('wrongCounter: ' + wrongCounter);
 }
 
 // Generate list of ascending or descending random values
