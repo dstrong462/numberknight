@@ -44,6 +44,9 @@ function freezePerson(person,duration,type) {
     var timer = document.getElementById('hero-status');
         timer.style.width = '100%';
     if (type === 'ice') {
+        if (hero.hero) {
+            hero.timesFrozen++;
+        }
         flashMessage(person,'frozen!',duration);
         timer.style.backgroundColor = '#8aeaea';
     }
@@ -70,7 +73,6 @@ function checkForTraps() {
     }
     else {
         if (location.trapType === 'ice') {
-            hero.timesFrozen++;
             var duration = location.trapDuration;
             freezePerson(hero,duration,'ice');
             flashMessage(hero,'frozen!',duration);

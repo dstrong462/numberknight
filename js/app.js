@@ -27,6 +27,9 @@ var healthRestoreFromCapture = 1;
 var heroBaseDamage = 25;
 var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
+// Playing with a keyboard is much easier, so if they use a keyboard, make enemies harder
+var keyboardPlayer = false;
+var keyboardDamageModifier = 1.5;
 
 var chanceToSpawnTrap = 80;
 var backgrounds = 2;
@@ -680,6 +683,7 @@ function resetAll(callback) {
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
+    keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;
     hero.bossLevel = false;
@@ -2364,19 +2368,22 @@ function addEnemy(row,col,monster) {
     numberOfEnemies++;
     var enemy = (JSON.parse(JSON.stringify(monster)));
     totalWeight += enemy.weight;
-    enemy.id = 'enemy-container' + numberOfEnemies;
-    enemy.enemy = true;
-    enemy.top = (row * cellSize) - cellSize;
-    enemy.left = (col * cellSize) - cellSize;
-    enemy.row = row;
-    enemy.col = col;
-    enemy.location = 'r' + row + 'c' + col;
-    enemy.gameLevel = hero.gameLevel;
-    enemy.canMove = true;
-    enemy.startingHealth = monster.health;
+
     enemy.armorRating = 1;
     enemy.attackRating = 1;
+    enemy.canMove = true;
+    enemy.col = col;
     enemy.cooldown = false;
+    enemy.enemy = true;
+    enemy.gameLevel = hero.gameLevel;
+    enemy.id = 'enemy-container' + numberOfEnemies;
+    enemy.invisible = false;
+    enemy.left = (col * cellSize) - cellSize;
+    enemy.location = 'r' + row + 'c' + col;
+    enemy.row = row;
+    enemy.startingHealth = monster.health;
+    enemy.top = (row * cellSize) - cellSize;
+    
     // Check if monster has been encountered before
     if (options.enemiesEncountered.indexOf(enemy.type) == -1) {
         options.enemiesEncountered.unshift(enemy.type);
@@ -2468,6 +2475,10 @@ function addEnemy(row,col,monster) {
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
         var actionInterval = setInterval(function() {
+            // Increase monster damage when playing with a keyboard
+            if (keyboardPlayer) {
+                enemy.attackRating = keyboardDamageModifier;
+            }
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);
@@ -2610,7 +2621,6 @@ function damageOverTime(victim,attacker) {
 
 // Allow vampires to temporarily turn mostly invisible
 function turnInvisible(enemy,enemyContainer) {
-    console.log('turning invisible');
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
@@ -3108,6 +3118,9 @@ function checkKey(e) {
         else if (e.keyCode == '32') {
             hero.fastTravel = false;
             checkMath();
+        }
+        if (e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40') {
+            keyboardPlayer = true;
         }
         // Pass movement direction to movement function
         if (move !== false) {
@@ -3613,8 +3626,8 @@ function checkForAttack(direction,victim,attacker) {
                             healthBar.style.width = (victim.health / victim.startingHealth) * 100 + '%';
                     }
                     if (victim.health <= 0) {
-                        delete map[victim.row - 1][victim.col - 1].health;
                         if (victim.object) {
+                            delete map[victim.row - 1][victim.col - 1].health;
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
                                 object.parentElement.classList.remove('torch');
@@ -3676,7 +3689,11 @@ function flashMessage(person,message,time) {
 
 // Deal damage depending on what healing method is passed to the function
 function dealDamage(amount,source) {
+    if (source.hasOwnProperty('attackRating')) {
+        amount *= source.attackRating;
+    }
     amount *= hero.armorRating;
+    console.log(amount);
     hero.health -= amount;
     if (hero.health <= 0) {
         // Determine the cause of death
@@ -4280,6 +4297,9 @@ function freezePerson(person,duration,type) {
     var timer = document.getElementById('hero-status');
         timer.style.width = '100%';
     if (type === 'ice') {
+        if (hero.hero) {
+            hero.timesFrozen++;
+        }
         flashMessage(person,'frozen!',duration);
         timer.style.backgroundColor = '#8aeaea';
     }
@@ -4306,7 +4326,6 @@ function checkForTraps() {
     }
     else {
         if (location.trapType === 'ice') {
-            hero.timesFrozen++;
             var duration = location.trapDuration;
             freezePerson(hero,duration,'ice');
             flashMessage(hero,'frozen!',duration);

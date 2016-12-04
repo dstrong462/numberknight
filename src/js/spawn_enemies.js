@@ -161,19 +161,22 @@ function addEnemy(row,col,monster) {
     numberOfEnemies++;
     var enemy = (JSON.parse(JSON.stringify(monster)));
     totalWeight += enemy.weight;
-    enemy.id = 'enemy-container' + numberOfEnemies;
-    enemy.enemy = true;
-    enemy.top = (row * cellSize) - cellSize;
-    enemy.left = (col * cellSize) - cellSize;
-    enemy.row = row;
-    enemy.col = col;
-    enemy.location = 'r' + row + 'c' + col;
-    enemy.gameLevel = hero.gameLevel;
-    enemy.canMove = true;
-    enemy.startingHealth = monster.health;
+
     enemy.armorRating = 1;
     enemy.attackRating = 1;
+    enemy.canMove = true;
+    enemy.col = col;
     enemy.cooldown = false;
+    enemy.enemy = true;
+    enemy.gameLevel = hero.gameLevel;
+    enemy.id = 'enemy-container' + numberOfEnemies;
+    enemy.invisible = false;
+    enemy.left = (col * cellSize) - cellSize;
+    enemy.location = 'r' + row + 'c' + col;
+    enemy.row = row;
+    enemy.startingHealth = monster.health;
+    enemy.top = (row * cellSize) - cellSize;
+    
     // Check if monster has been encountered before
     if (options.enemiesEncountered.indexOf(enemy.type) == -1) {
         options.enemiesEncountered.unshift(enemy.type);
@@ -265,6 +268,10 @@ function addEnemy(row,col,monster) {
     // Perform actions at set intervals depending on monster moveInterval
     function actionInterval() {
         var actionInterval = setInterval(function() {
+            // Increase monster damage when playing with a keyboard
+            if (keyboardPlayer) {
+                enemy.attackRating = keyboardDamageModifier;
+            }
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);

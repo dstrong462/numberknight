@@ -62,6 +62,9 @@ function checkKey(e) {
             hero.fastTravel = false;
             checkMath();
         }
+        if (e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40') {
+            keyboardPlayer = true;
+        }
         // Pass movement direction to movement function
         if (move !== false) {
             hero.fastTravel = false;

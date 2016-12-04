@@ -33,6 +33,7 @@ function resetAll(callback) {
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
+    keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;
     hero.bossLevel = false;

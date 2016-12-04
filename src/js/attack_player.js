@@ -78,8 +78,8 @@ function checkForAttack(direction,victim,attacker) {
                             healthBar.style.width = (victim.health / victim.startingHealth) * 100 + '%';
                     }
                     if (victim.health <= 0) {
-                        delete map[victim.row - 1][victim.col - 1].health;
                         if (victim.object) {
+                            delete map[victim.row - 1][victim.col - 1].health;
                             var object = document.querySelector('#' + victim.location + ' img');
                                 object.style.opacity = '0';
                                 object.parentElement.classList.remove('torch');
@@ -141,7 +141,11 @@ function flashMessage(person,message,time) {
 
 // Deal damage depending on what healing method is passed to the function
 function dealDamage(amount,source) {
+    if (source.hasOwnProperty('attackRating')) {
+        amount *= source.attackRating;
+    }
     amount *= hero.armorRating;
+    console.log(amount);
     hero.health -= amount;
     if (hero.health <= 0) {
         // Determine the cause of death

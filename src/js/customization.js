@@ -27,6 +27,9 @@ var healthRestoreFromCapture = 1;
 var heroBaseDamage = 25;
 var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
+// Playing with a keyboard is much easier, so if they use a keyboard, make enemies harder
+var keyboardPlayer = false;
+var keyboardDamageModifier = 1.5;
 
 var chanceToSpawnTrap = 80;
 var backgrounds = 2;
