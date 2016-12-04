@@ -22,6 +22,7 @@ function damageOverTime(victim,attacker) {
 
 // Allow vampires to temporarily turn mostly invisible
 function turnInvisible(enemy,enemyContainer) {
+    console.log('turning invisible');
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';

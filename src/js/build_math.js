@@ -288,14 +288,14 @@ function equality(total,correct,incorrect,callback) {
         {
             // MEDIUM
             min: 15,
-            max: 75,
-            highest: 100
+            max: 50,
+            highest: 75
         },
         {
             // HARD
-            min: 70,
-            max: 150,
-            highest: 200
+            min: 50,
+            max: 100,
+            highest: 150
         }
     ];
 

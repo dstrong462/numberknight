@@ -47,7 +47,7 @@ var loot = [
         amount: [1,2,5,10,25]
     }
 ];
-var lootChance = 40;
+var lootChance = 45;
 
 // Object Themes
 var themes = [

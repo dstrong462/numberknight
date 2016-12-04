@@ -47,7 +47,7 @@ var loot = [
         amount: [1,2,5,10,25]
     }
 ];
-var lootChance = 40;
+var lootChance = 45;
 
 // Object Themes
 var themes = [
@@ -1541,14 +1541,14 @@ function equality(total,correct,incorrect,callback) {
         {
             // MEDIUM
             min: 15,
-            max: 75,
-            highest: 100
+            max: 50,
+            highest: 75
         },
         {
             // HARD
-            min: 70,
-            max: 150,
-            highest: 200
+            min: 50,
+            max: 100,
+            highest: 150
         }
     ];
 
@@ -2059,7 +2059,7 @@ var bosses = [
         boss: true,
         image: 'spider-queen.gif',
         baseDamage: 10,
-        health: 300,
+        health: 500,
         weight: 50,
         evasion: 5,
         moveInterval: 2100,
@@ -2090,7 +2090,7 @@ var bosses = [
         boss: true,
         image: 'vampire-lord.gif',
         baseDamage: 10,
-        health: 300,
+        health: 450,
         weight: 100,
         evasion: 5,
         moveInterval: 1900,
@@ -2610,6 +2610,7 @@ function damageOverTime(victim,attacker) {
 
 // Allow vampires to temporarily turn mostly invisible
 function turnInvisible(enemy,enemyContainer) {
+    console.log('turning invisible');
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
