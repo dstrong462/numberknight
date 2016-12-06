@@ -10,18 +10,6 @@ function startGame() {
         document.querySelector('.flip-container').style.display = 'none';
         document.getElementById('tutorial').style.display = 'none';
     }, 1000);
-    if (options.tutorial === false && options.endgame === false) {
-        // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
-        var moves = hero.squaresMoved;
-        var timer = 0;
-        var interval = setInterval(function() {
-            if (hero.squaresMoved > moves || timer >= 10) {
-                letTheGamesBegin();
-                clearInterval(interval);
-            }
-            timer++;
-        }, 1000);
-    }
 }
 
 
@@ -33,6 +21,9 @@ function resetAll(callback) {
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
+    hero.timer = 100;
+    timeBar.style.width = '100%';
+    timeBar.style.display = 'flex';
     keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;
@@ -185,6 +176,7 @@ function addHero() {
         hero.primesWrong = 0;
         hero.squaresMoved = 0;
         hero.strength = 1;
+        hero.timer = 100;
         hero.timesFrozen = 0;
         hero.timesPoisoned = 0;
         hero.timesWebbed = 0;
@@ -221,11 +213,28 @@ function addHero() {
         level.innerHTML = 'Floor ' + hero.gameLevel;
     healthBar.style.width = hero.health + '%';
     healthBar.style.transition = '0s';
+    timeBar.style.transition = '0s';
+    if (hero.challengeMode || hero.bossLevel || options.tutorial || options.endgame) {
+        timeBar.style.display = 'none';
+    }
     xpBar.style.width = hero.xp + '%';
     xpBar.style.transition = '0s';
     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
     hero.canMove = true;
     hero.canCapture = true;
+
+    if (options.tutorial === false && options.endgame === false) {
+        // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
+        var moves = hero.squaresMoved;
+        var timer = 0;
+        var interval = setInterval(function() {
+            if (hero.squaresMoved > moves || timer >= 10) {
+                clearInterval(interval);
+                letTheGamesBegin();
+            }
+            timer++;
+        }, 1000);
+    }
 
     getObjectLocations();
 }

@@ -55,7 +55,7 @@ body {
     max-width: 700px;
     height: 100%;
     min-height: 100vh;
-    overflow: auto;
+    overflow-y: auto;
     margin: 0 auto;
 }
 
@@ -78,7 +78,7 @@ a:active {
 
 #logo {
     width: 75%;
-    max-width: 400px;
+    max-width: 350px;
 }
 
 #new-game h5 {
@@ -323,6 +323,7 @@ button.main-menu-button {
 }
 
 #fallen-heroes .row {
+    cursor: default;
     flex-wrap: wrap;
     flex-shrink: 0;
     border-radius: 6px;
@@ -711,7 +712,39 @@ img.wall {
     font-size: 1.1em !important;
 }
 
+#healthbar,
+#timebar,
+#xpbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+#health,
+#time,
+#xp {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    background-color: #E22727;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,.5);
+    transition: .5s;
+}
+
+#time {
+    background-color: #149ce0;
+}
+
+#xp {
+    background-color: #ffd700;
+}
+
 #health:after,
+#time:after,
 #xp:after {
     content: '';
     position: absolute;
@@ -724,42 +757,22 @@ img.wall {
 }
 
 #health:before,
+#time:before,
 #xp:before {
-    content: 'xp';
+    content: 'hp';
     position: absolute;
     left: 5px;
     font-size: .9em;
     font-weight: bold;
-    line-height: 20px;
     text-shadow: 2px 2px rgba(0,0,0,.75);
 }
 
-#health:before {
-    content: 'hp';
+#time:before {
+    content: 'time';
 }
 
-#healthbar,
-#xpbar {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-#health,
-#xp {
-    position: relative;
-    width: 100%;
-    height: 22px;
-    background-color: #E22727;
-    border-radius: 6px;
-    box-shadow: 2px 2px 0px rgba(0,0,0,.5);
-    transition: .5s;
-}
-
-#xp {
-    background-color: #ffd700;
+#xp:before {
+    content: 'xp';
 }
 
 .enemy,
@@ -867,7 +880,7 @@ img.wall {
     align-content: center;
     text-align: center;
     background-image: url('../img/backgrounds/background-02.gif');
-    overflow-y: scroll;
+    overflow-y: auto;
     opacity: 0;
     transition: 1s;
     padding: 25px;
@@ -1158,6 +1171,7 @@ img.knight {
         width: 60%;
     }
     #health,
+    #time,
     #xp {
         height: 30px;
         line-height: 30px;

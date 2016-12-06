@@ -96,4 +96,5 @@ var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
 var healthBar = document.getElementById('health');
+var timeBar = document.getElementById('time');
 var xpBar = document.getElementById('xp');

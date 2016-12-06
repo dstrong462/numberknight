@@ -83,6 +83,8 @@ var deathText = {
                 'Killed by numbers.',
                 'Math is hard.'],
 
+    time:       ['Ran out of time.'],
+
     bat:        ['Nibbled to death by a bat.',
                 'Killed by a flying rat.',
                 'Got one too many bats to the face.',

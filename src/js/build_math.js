@@ -617,6 +617,12 @@ function checkMath() {
         correct = true;
     }
     if (correct) {
+        if (hero.timer + timeRestoreFromCapture < 100) {
+            hero.timer += timeRestoreFromCapture;
+        }
+        else {
+            hero.timer = 100;
+        }
         hero.answers++;
         restoreHealth(healthRestoreFromCapture);
         munchLocation.answer = 'captured';
@@ -666,6 +672,7 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsWrong++;
         }
+        hero.timer -= timeLostFromWrongAnswer;
         flashHitImage(hero,player);
         dealDamage(damageFromWrongAnswer,'wrong answer');
     }

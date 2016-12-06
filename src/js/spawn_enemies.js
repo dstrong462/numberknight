@@ -2,6 +2,33 @@
 
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
+
+    var timerInterval = 500;
+    var transition = timerInterval / 1000;
+        timeBar.style.transition = transition + 's linear';
+    var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
+    var currentLevel = hero.gameLevel;
+    // Start the level timer
+    var timerInterval = setInterval(function() {
+        if (hero.pause) {
+
+        }
+        else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
+            clearInterval(timerInterval);
+            console.log('cleared');
+        }
+        else {
+            hero.timer -= timerIncrement;
+            if (hero.timer <= 0 ) {
+                clearInterval(timerInterval);
+                dealDamage(100000,'time');
+            }
+            else {
+                timeBar.style.width = hero.timer + '%';
+            }
+        }
+    }, timerInterval);
+
     if (hero.difficultyMonster == 1) {
         maxWeight = 60;
         maxEnemies = 5;

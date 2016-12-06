@@ -145,7 +145,6 @@ function dealDamage(amount,source) {
         amount *= source.attackRating;
     }
     amount *= hero.armorRating;
-    console.log(amount);
     hero.health -= amount;
     if (hero.health <= 0) {
         // Determine the cause of death
@@ -165,6 +164,10 @@ function dealDamage(amount,source) {
         // If it was a wrong answer
         else if (source === 'wrong answer') {
             var deathBy = deathText.math[randomNumber(0,deathText.math.length - 1)];
+        }
+        // If they ran out of time
+        else if (source === 'time') {
+            var deathBy = deathText.time[randomNumber(0,deathText.time.length - 1)];
         }
         // If it was an enemy
         else if (source.enemy) {

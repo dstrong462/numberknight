@@ -13,7 +13,7 @@ var maxScreenWidth = 700;
 var maxColumns = 7;
 var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
-var reservedSpace = 125;
+var reservedSpace = 170;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
@@ -22,6 +22,9 @@ var correctMaxThreshold = 60;
 
 // Customize variables for healing
 var healthRestoreFromCapture = 1;
+var timeRestoreFromCapture = 4;
+var timeLostFromWrongAnswer = 0;
+var defaultTimer = 60;
 
 // Customize variables for damage
 var heroBaseDamage = 25;

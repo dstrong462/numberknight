@@ -13,7 +13,7 @@ var maxScreenWidth = 700;
 var maxColumns = 7;
 var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
-var reservedSpace = 125;
+var reservedSpace = 170;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
@@ -22,6 +22,9 @@ var correctMaxThreshold = 60;
 
 // Customize variables for healing
 var healthRestoreFromCapture = 1;
+var timeRestoreFromCapture = 4;
+var timeLostFromWrongAnswer = 0;
+var defaultTimer = 60;
 
 // Customize variables for damage
 var heroBaseDamage = 25;
@@ -172,6 +175,7 @@ var heroContainer = document.getElementById('hero-container');
 var player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
 var healthBar = document.getElementById('health');
+var timeBar = document.getElementById('time');
 var xpBar = document.getElementById('xp');
 /////////////// MENUS ///////////////
 
@@ -660,18 +664,6 @@ function startGame() {
         document.querySelector('.flip-container').style.display = 'none';
         document.getElementById('tutorial').style.display = 'none';
     }, 1000);
-    if (options.tutorial === false && options.endgame === false) {
-        // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
-        var moves = hero.squaresMoved;
-        var timer = 0;
-        var interval = setInterval(function() {
-            if (hero.squaresMoved > moves || timer >= 10) {
-                letTheGamesBegin();
-                clearInterval(interval);
-            }
-            timer++;
-        }, 1000);
-    }
 }
 
 
@@ -683,6 +675,9 @@ function resetAll(callback) {
     numberOfEnemies = 0;
     totalWeight = 0;
     hero.canMove = false;
+    hero.timer = 100;
+    timeBar.style.width = '100%';
+    timeBar.style.display = 'flex';
     keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;
@@ -835,6 +830,7 @@ function addHero() {
         hero.primesWrong = 0;
         hero.squaresMoved = 0;
         hero.strength = 1;
+        hero.timer = 100;
         hero.timesFrozen = 0;
         hero.timesPoisoned = 0;
         hero.timesWebbed = 0;
@@ -871,11 +867,28 @@ function addHero() {
         level.innerHTML = 'Floor ' + hero.gameLevel;
     healthBar.style.width = hero.health + '%';
     healthBar.style.transition = '0s';
+    timeBar.style.transition = '0s';
+    if (hero.challengeMode || hero.bossLevel || options.tutorial || options.endgame) {
+        timeBar.style.display = 'none';
+    }
     xpBar.style.width = hero.xp + '%';
     xpBar.style.transition = '0s';
     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
     hero.canMove = true;
     hero.canCapture = true;
+
+    if (options.tutorial === false && options.endgame === false) {
+        // Start spawning enemies once the player has started moving or after 10 seconds because these monster aint got all day.
+        var moves = hero.squaresMoved;
+        var timer = 0;
+        var interval = setInterval(function() {
+            if (hero.squaresMoved > moves || timer >= 10) {
+                clearInterval(interval);
+                letTheGamesBegin();
+            }
+            timer++;
+        }, 1000);
+    }
 
     getObjectLocations();
 }
@@ -1874,6 +1887,12 @@ function checkMath() {
         correct = true;
     }
     if (correct) {
+        if (hero.timer + timeRestoreFromCapture < 100) {
+            hero.timer += timeRestoreFromCapture;
+        }
+        else {
+            hero.timer = 100;
+        }
         hero.answers++;
         restoreHealth(healthRestoreFromCapture);
         munchLocation.answer = 'captured';
@@ -1923,6 +1942,7 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsWrong++;
         }
+        hero.timer -= timeLostFromWrongAnswer;
         flashHitImage(hero,player);
         dealDamage(damageFromWrongAnswer,'wrong answer');
     }
@@ -2209,6 +2229,33 @@ var bosses = [
 
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
+
+    var timerInterval = 500;
+    var transition = timerInterval / 1000;
+        timeBar.style.transition = transition + 's linear';
+    var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
+    var currentLevel = hero.gameLevel;
+    // Start the level timer
+    var timerInterval = setInterval(function() {
+        if (hero.pause) {
+
+        }
+        else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
+            clearInterval(timerInterval);
+            console.log('cleared');
+        }
+        else {
+            hero.timer -= timerIncrement;
+            if (hero.timer <= 0 ) {
+                clearInterval(timerInterval);
+                dealDamage(100000,'time');
+            }
+            else {
+                timeBar.style.width = hero.timer + '%';
+            }
+        }
+    }, timerInterval);
+
     if (hero.difficultyMonster == 1) {
         maxWeight = 60;
         maxEnemies = 5;
@@ -3693,7 +3740,6 @@ function dealDamage(amount,source) {
         amount *= source.attackRating;
     }
     amount *= hero.armorRating;
-    console.log(amount);
     hero.health -= amount;
     if (hero.health <= 0) {
         // Determine the cause of death
@@ -3713,6 +3759,10 @@ function dealDamage(amount,source) {
         // If it was a wrong answer
         else if (source === 'wrong answer') {
             var deathBy = deathText.math[randomNumber(0,deathText.math.length - 1)];
+        }
+        // If they ran out of time
+        else if (source === 'time') {
+            var deathBy = deathText.time[randomNumber(0,deathText.time.length - 1)];
         }
         // If it was an enemy
         else if (source.enemy) {
@@ -4158,6 +4208,8 @@ var deathText = {
                 'Death by math.',
                 'Killed by numbers.',
                 'Math is hard.'],
+
+    time:       ['Ran out of time.'],
 
     bat:        ['Nibbled to death by a bat.',
                 'Killed by a flying rat.',
