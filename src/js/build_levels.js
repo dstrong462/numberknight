@@ -24,6 +24,9 @@ function resetAll(callback) {
     hero.timer = 100;
     timeBar.style.width = '100%';
     timeBar.style.display = 'flex';
+    if (timeBar.classList.contains('time-danger')) {
+        timeBar.classList.remove('time-danger');
+    }
     keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;

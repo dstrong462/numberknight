@@ -13,7 +13,7 @@ var maxScreenWidth = 700;
 var maxColumns = 7;
 var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
-var reservedSpace = 170;
+var reservedSpace = 150;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level

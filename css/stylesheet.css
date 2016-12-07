@@ -698,7 +698,7 @@ a:active {
 }
 
 #logo {
-    width: 75%;
+    width: 70%;
     max-width: 350px;
 }
 
@@ -706,7 +706,7 @@ a:active {
     border-bottom: 2px solid #149ce0;
 }
 
-#new-game p {
+#new-game h6 {
     color: #149ce0;
     margin-bottom: 0;
 }
@@ -1094,7 +1094,7 @@ button.main-menu-button {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: center;
     align-content: center;
     overflow: hidden;
@@ -1104,15 +1104,16 @@ button.main-menu-button {
 }
 
 #top-bar {
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    height: 45px;
+    /*height: 45px;*/
     color: #fff;
     font-size: 1.25em;
-    line-height: 50px;
+    line-height: 45px;
     padding: 0 20px;
     transition: .5s;
     z-index: 20;
@@ -1230,15 +1231,26 @@ img.wall {
     z-index: 10;
 }
 
-.torch:after {
-    content: url('../img/objects/wall-torch.gif');
+.flash {
     position: absolute;
-    left: 0;
+    top: 0;
     right: 0;
-    bottom: 10%;
-    transform: scale(1.5,1.5);
+    bottom: 0;
+    left: 0;
+    width: 85%;
+    height: 85%;
+    background-color: #24E35A;
+    border-radius: 8px;
+    opacity: 0;
+    animation: capture .6s 1;
     margin: auto;
-    z-index: 21;
+}
+
+@keyframes capture {
+    0%   { opacity: 0; transform: rotate(0deg) scale(1,1); }
+    20%  { opacity: .7; }
+    80%  { opacity: .7; }
+    100% { opacity: 0; transform: rotate(90deg) scale(0,0); }
 }
 
 #level-container .row div:first-child {
@@ -1262,9 +1274,8 @@ img.wall {
 }
 
 #bottom-bar {
-    height: 85px;
     align-items: center;
-    padding: 0 20px;
+    padding: 0;
 }
 
 #bottom-bar .row {
@@ -1334,7 +1345,6 @@ img.wall {
 }
 
 #healthbar,
-#timebar,
 #xpbar {
     display: flex;
     flex-direction: row;
@@ -1357,7 +1367,23 @@ img.wall {
 }
 
 #time {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     background-color: #149ce0;
+    margin: auto;
+    z-index: -1;
+}
+
+.time-danger {
+    animation: flash-danger 1s infinite;
+}
+
+@keyframes flash-danger {
+    0%    { background-color: #149ce0; }
+    50%   { background-color: #E22727; }
+    100%  { background-color: #149ce0; }
 }
 
 #xp {
@@ -1372,13 +1398,12 @@ img.wall {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 10px;
+    height: 50%;
     background-color: rgba(0,0,0,.15);
     border-radius: 0 0 6px 6px;
 }
 
 #health:before,
-#time:before,
 #xp:before {
     content: 'hp';
     position: absolute;
@@ -1386,10 +1411,6 @@ img.wall {
     font-size: .9em;
     font-weight: bold;
     text-shadow: 2px 2px rgba(0,0,0,.75);
-}
-
-#time:before {
-    content: 'time';
 }
 
 #xp:before {

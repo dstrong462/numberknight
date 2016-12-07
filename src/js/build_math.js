@@ -283,19 +283,22 @@ function equality(total,correct,incorrect,callback) {
             // EASY
             min: 4,
             max: 15,
-            highest: 25
+            highest: 25,
+            deviation: 5
         },
         {
             // MEDIUM
             min: 15,
             max: 50,
-            highest: 75
+            highest: 75,
+            deviation: 10
         },
         {
             // HARD
             min: 50,
             max: 100,
-            highest: 150
+            highest: 150,
+            deviation: 15
         }
     ];
 
@@ -308,7 +311,7 @@ function equality(total,correct,incorrect,callback) {
     var unsafeFactors = [];
     var symbols = ['+','-','*','/'];
     var highestValue = difficulty[hero.difficultyMath - 1].highest;
-    var deviation = 10;
+    var deviation = difficulty[hero.difficultyMath - 1].deviation;
 
     // Generate list of safe multiples
     for (var i = 1; i <= target; i++) {
@@ -629,6 +632,7 @@ function checkMath() {
         var square = document.querySelector('#' + munchLocation.location + ' p');
         setTimeout(function() {
             if (square === null) {
+
             }
             else {
                 square.remove();
@@ -655,6 +659,15 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsRight++;
         }
+
+        // Flash tile
+        var flash = document.createElement('span');
+            flash.classList.add('flash');
+            square.parentElement.appendChild(flash);
+        setTimeout(function() {
+            flash.remove();
+        }, 600);
+        
     }
     else if (!munchLocation.hasOwnProperty("answer")) {
 

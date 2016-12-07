@@ -79,15 +79,12 @@ var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
 if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
-// Resize UI bars for desktop
-if (screenWidth >= maxScreenWidth) {
-    var topBar = document.getElementById('top-bar');
-    var uiWidth = (numberOfColumns * cellSize) + 'px';
-        topBar.style.width = uiWidth;
-        topBar.style.height = '75px';
-    var bottomBar = document.getElementById('bottom-bar');
-        bottomBar.style.width = uiWidth;
-}
+// Resize UI to match grid size
+var uiWidth = (numberOfColumns * cellSize) + 'px';
+var topBar = document.getElementById('top-bar');
+    topBar.style.width = uiWidth;
+var bottomBar = document.getElementById('bottom-bar');
+    bottomBar.style.width = uiWidth;
 
 var optionsPosition = 'closed';
 var levelContainer = document.getElementById('level-container');

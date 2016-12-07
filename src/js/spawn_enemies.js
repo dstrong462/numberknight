@@ -2,20 +2,32 @@
 
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
-
+    // Set up level timer
     var timerInterval = 500;
     var transition = timerInterval / 1000;
         timeBar.style.transition = transition + 's linear';
     var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
     var currentLevel = hero.gameLevel;
+    var dangerZone = 25;
     // Start the level timer
     var timerInterval = setInterval(function() {
+        // Start flashing bar if in the danger zone
+        if (hero.timer <= dangerZone) {
+            if (timeBar.classList.contains('time-danger')) {
+
+            }
+            else {
+                timeBar.classList.add('time-danger');
+            }
+        }
+        else if (hero.timer > dangerZone) {
+            timeBar.classList.remove('time-danger');
+        }
         if (hero.pause) {
 
         }
         else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
             clearInterval(timerInterval);
-            console.log('cleared');
         }
         else {
             hero.timer -= timerIncrement;

@@ -63,7 +63,6 @@
             <input type="checkbox" id="music" />
             <label for="music"><span></span></label>
         </div>
-        <button id="btn-gamemodes">Game Modes</button>
         <div>
             <h6>Thanks</h6>
             <p>Game Art: <a href="#" onclick="window.open('http://www.oryxdesignlab.com', '_system');">Oryx Design Lab</a></p>
@@ -77,6 +76,7 @@
             <br />
             <a href="#" onclick="window.open('http://www.vermiliongiant.com', '_system');">www.VermilionGiant.com</a>
         </div>
+        <button id="btn-gamemodes">Game Modes</button>
         <div class="row">
             <button class="return-to-main-menu">Main Menu</button>
             <button class="btn-options"></button>
@@ -108,7 +108,7 @@
                     <input id="name-input" type="text" placeholder="What is your name?" onfocus="this.placeholder=''" onblur="this.placeholder='What is your name?'" />
                 </div>
                 <div>
-                    <p>Game Modes</p>
+                    <h6>Game Modes</h6>
                     <input type="checkbox" name="multiples" id="multiples" checked />
                     <label for="multiples"><span></span>Multiples</label>
                     <input type="checkbox" name="factors" id="factors" checked />
@@ -119,7 +119,7 @@
                     <label for="equality"><span></span>Equality</label>
                 </div>
                 <div id="math-difficulty">
-                    <p>Math Difficulty</p>
+                    <h6>Math Difficulty</h6>
                     <div class="row">
                         <input type="radio" name="mathradio" id="math1" value="1" checked />
                         <label for="math1"><span></span></label>
@@ -130,7 +130,7 @@
                     </div>
                 </div>
                 <div id="monster-difficulty">
-                    <p>Monster Difficulty</p>
+                    <h6>Monster Difficulty</h6>
                     <div class="row">
                         <input type="radio" name="monsterradio" id="monster1" value="1" checked />
                         <label for="monster1"><span></span></label>
@@ -151,7 +151,12 @@
     <div id="fade-to-black">- Loading -</div>
 
     <div id="main-container">
-        <div id="top-bar"><span id="game-mode"></span><img id="warning" src="img/gui/warning.svg"><span class="btn-options"></span></div>
+        <div id="top-bar">
+            <span id="game-mode"></span>
+            <img id="warning" src="img/gui/warning.svg">
+            <span class="btn-options"></span>
+            <div id="time"></div>
+        </div>
         <div id="level-container">
             <div id="hero-container">
                 <div class="hero-spacer"></div>
@@ -174,9 +179,6 @@
             </div>
             <div id="healthbar">
                 <div id="health"></div>
-            </div>
-            <div id="timebar">
-                <div id="time"></div>
             </div>
             <div id="xpbar">
                 <div id="xp"></div>

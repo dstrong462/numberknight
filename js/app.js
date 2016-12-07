@@ -13,7 +13,7 @@ var maxScreenWidth = 700;
 var maxColumns = 7;
 var maxRows = 10;
 // Amount of screen space to be saved for the UI in pixels
-var reservedSpace = 170;
+var reservedSpace = 150;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
@@ -158,15 +158,12 @@ var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
 if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
-// Resize UI bars for desktop
-if (screenWidth >= maxScreenWidth) {
-    var topBar = document.getElementById('top-bar');
-    var uiWidth = (numberOfColumns * cellSize) + 'px';
-        topBar.style.width = uiWidth;
-        topBar.style.height = '75px';
-    var bottomBar = document.getElementById('bottom-bar');
-        bottomBar.style.width = uiWidth;
-}
+// Resize UI to match grid size
+var uiWidth = (numberOfColumns * cellSize) + 'px';
+var topBar = document.getElementById('top-bar');
+    topBar.style.width = uiWidth;
+var bottomBar = document.getElementById('bottom-bar');
+    bottomBar.style.width = uiWidth;
 
 var optionsPosition = 'closed';
 var levelContainer = document.getElementById('level-container');
@@ -678,6 +675,9 @@ function resetAll(callback) {
     hero.timer = 100;
     timeBar.style.width = '100%';
     timeBar.style.display = 'flex';
+    if (timeBar.classList.contains('time-danger')) {
+        timeBar.classList.remove('time-danger');
+    }
     keyboardPlayer = false;
     // Reset challenge and boss levels
     hero.challengeMode = false;
@@ -1553,19 +1553,22 @@ function equality(total,correct,incorrect,callback) {
             // EASY
             min: 4,
             max: 15,
-            highest: 25
+            highest: 25,
+            deviation: 5
         },
         {
             // MEDIUM
             min: 15,
             max: 50,
-            highest: 75
+            highest: 75,
+            deviation: 10
         },
         {
             // HARD
             min: 50,
             max: 100,
-            highest: 150
+            highest: 150,
+            deviation: 15
         }
     ];
 
@@ -1578,7 +1581,7 @@ function equality(total,correct,incorrect,callback) {
     var unsafeFactors = [];
     var symbols = ['+','-','*','/'];
     var highestValue = difficulty[hero.difficultyMath - 1].highest;
-    var deviation = 10;
+    var deviation = difficulty[hero.difficultyMath - 1].deviation;
 
     // Generate list of safe multiples
     for (var i = 1; i <= target; i++) {
@@ -1899,6 +1902,7 @@ function checkMath() {
         var square = document.querySelector('#' + munchLocation.location + ' p');
         setTimeout(function() {
             if (square === null) {
+
             }
             else {
                 square.remove();
@@ -1925,6 +1929,15 @@ function checkMath() {
         else if (hero.gameMode === 'equality') {
             hero.equalsRight++;
         }
+
+        // Flash tile
+        var flash = document.createElement('span');
+            flash.classList.add('flash');
+            square.parentElement.appendChild(flash);
+        setTimeout(function() {
+            flash.remove();
+        }, 600);
+        
     }
     else if (!munchLocation.hasOwnProperty("answer")) {
 
@@ -2229,14 +2242,27 @@ var bosses = [
 
 // Start adding enemies based on monster difficulty
 function letTheGamesBegin() {
-
+    // Set up level timer
     var timerInterval = 500;
     var transition = timerInterval / 1000;
         timeBar.style.transition = transition + 's linear';
     var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
     var currentLevel = hero.gameLevel;
+    var dangerZone = 25;
     // Start the level timer
     var timerInterval = setInterval(function() {
+        // Start flashing bar if in the danger zone
+        if (hero.timer <= dangerZone) {
+            if (timeBar.classList.contains('time-danger')) {
+
+            }
+            else {
+                timeBar.classList.add('time-danger');
+            }
+        }
+        else if (hero.timer > dangerZone) {
+            timeBar.classList.remove('time-danger');
+        }
         if (hero.pause) {
 
         }
