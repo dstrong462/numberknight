@@ -22,7 +22,7 @@ function displayHeroes() {
                 row.classList.add('row');
                 row.id = 'fallen-' + i;
             var entry = '<div><span>' + fallenHeroes[i].name + '</span>';
-                entry += '<span>Level ' + fallenHeroes[i].gameLevel + '</span></div>';
+                entry += '<span>Floor ' + fallenHeroes[i].gameLevel + '</span></div>';
                 if (fallenHeroes[i].death === 'Quest Complete') {
                     entry += '<p class="complete">' + fallenHeroes[i].death + '</p>';
                 }
@@ -93,10 +93,7 @@ function showGamemodes(e) {
         tutorial.innerHTML = '';
         tutorial.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     
-    var list = '<h5>How to Play</h5>';
-        list += '<p>Here is a brief description of the game, and any kind of story that I might want to throw in there to fill up some space and make it more interesting.</p>';
-        list += '<br />';
-        list += '<h5>Game Modes</h6>';
+    var list = '<h5>Game Modes</h5>';
         list += '<br />';
         list += '<h6>Multiples</h6>';
         list += '<p>Find and capture tiles that are MULTIPLES of the number given. Multiples of 5 would be 5, 10, 15, 20, etc.</p>';
@@ -205,10 +202,10 @@ function listFallenStats(hero,view) {
         gameOverScreen.innerHTML = '';
         gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     var stats = '<h5>' + hero.name + '</h5>';
-        stats += '<p>Level <span>' + hero.level + '</span></p>';
-        stats += '<p>STR: <span>' + hero.strength + '</span></p>';
-        stats += '<p>DEX: <span>' + hero.dexterity + '</span></p>';
-        stats += '<p>END: <span>' + hero.endurance + '</span></p>';
+        stats += '<p>Level: <span>' + hero.level + '</span></p>';
+        stats += '<p>strength: <span>' + hero.strength + '</span></p>';
+        stats += '<p>Dexterity: <span>' + hero.dexterity + '</span></p>';
+        stats += '<p>Endurance: <span>' + hero.endurance + '</span></p>';
         stats += '<p>Dungeon Level: <span>' + hero.gameLevel + '</span></p>';
         stats += '<p>Math Difficulty: <span>' + hero.difficultyMath + '</span></p>';
         stats += '<p>Monster Difficulty: <span>' + hero.difficultyMonster + '</span></p>';

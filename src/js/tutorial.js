@@ -1,6 +1,20 @@
 /////////////// TUTORIAL ///////////////
 
-var rescueText = ['Random rescue text 1','Random rescue text 2','Random rescue text 3','Random rescue text 4',];
+var rescueText =    ['Hail, and well met!',
+                    'You&quot;re here to rescue us? Inconceivable!',
+                    'You are the greatest swordsman that ever lived!',
+                    'Thank you!',
+                    'It was starting to get real boring in here...',
+                    'This place totally stinks, thank you for rescuing us!',
+                    'I can&quot;t wait to get on the internet again!',
+                    'I knew you would come for us!',
+                    'You&quot;re awesome!',
+                    'I hate spiders!',
+                    'I thought we were done for!',
+                    'Did you bring anything to eat with you? I&quot;m starving!',
+                    'You&quot;re the coolest.',
+                    'Have you found the others?',
+                    'You were always my favorite. Thank you!'];
 
 // Display story and message text on screen
 var multipart = 0;
@@ -137,7 +151,7 @@ function startTutorial() {
         var moveOnce = setInterval(function() {
             if (hero.squaresMoved >= 2) {
                 clearInterval(moveOnce);
-                var message = 'Great. Now move to the highlighted square.';
+                var message = 'Great. Now auto move to the highlighted square by tapping on it.';
                 tutorialData.highlightedSquare = map[0][numberOfColumns - 1].location,
                 textBubble(message,0);
                 setTimeout(function() {

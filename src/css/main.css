@@ -489,11 +489,9 @@ button.main-menu-button {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    /*height: 45px;*/
     color: #fff;
     font-size: 1.25em;
-    line-height: 45px;
-    padding: 0 20px;
+    padding: 0 10px;
     transition: .5s;
     z-index: 20;
 }
@@ -737,8 +735,8 @@ img.wall {
 #xp {
     position: relative;
     width: 100%;
-    height: 20px;
-    line-height: 20px;
+    height: 26px;
+    line-height: 26px;
     background-color: #E22727;
     border-radius: 6px;
     box-shadow: 2px 2px 0px rgba(0,0,0,.5);

@@ -8,7 +8,7 @@ function letTheGamesBegin() {
         timeBar.style.transition = transition + 's linear';
     var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
     var currentLevel = hero.gameLevel;
-    var dangerZone = 25;
+    var dangerZone = 30;
     // Start the level timer
     var timerInterval = setInterval(function() {
         // Start flashing bar if in the danger zone

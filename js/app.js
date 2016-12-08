@@ -417,7 +417,7 @@ function displayHeroes() {
                 row.classList.add('row');
                 row.id = 'fallen-' + i;
             var entry = '<div><span>' + fallenHeroes[i].name + '</span>';
-                entry += '<span>Level ' + fallenHeroes[i].gameLevel + '</span></div>';
+                entry += '<span>Floor ' + fallenHeroes[i].gameLevel + '</span></div>';
                 if (fallenHeroes[i].death === 'Quest Complete') {
                     entry += '<p class="complete">' + fallenHeroes[i].death + '</p>';
                 }
@@ -488,10 +488,7 @@ function showGamemodes(e) {
         tutorial.innerHTML = '';
         tutorial.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     
-    var list = '<h5>How to Play</h5>';
-        list += '<p>Here is a brief description of the game, and any kind of story that I might want to throw in there to fill up some space and make it more interesting.</p>';
-        list += '<br />';
-        list += '<h5>Game Modes</h6>';
+    var list = '<h5>Game Modes</h5>';
         list += '<br />';
         list += '<h6>Multiples</h6>';
         list += '<p>Find and capture tiles that are MULTIPLES of the number given. Multiples of 5 would be 5, 10, 15, 20, etc.</p>';
@@ -600,10 +597,10 @@ function listFallenStats(hero,view) {
         gameOverScreen.innerHTML = '';
         gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     var stats = '<h5>' + hero.name + '</h5>';
-        stats += '<p>Level <span>' + hero.level + '</span></p>';
-        stats += '<p>STR: <span>' + hero.strength + '</span></p>';
-        stats += '<p>DEX: <span>' + hero.dexterity + '</span></p>';
-        stats += '<p>END: <span>' + hero.endurance + '</span></p>';
+        stats += '<p>Level: <span>' + hero.level + '</span></p>';
+        stats += '<p>strength: <span>' + hero.strength + '</span></p>';
+        stats += '<p>Dexterity: <span>' + hero.dexterity + '</span></p>';
+        stats += '<p>Endurance: <span>' + hero.endurance + '</span></p>';
         stats += '<p>Dungeon Level: <span>' + hero.gameLevel + '</span></p>';
         stats += '<p>Math Difficulty: <span>' + hero.difficultyMath + '</span></p>';
         stats += '<p>Monster Difficulty: <span>' + hero.difficultyMonster + '</span></p>';
@@ -1975,7 +1972,7 @@ var bestiary = [
         moveInterval: 1500,
         moveSpeed: 0.5,
         moveType: 'aggressive',
-        info: 'Description of the monster goes here. Description of the monster goes here. Description of the monster goes here. Description of the monster goes here. Description of the monster goes here.'
+        info: 'Bats are quick, and not much of a threat alone, but can easily overcome you in larger numbers. They can also fly over obstacles to reach you.'
     },
     {
         type: 'Gelatinous Cube',
@@ -1996,7 +1993,7 @@ var bestiary = [
                 abilityChance: 100
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'A slow moving gelatinous mass that leaves a trail of corrosive acid in its wake.'
     },
     {
         type: 'Giant Spider',
@@ -2018,7 +2015,7 @@ var bestiary = [
                 abilityChance: 20
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'Spiders are quick, and can poison you with their bite. The webs they leave behind can immobilize you for a short period of time.'
     },
     {
         type: 'Number Mage',
@@ -2039,7 +2036,7 @@ var bestiary = [
                 abilityChance: 80
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The Number Mage is not a threat in the usual sense. They do almost no damage, but cast magic to cloud your mind and make equations more difficult to solve.'
     },
     {
         type: 'Oculord',
@@ -2063,7 +2060,7 @@ var bestiary = [
                 targetChance: 75
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'Oculords can shoot both ice and fire from one of the many magical eye stalks that grow from their bodies.'
     },
     {
         type: 'Vampire',
@@ -2084,7 +2081,7 @@ var bestiary = [
                 abilityChance: 70
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'These blood sucking fiends have the ability to turn mostly invisible for a period of time. While under this effect they can drain your life within a short range.'
     }
 ];
 
@@ -2095,7 +2092,7 @@ var bosses = [
         type: 'Spider Queen',
         boss: true,
         image: 'spider-queen.gif',
-        baseDamage: 10,
+        baseDamage: 15,
         health: 500,
         weight: 50,
         evasion: 5,
@@ -2112,7 +2109,7 @@ var bosses = [
             {
                 ability: 'projectile',
                 abilityImage: ['projectile-poison.gif'],
-                abilityDamge: 1.25,
+                abilityDamge: 1.35,
                 damageDuration: 3000,
                 dotStatus: 'poisoned!',
                 abilityDuration: 0.45,
@@ -2120,7 +2117,7 @@ var bosses = [
                 targetChance: 100
             },
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The Spider Queen resides in a large lair within these dungeon walls. She has a powerful poison, and many smaller minions that will stop at nothing to protect their Queen.'
     },
     {
         type: 'Vampire Lord',
@@ -2151,7 +2148,7 @@ var bosses = [
                 targetChance: 100
             },
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The Vampire Lord has a powerful short range life drain ability while he remains invisible. His ice projectiles can freeze you in place so that his swarm of bat minions can overtake you.'
     },
     {
         type: 'Red Knight',
@@ -2178,7 +2175,7 @@ var bosses = [
                 targetChance: 100
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The first of the Three Knights, the Red Knight hurls fireballs in rapid bursts to deal immense damage to their victim.'
     },
     {
         type: 'Blue Knight',
@@ -2210,7 +2207,7 @@ var bosses = [
                 targetChance: 100
             },
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The second of the Triumvarate, the Blue Knight leaves a trail of ice, and can shoot freezing orbs, locking their victim in place.'
     },
     {
         type: 'Yellow Knight',
@@ -2235,7 +2232,7 @@ var bosses = [
                 targetChance: 100
             }
         ],
-        info: 'Description of the monster goes here.'
+        info: 'The last of the three guardians, the Yellow Knight launches a powerful poisoned ball that deals damage over time to the effected victim.'
     }
 ];
 /////////////// SPAWN_ENEMIES ///////////////
@@ -2248,7 +2245,7 @@ function letTheGamesBegin() {
         timeBar.style.transition = transition + 's linear';
     var timerIncrement = (100 / defaultTimer) * (timerInterval / 1000);
     var currentLevel = hero.gameLevel;
-    var dangerZone = 25;
+    var dangerZone = 30;
     // Start the level timer
     var timerInterval = setInterval(function() {
         // Start flashing bar if in the danger zone
@@ -2268,7 +2265,6 @@ function letTheGamesBegin() {
         }
         else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
             clearInterval(timerInterval);
-            console.log('cleared');
         }
         else {
             hero.timer -= timerIncrement;
@@ -3828,7 +3824,21 @@ function dealDamage(amount,source) {
 }
 /////////////// TUTORIAL ///////////////
 
-var rescueText = ['Random rescue text 1','Random rescue text 2','Random rescue text 3','Random rescue text 4',];
+var rescueText =    ['Hail, and well met!',
+                    'You&quot;re here to rescue us? Inconceivable!',
+                    'You are the greatest swordsman that ever lived!',
+                    'Thank you!',
+                    'It was starting to get real boring in here...',
+                    'This place totally stinks, thank you for rescuing us!',
+                    'I can&quot;t wait to get on the internet again!',
+                    'I knew you would come for us!',
+                    'You&quot;re awesome!',
+                    'I hate spiders!',
+                    'I thought we were done for!',
+                    'Did you bring anything to eat with you? I&quot;m starving!',
+                    'You&quot;re the coolest.',
+                    'Have you found the others?',
+                    'You were always my favorite. Thank you!'];
 
 // Display story and message text on screen
 var multipart = 0;
@@ -3965,7 +3975,7 @@ function startTutorial() {
         var moveOnce = setInterval(function() {
             if (hero.squaresMoved >= 2) {
                 clearInterval(moveOnce);
-                var message = 'Great. Now move to the highlighted square.';
+                var message = 'Great. Now auto move to the highlighted square by tapping on it.';
                 tutorialData.highlightedSquare = map[0][numberOfColumns - 1].location,
                 textBubble(message,0);
                 setTimeout(function() {
