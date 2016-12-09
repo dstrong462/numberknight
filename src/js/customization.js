@@ -1,26 +1,18 @@
-//////////////////////
-function cheat() {
-    hero.answers = hero.answersNeeded - 1;
-}
-//////////////////////
-
 /////////////// CUSTOMIZATION ///////////////
 
-// Minimum cell width in pixels
-var minimumCellWidth = 60;
-var maxiumumCellWidth = 100;
 var maxScreenWidth = 700;
+var numberOfColumns = 5;
 var maxColumns = 7;
-var maxRows = 10;
+var maxRows = 9;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 150;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
-var correctMinThreshold = 20;
+var correctMinThreshold = 25;
 var correctMaxThreshold = 60;
 
-// Customize variables for healing
+// Customize variables for restoration
 var healthRestoreFromCapture = 1;
 var timeRestoreFromCapture = 4;
 var timeLostFromWrongAnswer = 0;
@@ -53,6 +45,7 @@ var loot = [
         amount: [1,2,5,10,25]
     }
 ];
+// Chance to spawn that sweet loot
 var lootChance = 45;
 
 // Object Themes

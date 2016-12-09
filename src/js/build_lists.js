@@ -83,6 +83,7 @@ function clearList() {
         var container = document.getElementById('fallen-heroes');
             container.remove();
         displayHeroes();
+        document.getElementById('btn-fallen-heroes').style.display = 'none';
     }
 }
 

@@ -284,7 +284,7 @@ function equality(total,correct,incorrect,callback) {
             min: 4,
             max: 15,
             highest: 25,
-            deviation: 5
+            deviation: 10
         },
         {
             // MEDIUM
@@ -298,7 +298,7 @@ function equality(total,correct,incorrect,callback) {
             min: 50,
             max: 100,
             highest: 150,
-            deviation: 15
+            deviation: 10
         }
     ];
 
@@ -347,12 +347,7 @@ function equality(total,correct,incorrect,callback) {
             // Generate correct answers
             if (correctArray.length < correct) {
                 var num2 = target - num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + symbol + num2;
-                }
+                equationString = num1 + symbol + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
@@ -360,12 +355,7 @@ function equality(total,correct,incorrect,callback) {
             else if (incorrectArray.length < incorrect) {
                 var num2 = target - num1;
                     num2 += randomNumber(1,deviation);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + symbol + num2;
-                }
+                equationString = num1 + symbol + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -376,12 +366,7 @@ function equality(total,correct,incorrect,callback) {
             // Generate correct answers
             if (correctArray.length < correct) {
                 var num2 = target + num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
-                }
-                else {
-                    equationString = num2 + symbol + num1;
-                }
+                equationString = num2 + symbol + num1;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
@@ -389,12 +374,7 @@ function equality(total,correct,incorrect,callback) {
             else if (incorrectArray.length < incorrect) {
                 var num2 = target + num1;
                     num2 += randomNumber(1,deviation);
-                if (hero.difficultyMath === '3') {
-                    equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
-                }
-                else {
-                    equationString = num2 + symbol + num1;
-                }
+                equationString = num2 + symbol + num1;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -406,25 +386,15 @@ function equality(total,correct,incorrect,callback) {
             if (correctArray.length < correct) {
                 var num1 = safeMultiples[randomNumber(0,safeMultiples.length - 1)];
                 var num2 = target / num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&times;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&times;' + num2;
-                }
+                equationString = num1 + '&times;' + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
             // Generate false answers
             else if (incorrectArray.length < incorrect) {
                 var num1 = unsafeMultiples[randomNumber(0,unsafeMultiples.length - 1)];
-                var num2 = randomNumber(1,target);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&times;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&times;' + num2;
-                }
+                var num2 = randomNumber(1,deviation);
+                equationString = num1 + '&times;' + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -436,25 +406,15 @@ function equality(total,correct,incorrect,callback) {
             if (correctArray.length < correct) {
                 var num1 = safeFactors[randomNumber(0,safeFactors.length - 1)];
                 var num2 = num1 / target;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&divide;' + num2;
-                }
+                equationString = num1 + '&divide;' + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
             // Generate false answers
             else if (incorrectArray.length < incorrect) {
                 var num1 = unsafeFactors[randomNumber(0,unsafeFactors.length - 1)];
-                var num2 = randomNumber(1,target);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&divide;' + num2;
-                }
+                var num2 = randomNumber(1,deviation);
+                equationString = num1 + '&divide;' + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -552,6 +512,7 @@ function displayMath(finalArray,callback) {
                 map[r][c].answer = finalArray[i].answer;
                 var cell = document.getElementById(map[r][c].location);
                 var equation = document.createElement('p');
+                    equation.style.fontSize = cellFontSize;
                 if (options.tutorial && options.newgame) {
                     equation.style.opacity = '0';
                 }

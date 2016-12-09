@@ -81,7 +81,7 @@ function fadeIn() {
 function buildMap(callback) {
     console.log('buildMap');
     // Set Challenge Level
-    if (hero.gameLevel % 4 === 0) {
+    if (hero.gameLevel % 8 === 0) {
         hero.challengeMode = true;
     }
     // Set Boss Level

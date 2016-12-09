@@ -130,6 +130,13 @@ function titleButtons() {
                 newCount.style.display = 'flex';
         }
     }
+    // Display Fallen Heroes button if there are any
+    if (fallenHeroes.length > 0) {
+        document.getElementById('btn-fallen-heroes').style.display = 'flex';
+    }
+    else {
+        document.getElementById('btn-fallen-heroes').style.display = 'none';
+    }
     // Display gold total
     if (options.gold > 0) {
         var goldTotal = document.querySelector('#gold-total span');

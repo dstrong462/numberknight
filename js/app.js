@@ -1,26 +1,18 @@
-//////////////////////
-function cheat() {
-    hero.answers = hero.answersNeeded - 1;
-}
-//////////////////////
-
 /////////////// CUSTOMIZATION ///////////////
 
-// Minimum cell width in pixels
-var minimumCellWidth = 60;
-var maxiumumCellWidth = 100;
 var maxScreenWidth = 700;
+var numberOfColumns = 5;
 var maxColumns = 7;
-var maxRows = 10;
+var maxRows = 9;
 // Amount of screen space to be saved for the UI in pixels
 var reservedSpace = 150;
 // Side wall in pixels
 var reservedSides = 15;
 // Minimum percentage of correct answers per level
-var correctMinThreshold = 20;
+var correctMinThreshold = 25;
 var correctMaxThreshold = 60;
 
-// Customize variables for healing
+// Customize variables for restoration
 var healthRestoreFromCapture = 1;
 var timeRestoreFromCapture = 4;
 var timeLostFromWrongAnswer = 0;
@@ -53,6 +45,7 @@ var loot = [
         amount: [1,2,5,10,25]
     }
 ];
+// Chance to spawn that sweet loot
 var lootChance = 45;
 
 // Object Themes
@@ -131,7 +124,7 @@ else {
         fallenHeroes = JSON.parse(retrievedList);
 }
 
-// Get display size
+// Get display width
 var screenWidth = window.innerWidth
 || document.documentElement.clientWidth
 || document.body.clientWidth;
@@ -139,26 +132,26 @@ var screenWidth = window.innerWidth
 // Max screen width for desktop viewing
 if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
 
+// Allow more columns for larger screen sizes
+if (screenWidth >= maxScreenWidth) {
+    numberOfColumns = maxColumns;
+}
+
+// Get display height
 var screenHeight = window.innerHeight
 || document.documentElement.clientHeight
 || document.body.clientHeight;
 
 screenWidth = screenWidth - (reservedSides * 2);
 
-// Calculate number of columns to build based on minimum column width
-var numberOfColumns = Math.floor(screenWidth / minimumCellWidth);
-if (numberOfColumns > maxColumns) { numberOfColumns = maxColumns; }
-
 var cellSize = Math.floor(screenWidth / numberOfColumns);
-if (cellSize > maxiumumCellWidth) {
-    cellSize = maxiumumCellWidth;
-}
 
 var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
 if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
 // Resize UI to match grid size
+var cellFontSize = cellSize / 5 + 'px';
 var uiWidth = (numberOfColumns * cellSize) + 'px';
 var topBar = document.getElementById('top-bar');
     topBar.style.width = uiWidth;
@@ -305,6 +298,13 @@ function titleButtons() {
                 newCount.innerHTML = options.newEnemies;
                 newCount.style.display = 'flex';
         }
+    }
+    // Display Fallen Heroes button if there are any
+    if (fallenHeroes.length > 0) {
+        document.getElementById('btn-fallen-heroes').style.display = 'flex';
+    }
+    else {
+        document.getElementById('btn-fallen-heroes').style.display = 'none';
     }
     // Display gold total
     if (options.gold > 0) {
@@ -478,6 +478,7 @@ function clearList() {
         var container = document.getElementById('fallen-heroes');
             container.remove();
         displayHeroes();
+        document.getElementById('btn-fallen-heroes').style.display = 'none';
     }
 }
 
@@ -729,7 +730,7 @@ function fadeIn() {
 function buildMap(callback) {
     console.log('buildMap');
     // Set Challenge Level
-    if (hero.gameLevel % 4 === 0) {
+    if (hero.gameLevel % 8 === 0) {
         hero.challengeMode = true;
     }
     // Set Boss Level
@@ -1551,7 +1552,7 @@ function equality(total,correct,incorrect,callback) {
             min: 4,
             max: 15,
             highest: 25,
-            deviation: 5
+            deviation: 10
         },
         {
             // MEDIUM
@@ -1565,7 +1566,7 @@ function equality(total,correct,incorrect,callback) {
             min: 50,
             max: 100,
             highest: 150,
-            deviation: 15
+            deviation: 10
         }
     ];
 
@@ -1614,12 +1615,7 @@ function equality(total,correct,incorrect,callback) {
             // Generate correct answers
             if (correctArray.length < correct) {
                 var num2 = target - num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + symbol + num2;
-                }
+                equationString = num1 + symbol + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
@@ -1627,12 +1623,7 @@ function equality(total,correct,incorrect,callback) {
             else if (incorrectArray.length < incorrect) {
                 var num2 = target - num1;
                     num2 += randomNumber(1,deviation);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>' + symbol + '</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + symbol + num2;
-                }
+                equationString = num1 + symbol + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -1643,12 +1634,7 @@ function equality(total,correct,incorrect,callback) {
             // Generate correct answers
             if (correctArray.length < correct) {
                 var num2 = target + num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
-                }
-                else {
-                    equationString = num2 + symbol + num1;
-                }
+                equationString = num2 + symbol + num1;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
@@ -1656,12 +1642,7 @@ function equality(total,correct,incorrect,callback) {
             else if (incorrectArray.length < incorrect) {
                 var num2 = target + num1;
                     num2 += randomNumber(1,deviation);
-                if (hero.difficultyMath === '3') {
-                    equationString = num2 + '</p><p>' + symbol + '</p><p>' + num1;
-                }
-                else {
-                    equationString = num2 + symbol + num1;
-                }
+                equationString = num2 + symbol + num1;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -1673,25 +1654,15 @@ function equality(total,correct,incorrect,callback) {
             if (correctArray.length < correct) {
                 var num1 = safeMultiples[randomNumber(0,safeMultiples.length - 1)];
                 var num2 = target / num1;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&times;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&times;' + num2;
-                }
+                equationString = num1 + '&times;' + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
             // Generate false answers
             else if (incorrectArray.length < incorrect) {
                 var num1 = unsafeMultiples[randomNumber(0,unsafeMultiples.length - 1)];
-                var num2 = randomNumber(1,target);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&times;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&times;' + num2;
-                }
+                var num2 = randomNumber(1,deviation);
+                equationString = num1 + '&times;' + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -1703,25 +1674,15 @@ function equality(total,correct,incorrect,callback) {
             if (correctArray.length < correct) {
                 var num1 = safeFactors[randomNumber(0,safeFactors.length - 1)];
                 var num2 = num1 / target;
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&divide;' + num2;
-                }
+                equationString = num1 + '&divide;' + num2;
                 answer = { number: equationString, answer: true };
                 correctArray.push(answer);
             }
             // Generate false answers
             else if (incorrectArray.length < incorrect) {
                 var num1 = unsafeFactors[randomNumber(0,unsafeFactors.length - 1)];
-                var num2 = randomNumber(1,target);
-                if (hero.difficultyMath === '3') {
-                    equationString = num1 + '</p><p>&divide;</p><p>' + num2;
-                }
-                else {
-                    equationString = num1 + '&divide;' + num2;
-                }
+                var num2 = randomNumber(1,deviation);
+                equationString = num1 + '&divide;' + num2;
                 answer = { number: equationString, answer: false };
                 incorrectArray.push(answer);
             }
@@ -1819,6 +1780,7 @@ function displayMath(finalArray,callback) {
                 map[r][c].answer = finalArray[i].answer;
                 var cell = document.getElementById(map[r][c].location);
                 var equation = document.createElement('p');
+                    equation.style.fontSize = cellFontSize;
                 if (options.tutorial && options.newgame) {
                     equation.style.opacity = '0';
                 }
@@ -1980,7 +1942,7 @@ var bestiary = [
         image: 'cube-green.gif',
         baseDamage: 10,
         health: 50,
-        weight: 25,
+        weight: 20,
         evasion: 5,
         moveInterval: 2100,
         moveSpeed: 2,
@@ -2001,7 +1963,7 @@ var bestiary = [
         image: 'spider.gif',
         baseDamage: 10,
         health: 65,
-        weight: 35,
+        weight: 30,
         evasion: 15,
         moveInterval: 2000,
         moveSpeed: 0.35,
@@ -2068,7 +2030,7 @@ var bestiary = [
         image: 'vampire.gif',
         baseDamage: 15,
         health: 125,
-        weight: 60,
+        weight: 50,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 1,

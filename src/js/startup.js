@@ -52,7 +52,7 @@ else {
         fallenHeroes = JSON.parse(retrievedList);
 }
 
-// Get display size
+// Get display width
 var screenWidth = window.innerWidth
 || document.documentElement.clientWidth
 || document.body.clientWidth;
@@ -60,26 +60,26 @@ var screenWidth = window.innerWidth
 // Max screen width for desktop viewing
 if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
 
+// Allow more columns for larger screen sizes
+if (screenWidth >= maxScreenWidth) {
+    numberOfColumns = maxColumns;
+}
+
+// Get display height
 var screenHeight = window.innerHeight
 || document.documentElement.clientHeight
 || document.body.clientHeight;
 
 screenWidth = screenWidth - (reservedSides * 2);
 
-// Calculate number of columns to build based on minimum column width
-var numberOfColumns = Math.floor(screenWidth / minimumCellWidth);
-if (numberOfColumns > maxColumns) { numberOfColumns = maxColumns; }
-
 var cellSize = Math.floor(screenWidth / numberOfColumns);
-if (cellSize > maxiumumCellWidth) {
-    cellSize = maxiumumCellWidth;
-}
 
 var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
 if (numberOfRows > maxRows) { numberOfRows = maxRows; }
 var totalCells = numberOfColumns * numberOfRows;
 
 // Resize UI to match grid size
+var cellFontSize = cellSize / 5 + 'px';
 var uiWidth = (numberOfColumns * cellSize) + 'px';
 var topBar = document.getElementById('top-bar');
     topBar.style.width = uiWidth;
