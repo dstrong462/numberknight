@@ -4,6 +4,7 @@
 var gulp = require('gulp'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
+    autoprefixer = require('gulp-autoprefixer'),
     cleanCSS = require('gulp-clean-css'),
     rename = require('gulp-rename'),
     maps = require('gulp-sourcemaps'),
@@ -56,9 +57,13 @@ gulp.task('concat-css', function() {
     .pipe(gulp.dest('css'));
 });
 
-// Minify CSS
+// Autoprefix and Minify CSS
 gulp.task('minify-css', ['concat-css'], function() {
     return gulp.src('css/stylesheet.css')
+    .pipe(autoprefixer({
+            browsers: ['> 5%'],
+            cascade: false
+        }))
     .pipe(cleanCSS({compatibility: 'ie8'}))
     .pipe(rename('stylesheet.min.css'))
     .pipe(gulp.dest('css'));

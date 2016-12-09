@@ -3,19 +3,19 @@
 
 @font-face {
     font-family: 'Silkscreen';
-    src: url(../fonts/slkscr.ttf);
+    src: url('../fonts/slkscr.ttf');
     font-weight: normal;
 }
 
 @font-face {
     font-family: 'Ubuntu';
-    src: url(../fonts/Ubuntu-Medium.ttf);
+    src: url('../fonts/Ubuntu-Medium.ttf');
     font-weight: normal;
 }
 
 body {
     color: #fff;
-    font-family: 'Silkscreen';
+    font-family: 'Silkscreen', 'Ubuntu', 'Arial';
     font-weight: normal;
     width: 100vw;
     height: 100vh;
