@@ -46,7 +46,7 @@ var loot = [
     }
 ];
 // Chance to spawn that sweet loot
-var lootChance = 45;
+var lootChance = 50;
 
 // Object Themes
 var themes = [
@@ -2086,8 +2086,8 @@ var bosses = [
         boss: true,
         image: 'vampire-lord.gif',
         baseDamage: 10,
-        health: 450,
-        weight: 100,
+        health: 500,
+        weight: 70,
         evasion: 5,
         moveInterval: 1900,
         moveSpeed: 1.5,
@@ -2117,7 +2117,7 @@ var bosses = [
         boss: true,
         image: 'red-knight.gif',
         baseDamage: 10,
-        health: 150,
+        health: 225,
         weight: 50,
         evasion: 5,
         moveInterval: 2200,
@@ -2144,7 +2144,7 @@ var bosses = [
         boss: true,
         image: 'blue-knight.gif',
         baseDamage: 10,
-        health: 150,
+        health: 225,
         weight: 50,
         evasion: 5,
         moveInterval: 2200,
@@ -2176,7 +2176,7 @@ var bosses = [
         boss: true,
         image: 'yellow-knight.gif',
         baseDamage: 10,
-        health: 150,
+        health: 225,
         weight: 50,
         evasion: 5,
         moveInterval: 2200,
@@ -2232,7 +2232,7 @@ function letTheGamesBegin() {
             hero.timer -= timerIncrement;
             if (hero.timer <= 0 ) {
                 clearInterval(timerInterval);
-                dealDamage(100000,'time');
+                dealDamage(1000000,'time');
             }
             else {
                 timeBar.style.width = hero.timer + '%';
@@ -2261,8 +2261,8 @@ function letTheGamesBegin() {
     }
     // If Boss Level
     if (hero.bossLevel !== false || hero.challengeMode) {
-        maxWeight *= 1.5;
-        maxEnemies *= 1.5;
+        maxWeight *= 2;
+        maxEnemies = 25;
     }
     // Get list of safe spawn locations
     spawnArray = [];
@@ -2431,8 +2431,23 @@ function addEnemy(row,col,monster) {
     // Create DOM element for enemy
     var createEnemy = document.createElement('div');
     if (enemy.boss) {
+        // Apply boss scaling
+        // If second boss fight
+        if (hero.bosses.length === 2) {
+            enemy.startingHealth *= 1.5;
+            enemy.health *= 1.5;
+            enemy.attackRating += 0.5;
+        }
+        // If third boss fight
+        if (hero.bosses.length === 1) {
+            enemy.startingHealth *= 2;
+            enemy.health *= 2;
+            enemy.attackRating += 1;
+        }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
+        console.log('health: ' + enemy.health);
+        console.log('attackRating: ' + enemy.attackRating);
         createEnemy.classList.add('boss');
         var healthBar = document.createElement('span');
             healthBar.id = 'boss-health';
@@ -3787,18 +3802,18 @@ function dealDamage(amount,source) {
 /////////////// TUTORIAL ///////////////
 
 var rescueText =    ['Hail, and well met!',
-                    'You&quot;re here to rescue us? Inconceivable!',
+                    'You&apos;re here to rescue us? Inconceivable!',
                     'You are the greatest swordsman that ever lived!',
                     'Thank you!',
-                    'It was starting to get real boring in here...',
+                    'It was starting to get really boring in here...',
                     'This place totally stinks, thank you for rescuing us!',
-                    'I can&quot;t wait to get on the internet again!',
+                    'I can&apos;t wait to go home and get on the internet again!',
                     'I knew you would come for us!',
-                    'You&quot;re awesome!',
+                    'You&apos;re awesome!',
                     'I hate spiders!',
                     'I thought we were done for!',
-                    'Did you bring anything to eat with you? I&quot;m starving!',
-                    'You&quot;re the coolest.',
+                    'Did you bring anything to eat with you? I&apos;m starving!',
+                    'You&apos;re the coolest.',
                     'Have you found the others?',
                     'You were always my favorite. Thank you!'];
 
@@ -4190,19 +4205,19 @@ var deathText = {
                 'Death by spikes.',
                 'Tried to make out with some spikes and was very successful.'],
 
-    fireGrate:  ['Got a little too fired up.',
-                'Got served up extra crispy.',
-                'Cooked to perfection.',
-                'Killed by fire.',
-                'Tripped and fell into a fire.',
-                'Do you smell what the dungeon is cookin?'],
+    fireGrate:  ['Got a little too fired up by a fire grate.',
+                'Got served up extra crispy by a fire grate.',
+                'Cooked to perfection by a fire grate.',
+                'Killed by a fire grate.',
+                'Tripped and fell into a fire grate.',
+                'Do you smell what the dungeon is cookin? Fire grate does.'],
 
     math:       ['Forgot how to math.',
                 'Left their calculator at home.',
-                'Didn&rsquo;t pay attention in math class.',
+                'Didn&apos;t pay attention in math class.',
                 'Got mathed upside the head.',
-                'Got in a fight with a number and lost somehow.',
-                'Couldn&rsquo;t math their way out of a paper bag.',
+                'Got in a fight with a number and lost.',
+                'Couldn&apos;t math their way out of a paper bag.',
                 'Death by math.',
                 'Killed by numbers.',
                 'Math is hard.'],
@@ -4257,9 +4272,9 @@ var deathText = {
                     'Tried to headbutt the Spider Queen and got eaten instead.'],
 
     vampireLord:    ['Killed by the Vampire Lord.',
-                    'Frozen. Bitten. And drained of all life the the Vampire Lord.',
+                    'Frozen. Bitten. And drained of all life by the Vampire Lord.',
                     'The Vampire Lord does not like non-vampires.',
-                    'Got turned into a vampire by the Vampire Lord. So I guess that&rsquo;s pretty cool.',
+                    'Got turned into a vampire by the Vampire Lord. So I guess that&apos;s pretty cool.',
                     'Vampire Lord thanks you for the delicious blood.',
                     'More blood for the vampire lord.'],
 
@@ -4590,5 +4605,9 @@ function getAccuracy(right,wrong) {
 // Random number generator within a range
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+function cheat() {
+    hero.answers = hero.answersNeeded - 1;
+    hero.gameLevel = 5;
 }
 //# sourceMappingURL=app.js.map

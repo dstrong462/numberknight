@@ -28,7 +28,8 @@ gulp.task('concat-scripts', function() {
         'src/js/attack_player.js',
         'src/js/tutorial.js',
         'src/js/death.js',
-        'src/js/utilities.js'
+        'src/js/utilities.js',
+        'src/js/testing.js'
         ])
     .pipe(maps.init())
     .pipe(concat('app.js'))
@@ -61,7 +62,7 @@ gulp.task('concat-css', function() {
 gulp.task('minify-css', ['concat-css'], function() {
     return gulp.src('css/stylesheet.css')
     .pipe(autoprefixer({
-            browsers: ['> 5%'],
+            browsers: ['last 3 versions'],
             cascade: false
         }))
     .pipe(cleanCSS({compatibility: 'ie8'}))

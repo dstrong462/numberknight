@@ -33,7 +33,7 @@ function letTheGamesBegin() {
             hero.timer -= timerIncrement;
             if (hero.timer <= 0 ) {
                 clearInterval(timerInterval);
-                dealDamage(100000,'time');
+                dealDamage(1000000,'time');
             }
             else {
                 timeBar.style.width = hero.timer + '%';
@@ -62,8 +62,8 @@ function letTheGamesBegin() {
     }
     // If Boss Level
     if (hero.bossLevel !== false || hero.challengeMode) {
-        maxWeight *= 1.5;
-        maxEnemies *= 1.5;
+        maxWeight *= 2;
+        maxEnemies = 25;
     }
     // Get list of safe spawn locations
     spawnArray = [];
@@ -232,8 +232,23 @@ function addEnemy(row,col,monster) {
     // Create DOM element for enemy
     var createEnemy = document.createElement('div');
     if (enemy.boss) {
+        // Apply boss scaling
+        // If second boss fight
+        if (hero.bosses.length === 2) {
+            enemy.startingHealth *= 1.5;
+            enemy.health *= 1.5;
+            enemy.attackRating += 0.5;
+        }
+        // If third boss fight
+        if (hero.bosses.length === 1) {
+            enemy.startingHealth *= 2;
+            enemy.health *= 2;
+            enemy.attackRating += 1;
+        }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
+        console.log('health: ' + enemy.health);
+        console.log('attackRating: ' + enemy.attackRating);
         createEnemy.classList.add('boss');
         var healthBar = document.createElement('span');
             healthBar.id = 'boss-health';

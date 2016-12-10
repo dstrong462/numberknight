@@ -46,7 +46,7 @@ var loot = [
     }
 ];
 // Chance to spawn that sweet loot
-var lootChance = 45;
+var lootChance = 50;
 
 // Object Themes
 var themes = [

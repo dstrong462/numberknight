@@ -1,18 +1,18 @@
 /////////////// TUTORIAL ///////////////
 
 var rescueText =    ['Hail, and well met!',
-                    'You&quot;re here to rescue us? Inconceivable!',
+                    'You&apos;re here to rescue us? Inconceivable!',
                     'You are the greatest swordsman that ever lived!',
                     'Thank you!',
-                    'It was starting to get real boring in here...',
+                    'It was starting to get really boring in here...',
                     'This place totally stinks, thank you for rescuing us!',
-                    'I can&quot;t wait to get on the internet again!',
+                    'I can&apos;t wait to go home and get on the internet again!',
                     'I knew you would come for us!',
-                    'You&quot;re awesome!',
+                    'You&apos;re awesome!',
                     'I hate spiders!',
                     'I thought we were done for!',
-                    'Did you bring anything to eat with you? I&quot;m starving!',
-                    'You&quot;re the coolest.',
+                    'Did you bring anything to eat with you? I&apos;m starving!',
+                    'You&apos;re the coolest.',
                     'Have you found the others?',
                     'You were always my favorite. Thank you!'];
 
