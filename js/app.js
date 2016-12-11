@@ -2474,23 +2474,20 @@ function addEnemy(row,col,monster) {
         createEnemy.appendChild(enemyImage);
         levelContainer.appendChild(createEnemy);
     var enemyContainer = document.getElementById(enemy.id);
+        enemyContainer.style.transition = enemy.moveSpeed + 's ease';
     // Insert the enemy onto one of the outside squares
     if (enemy.row === 1) {
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + '-' + cellSize + 'px)';
-        enemyContainer.style.transition = enemy.moveSpeed + 's ease';
     }
     else if (enemy.row === numberOfRows) {
         enemyContainer.style.transform = 'translate(' + enemy.left + 'px, ' + (enemy.top + cellSize) + 'px)';
-        enemyContainer.style.transition = enemy.moveSpeed + 's ease';
     }
     else if (enemy.row !== 1 || enemy.row !== numberOfRows) {
         if (enemy.col === 1) {
             enemyContainer.style.transform = 'translate(-' + cellSize + 'px, ' + enemy.top + 'px)';
-            enemyContainer.style.transition = enemy.moveSpeed + 's ease';
         }
         else if (enemy.col === numberOfColumns) {
             enemyContainer.style.transform = 'translate(' + (enemy.left + cellSize) + 'px, ' + enemy.top + 'px)';
-            enemyContainer.style.transition = enemy.moveSpeed + 's ease';
         }
     }
 

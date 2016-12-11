@@ -23,9 +23,6 @@ body {
     background-color: #262626;
     background-image: url('../img/backgrounds/background-01.gif');
     image-rendering: pixelated;
-    -webkit-image-rendering: crisp-edges;
-    -moz-image-rendering: crisp-edges;
-    -ms-interpolation-mode: nearest-neighbor;
 }
 
 img {
@@ -626,17 +623,15 @@ img.wall {
     width: 85%;
     height: 85%;
     background-color: #24E35A;
-    border-radius: 8px;
-    opacity: 0;
-    animation: capture .6s 1;
+    border-radius: 6px;
+    opacity: .6;
+    animation: capture .6s 1 forwards;
     margin: auto;
 }
 
 @keyframes capture {
-    0%   { opacity: 0; transform: rotate(0deg) scale(1,1); }
-    20%  { opacity: .7; }
-    80%  { opacity: .7; }
-    100% { opacity: 0; transform: rotate(90deg) scale(0,0); }
+    15%  { opacity: .6; width: 85%; height: 85%; transform: rotate(0deg);}
+    100% { opacity: 0; width: 10%; height: 10%; transform: rotate(-90deg); }
 }
 
 #level-container .row div:first-child {
