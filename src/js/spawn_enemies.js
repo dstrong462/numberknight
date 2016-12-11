@@ -247,8 +247,6 @@ function addEnemy(row,col,monster) {
         }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
-        console.log('health: ' + enemy.health);
-        console.log('attackRating: ' + enemy.attackRating);
         createEnemy.classList.add('boss');
         var healthBar = document.createElement('span');
             healthBar.id = 'boss-health';

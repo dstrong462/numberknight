@@ -568,23 +568,16 @@ function displayBestiary() {
     bestiaryScreen.innerHTML = list;
     bestiaryScreen.style.height = 'auto';
 
-    var container = document.createElement('div');
     var button = document.createElement('button');
-        button.className = 'main-menu-button';
-        container.appendChild(button);
-        bestiaryScreen.appendChild(container);
-
-        bestiaryScreen.style.opacity = '1';
-        bestiaryScreen.style.display = 'flex';
-
-    var closeButton = document.querySelector('.main-menu-button');
-        closeButton.innerHTML = '';
-        closeButton.className = 'btn-back';
-        closeButton.style.marginBottom = '25px';
-        closeButton.addEventListener('click', function() {
+        button.className = 'btn-back';
+        bestiaryScreen.appendChild(button);
+        button.addEventListener('click', function() {
             bestiaryScreen.style.display = 'none';
             bestiaryScreen.innerHTML = '';
         });
+
+    bestiaryScreen.style.display = 'flex';
+    bestiaryScreen.style.opacity = '1';
 
     options.newEnemies = 0;
     localStorage.setItem('options', JSON.stringify(options));
@@ -624,7 +617,6 @@ function listFallenStats(hero,view) {
         stats += '<p>Times Frozen: <span>' + hero.timesFrozen + '</span></p>';
         stats += '<p>Times Spider Webbed: <span>' + hero.timesWebbed + '</span></p>';
         stats += '<p>Times Poisoned: <span>' + hero.timesPoisoned + '</span></p>';
-        stats += '<div><button class="main-menu-button">Main menu</button></div>';
         gameOverScreen.innerHTML = stats;
         gameOverScreen.style.opacity = '0';
         gameOverScreen.style.display = 'flex';
@@ -632,20 +624,22 @@ function listFallenStats(hero,view) {
             gameOverScreen.style.opacity = '1';
         }, 200);
     if (view === 'game-over') {
-        var mainMenuButton = document.querySelector('.main-menu-button');
-            mainMenuButton.addEventListener('click', function() {
+        var button = document.createElement('button');
+            button.classList.add('main-menu-button');
+            button.innerHTML = 'Main Menu';
+            button.addEventListener('click', function() {
                 fadeToMainMenu(fadeIn);
             });
     }
     else {
-        var closeButton = document.querySelector('#game-over div .main-menu-button');
-            closeButton.innerHTML = '';
-            closeButton.className = 'btn-back';
-            closeButton.style.marginBottom = '25px';
-            closeButton.addEventListener('click', function() {
+        var button = document.createElement('button');
+            button.classList.add('btn-back');
+            button.addEventListener('click', function() {
                 gameOverScreen.style.display = 'none';
             });
     }
+    gameOverScreen.appendChild(button);
+    gameOverScreen.style.height = 'auto';
 }
 /////////////// BUILD_LEVELS ///////////////
 
@@ -935,7 +929,6 @@ function getObjectLocations() {
             locationArray.push(cell);
             fullArray.splice(index,1);
     }
-    console.log(total + ' / ' + locationArray.length);
     randomizeDebris();
 }
 
@@ -1332,7 +1325,7 @@ function addMath() {
 
 // Generate list of correct and incorrect multiples
 function multiples(total,correct,incorrect,callback) {
-    console.log('Multiples');
+
     var difficulty = [
         {
             // EASY
@@ -1399,14 +1392,12 @@ function multiples(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
-    console.log('Total: ' + finalArray.length + ' correctCounter: ' + correctCounter + ' incorrectCounter: ' + incorrectCounter);
     callback(finalArray,fadeIn);
 }
 
 
 // Generate list of correct and incorrect factors
 function factors(total,correct,incorrect,callback) {
-    console.log('factors');
 
     var difficulty = [
         {
@@ -1465,13 +1456,12 @@ function factors(total,correct,incorrect,callback) {
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
     callback(finalArray,fadeIn);
-    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
 // Generate list of prime numbers
 function primes(total,correct,incorrect,callback) {
-    console.log('primes');
+
         var difficulty = [
         {
             // EASY
@@ -1516,13 +1506,12 @@ function primes(total,correct,incorrect,callback) {
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
     callback(finalArray,fadeIn);
-    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
 // Generate an array of prime numbers up to the number given
 function generatePrimeNumbers(max) {
-    console.log('generatePrimeNumbers');
+
     var numbers = [];
     primes = [];
     nonPrimes = [];
@@ -1544,7 +1533,6 @@ function generatePrimeNumbers(max) {
 
 // Generate list of correct and incorrect equality formulas
 function equality(total,correct,incorrect,callback) {
-    console.log('equality');
 
         var difficulty = [
         {
@@ -1749,7 +1737,7 @@ function ascendingDescending(total,callback) {
 
 // Take the combined array of answers, shuffle it, then return it
 function shuffle(array) {
-    console.log('shuffle');
+
     var currentIndex = array.length, temporaryValue, randomIndex;
 
     // While there remain elements to shuffle...
@@ -1836,7 +1824,7 @@ function checkMath() {
     // Get the hero location so you can check the appropriate map data
     var munchLocation = map[hero.row - 1][hero.col - 1];
     // Prevent from capturing a tile more than once
-    if (munchLocation.answer === 'captured' || hero.canCapture === false) {
+    if (munchLocation.answer === 'captured' || hero.canCapture === false || !munchLocation.hasOwnProperty('answer')) {
         return;
     }
     // Ascending or Descending Order
@@ -2161,7 +2149,7 @@ var bosses = [
             {
                 ability: 'projectile',
                 abilityImage: ['projectile-ice.gif'],
-                abilityDamge: 5,
+                abilityDamge: 10,
                 damageDuration: 1900,
                 dotStatus: 'frozen!',
                 abilityDuration: 0.9,
@@ -2446,8 +2434,6 @@ function addEnemy(row,col,monster) {
         }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
-        console.log('health: ' + enemy.health);
-        console.log('attackRating: ' + enemy.attackRating);
         createEnemy.classList.add('boss');
         var healthBar = document.createElement('span');
             healthBar.id = 'boss-health';
@@ -2656,7 +2642,7 @@ function damageOverTime(victim,attacker) {
             clearInterval(interval);
         }
         else  {
-            dealDamage(amount,attacker.type);
+            dealDamage(amount,attacker);
         }
     }, 250);
     setTimeout(function() {
@@ -2667,6 +2653,7 @@ function damageOverTime(victim,attacker) {
 
 // Allow vampires to temporarily turn mostly invisible
 function turnInvisible(enemy,enemyContainer) {
+    var damage = enemy.currentAbility.abilityDamge;
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
@@ -2677,7 +2664,7 @@ function turnInvisible(enemy,enemyContainer) {
         }
         else if (enemy.invisible) {
             if (Math.abs(hero.row - enemy.row) <= 1 && Math.abs(hero.col - enemy.col) <= 1) {
-                dealDamage(enemy.currentAbility.abilityDamge,enemy);
+                dealDamage(damage,enemy);
             }
         }
         else {
@@ -3449,7 +3436,7 @@ function fastTravelPathing(square) {
 
 // Check collision of movement, and move accordingly
 function moveHero(move) {
-    if (hero.canMove) {
+    if (hero.canMove && hero.health > 0 && hero !== null) {
         cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
         hero.lastLocation = munchLocation;
@@ -3717,19 +3704,25 @@ function checkForAttack(direction,victim,attacker) {
 // Flash a status message for evasions
 function flashMessage(person,message,time) {
     var msg = document.querySelector('#' + person.id + ' .message');
-        msg.innerHTML = message;
-        msg.style.display = 'flex';
-        msg.style.opacity = '0';
-        if (time) {
-            var duration = time / 1000;
-        }
-        else {
-            var duration = 0.7;
-        }
-        msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
-    setTimeout(function() {
-        msg.style.display = 'none';
-    }, duration * 1000);
+    if (msg === null || hero.health <= 0) {
+        console.log('message error fixed');
+        return;
+    }
+    else {
+            msg.innerHTML = message;
+            msg.style.display = 'flex';
+            msg.style.opacity = '0';
+            if (time) {
+                var duration = time / 1000;
+            }
+            else {
+                var duration = 0.7;
+            }
+            msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
+        setTimeout(function() {
+            msg.style.display = 'none';
+        }, duration * 1000);
+    }
 }
 
 
@@ -4269,7 +4262,7 @@ var deathText = {
                     'Put food on the table for a family of spiders.',
                     'Got wrapped up like a Christmas present for some hungry spider kids.',
                     'Eaten by a big mommy spider.',
-                    'Tried to headbutt the Spider Queen and got eaten instead.'],
+                    'Tried to headbutt the Spider Queen, but got eaten instead.'],
 
     vampireLord:    ['Killed by the Vampire Lord.',
                     'Frozen. Bitten. And drained of all life by the Vampire Lord.',

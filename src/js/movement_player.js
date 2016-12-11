@@ -346,7 +346,7 @@ function fastTravelPathing(square) {
 
 // Check collision of movement, and move accordingly
 function moveHero(move) {
-    if (hero.canMove) {
+    if (hero.canMove && hero.health > 0 && hero !== null) {
         cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
         hero.lastLocation = munchLocation;

@@ -64,7 +64,7 @@ function addMath() {
 
 // Generate list of correct and incorrect multiples
 function multiples(total,correct,incorrect,callback) {
-    console.log('Multiples');
+
     var difficulty = [
         {
             // EASY
@@ -131,14 +131,12 @@ function multiples(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
-    console.log('Total: ' + finalArray.length + ' correctCounter: ' + correctCounter + ' incorrectCounter: ' + incorrectCounter);
     callback(finalArray,fadeIn);
 }
 
 
 // Generate list of correct and incorrect factors
 function factors(total,correct,incorrect,callback) {
-    console.log('factors');
 
     var difficulty = [
         {
@@ -197,13 +195,12 @@ function factors(total,correct,incorrect,callback) {
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
     callback(finalArray,fadeIn);
-    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
 // Generate list of prime numbers
 function primes(total,correct,incorrect,callback) {
-    console.log('primes');
+
         var difficulty = [
         {
             // EASY
@@ -248,13 +245,12 @@ function primes(total,correct,incorrect,callback) {
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
     callback(finalArray,fadeIn);
-    console.log('Total: ' + finalArray.length + ' Counter: ' + counter);
 }
 
 
 // Generate an array of prime numbers up to the number given
 function generatePrimeNumbers(max) {
-    console.log('generatePrimeNumbers');
+
     var numbers = [];
     primes = [];
     nonPrimes = [];
@@ -276,7 +272,6 @@ function generatePrimeNumbers(max) {
 
 // Generate list of correct and incorrect equality formulas
 function equality(total,correct,incorrect,callback) {
-    console.log('equality');
 
         var difficulty = [
         {
@@ -481,7 +476,7 @@ function ascendingDescending(total,callback) {
 
 // Take the combined array of answers, shuffle it, then return it
 function shuffle(array) {
-    console.log('shuffle');
+
     var currentIndex = array.length, temporaryValue, randomIndex;
 
     // While there remain elements to shuffle...
@@ -568,7 +563,7 @@ function checkMath() {
     // Get the hero location so you can check the appropriate map data
     var munchLocation = map[hero.row - 1][hero.col - 1];
     // Prevent from capturing a tile more than once
-    if (munchLocation.answer === 'captured' || hero.canCapture === false) {
+    if (munchLocation.answer === 'captured' || hero.canCapture === false || !munchLocation.hasOwnProperty('answer')) {
         return;
     }
     // Ascending or Descending Order

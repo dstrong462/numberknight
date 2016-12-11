@@ -286,7 +286,6 @@ function getObjectLocations() {
             locationArray.push(cell);
             fullArray.splice(index,1);
     }
-    console.log(total + ' / ' + locationArray.length);
     randomizeDebris();
 }
 

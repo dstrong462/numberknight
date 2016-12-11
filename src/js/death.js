@@ -130,7 +130,7 @@ var deathText = {
                     'Put food on the table for a family of spiders.',
                     'Got wrapped up like a Christmas present for some hungry spider kids.',
                     'Eaten by a big mommy spider.',
-                    'Tried to headbutt the Spider Queen and got eaten instead.'],
+                    'Tried to headbutt the Spider Queen, but got eaten instead.'],
 
     vampireLord:    ['Killed by the Vampire Lord.',
                     'Frozen. Bitten. And drained of all life by the Vampire Lord.',

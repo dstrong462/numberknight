@@ -11,7 +11,7 @@ function damageOverTime(victim,attacker) {
             clearInterval(interval);
         }
         else  {
-            dealDamage(amount,attacker.type);
+            dealDamage(amount,attacker);
         }
     }, 250);
     setTimeout(function() {
@@ -22,6 +22,7 @@ function damageOverTime(victim,attacker) {
 
 // Allow vampires to temporarily turn mostly invisible
 function turnInvisible(enemy,enemyContainer) {
+    var damage = enemy.currentAbility.abilityDamge;
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
@@ -32,7 +33,7 @@ function turnInvisible(enemy,enemyContainer) {
         }
         else if (enemy.invisible) {
             if (Math.abs(hero.row - enemy.row) <= 1 && Math.abs(hero.col - enemy.col) <= 1) {
-                dealDamage(enemy.currentAbility.abilityDamge,enemy);
+                dealDamage(damage,enemy);
             }
         }
         else {

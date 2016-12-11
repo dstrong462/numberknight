@@ -123,19 +123,25 @@ function checkForAttack(direction,victim,attacker) {
 // Flash a status message for evasions
 function flashMessage(person,message,time) {
     var msg = document.querySelector('#' + person.id + ' .message');
-        msg.innerHTML = message;
-        msg.style.display = 'flex';
-        msg.style.opacity = '0';
-        if (time) {
-            var duration = time / 1000;
-        }
-        else {
-            var duration = 0.7;
-        }
-        msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
-    setTimeout(function() {
-        msg.style.display = 'none';
-    }, duration * 1000);
+    if (msg === null || hero.health <= 0) {
+        console.log('message error fixed');
+        return;
+    }
+    else {
+            msg.innerHTML = message;
+            msg.style.display = 'flex';
+            msg.style.opacity = '0';
+            if (time) {
+                var duration = time / 1000;
+            }
+            else {
+                var duration = 0.7;
+            }
+            msg.style.animation = 'flash-message ' + duration + 's 1 forwards';
+        setTimeout(function() {
+            msg.style.display = 'none';
+        }, duration * 1000);
+    }
 }
 
 

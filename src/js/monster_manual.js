@@ -240,7 +240,7 @@ var bosses = [
             {
                 ability: 'projectile',
                 abilityImage: ['projectile-ice.gif'],
-                abilityDamge: 5,
+                abilityDamge: 10,
                 damageDuration: 1900,
                 dotStatus: 'frozen!',
                 abilityDuration: 0.9,

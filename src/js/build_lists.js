@@ -173,23 +173,16 @@ function displayBestiary() {
     bestiaryScreen.innerHTML = list;
     bestiaryScreen.style.height = 'auto';
 
-    var container = document.createElement('div');
     var button = document.createElement('button');
-        button.className = 'main-menu-button';
-        container.appendChild(button);
-        bestiaryScreen.appendChild(container);
-
-        bestiaryScreen.style.opacity = '1';
-        bestiaryScreen.style.display = 'flex';
-
-    var closeButton = document.querySelector('.main-menu-button');
-        closeButton.innerHTML = '';
-        closeButton.className = 'btn-back';
-        closeButton.style.marginBottom = '25px';
-        closeButton.addEventListener('click', function() {
+        button.className = 'btn-back';
+        bestiaryScreen.appendChild(button);
+        button.addEventListener('click', function() {
             bestiaryScreen.style.display = 'none';
             bestiaryScreen.innerHTML = '';
         });
+
+    bestiaryScreen.style.display = 'flex';
+    bestiaryScreen.style.opacity = '1';
 
     options.newEnemies = 0;
     localStorage.setItem('options', JSON.stringify(options));
@@ -229,7 +222,6 @@ function listFallenStats(hero,view) {
         stats += '<p>Times Frozen: <span>' + hero.timesFrozen + '</span></p>';
         stats += '<p>Times Spider Webbed: <span>' + hero.timesWebbed + '</span></p>';
         stats += '<p>Times Poisoned: <span>' + hero.timesPoisoned + '</span></p>';
-        stats += '<div><button class="main-menu-button">Main menu</button></div>';
         gameOverScreen.innerHTML = stats;
         gameOverScreen.style.opacity = '0';
         gameOverScreen.style.display = 'flex';
@@ -237,18 +229,20 @@ function listFallenStats(hero,view) {
             gameOverScreen.style.opacity = '1';
         }, 200);
     if (view === 'game-over') {
-        var mainMenuButton = document.querySelector('.main-menu-button');
-            mainMenuButton.addEventListener('click', function() {
+        var button = document.createElement('button');
+            button.classList.add('main-menu-button');
+            button.innerHTML = 'Main Menu';
+            button.addEventListener('click', function() {
                 fadeToMainMenu(fadeIn);
             });
     }
     else {
-        var closeButton = document.querySelector('#game-over div .main-menu-button');
-            closeButton.innerHTML = '';
-            closeButton.className = 'btn-back';
-            closeButton.style.marginBottom = '25px';
-            closeButton.addEventListener('click', function() {
+        var button = document.createElement('button');
+            button.classList.add('btn-back');
+            button.addEventListener('click', function() {
                 gameOverScreen.style.display = 'none';
             });
     }
+    gameOverScreen.appendChild(button);
+    gameOverScreen.style.height = 'auto';
 }
