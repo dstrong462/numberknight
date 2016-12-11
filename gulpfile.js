@@ -29,6 +29,7 @@ gulp.task('concat-scripts', function() {
         'src/js/tutorial.js',
         'src/js/death.js',
         'src/js/utilities.js',
+        'src/js/loading.js',
         'src/js/testing.js'
         ])
     .pipe(maps.init())

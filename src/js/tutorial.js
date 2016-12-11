@@ -316,8 +316,8 @@ function startTutorial() {
         var interval = setInterval(function() {
             if (hero.answers >= hero.answersNeeded) {
                 var message = ['Your training is complete, but your journey is just beginning...',
-                    'You are the only remaining Number Knight. The other Knights have all been captured by the foul beasts within these dungeons.',
-                    'It is up to you and you alone to rescue them and return peace and safety to this world once again.<br />Good luck!'];
+                    'You are the only remaining Number Knight. The others have all been captured by the foul beasts within this dungeon.',
+                    'It is up to you and you alone to rescue them and return peace and safety to this world once again.<br /><br />Good luck!'];
                 textBubble(message,500);
                 clearInterval(interval);
             }

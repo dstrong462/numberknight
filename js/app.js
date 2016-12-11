@@ -2059,7 +2059,7 @@ var bosses = [
             {
                 ability: 'projectile',
                 abilityImage: ['projectile-poison.gif'],
-                abilityDamge: 1.35,
+                abilityDamge: 1.15,
                 damageDuration: 3000,
                 dotStatus: 'poisoned!',
                 abilityDuration: 0.45,
@@ -2150,7 +2150,7 @@ var bosses = [
                 ability: 'projectile',
                 abilityImage: ['projectile-ice.gif'],
                 abilityDamge: 10,
-                damageDuration: 1900,
+                damageDuration: 2500,
                 dotStatus: 'frozen!',
                 abilityDuration: 0.9,
                 abilityChance: 100,
@@ -2505,9 +2505,10 @@ function addEnemy(row,col,monster) {
     function actionInterval() {
         var actionInterval = setInterval(function() {
             // Increase monster damage when playing with a keyboard
-            if (keyboardPlayer) {
+            if (keyboardPlayer && !enemy.boss) {
                 enemy.attackRating = keyboardDamageModifier;
             }
+console.log(enemy.attackRating);
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);
@@ -4107,8 +4108,8 @@ function startTutorial() {
         var interval = setInterval(function() {
             if (hero.answers >= hero.answersNeeded) {
                 var message = ['Your training is complete, but your journey is just beginning...',
-                    'You are the only remaining Number Knight. The other Knights have all been captured by the foul beasts within these dungeons.',
-                    'It is up to you and you alone to rescue them and return peace and safety to this world once again.<br />Good luck!'];
+                    'You are the only remaining Number Knight. The others have all been captured by the foul beasts within this dungeon.',
+                    'It is up to you and you alone to rescue them and return peace and safety to this world once again.<br /><br />Good luck!'];
                 textBubble(message,500);
                 clearInterval(interval);
             }
@@ -4596,6 +4597,20 @@ function getAccuracy(right,wrong) {
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+// Cycle through all tilesets to avoid pop-in on level generation
+var loadingStage = document.getElementById('game-over');
+// Cycle through each tileset
+for (var i = 1; i <= tilesets; i++) {
+    // Cycle through each tile
+    for (var j = 1; j <= empty; j++) {
+        var img = document.createElement('img');
+            img.src = 'img/tiles/' + i + '/empty' + j + '.gif';
+            img.style.width = '1px';
+            img.style.height = '1px';
+        loadingStage.appendChild(img);
+    }
+}
+loadingStage.innerHTML = '';
 function cheat() {
     hero.answers = hero.answersNeeded - 1;
     hero.gameLevel = 5;

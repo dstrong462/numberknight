@@ -150,7 +150,7 @@ var bosses = [
             {
                 ability: 'projectile',
                 abilityImage: ['projectile-poison.gif'],
-                abilityDamge: 1.35,
+                abilityDamge: 1.15,
                 damageDuration: 3000,
                 dotStatus: 'poisoned!',
                 abilityDuration: 0.45,
@@ -241,7 +241,7 @@ var bosses = [
                 ability: 'projectile',
                 abilityImage: ['projectile-ice.gif'],
                 abilityDamge: 10,
-                damageDuration: 1900,
+                damageDuration: 2500,
                 dotStatus: 'frozen!',
                 abilityDuration: 0.9,
                 abilityChance: 100,

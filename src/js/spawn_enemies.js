@@ -318,9 +318,10 @@ function addEnemy(row,col,monster) {
     function actionInterval() {
         var actionInterval = setInterval(function() {
             // Increase monster damage when playing with a keyboard
-            if (keyboardPlayer) {
+            if (keyboardPlayer && !enemy.boss) {
                 enemy.attackRating = keyboardDamageModifier;
             }
+console.log(enemy.attackRating);
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);
