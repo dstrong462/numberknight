@@ -62,7 +62,7 @@ gulp.task('concat-css', function() {
 gulp.task('minify-css', ['concat-css'], function() {
     return gulp.src('css/stylesheet.css')
     .pipe(autoprefixer({
-            browsers: ['last 3 versions'],
+            browsers: ['> 2%'],
             cascade: false
         }))
     .pipe(cleanCSS({compatibility: 'ie8'}))

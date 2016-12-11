@@ -644,7 +644,16 @@ body {
     background-color: #262626;
     background-image: url('../img/backgrounds/background-01.gif');
     image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
+    -webkit-image-rendering: crisp-edges;
+    -moz-image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+img {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 
@@ -1580,7 +1589,6 @@ img.wall {
 }
 
 #game-over img {
-    /*width: 100%;*/
     max-width: 100px;
 }
 
@@ -1769,13 +1777,6 @@ img.knight {
     75%  { opacity: 1; }
     100% { opacity: 0; }
 }
-
-/* TORCH EFFECT WIP */
-/*#hero:after {
-    content: url('../img/test.gif');
-    transform: scale(4,4);
-    pointer-events: none;
-}*/
 
 
 /* DESKTOP SIZING
