@@ -244,6 +244,12 @@ function addHero() {
         }, 1000);
     }
 
+    // Add Knight rescue text to hero object for later
+    var shuffledRescueText = shuffle(rescueText);
+    for (var i = 0; i < hero.knights.length; i++) {
+        hero.knights[i].rescueText = shuffledRescueText[i];
+    }
+
     getObjectLocations();
 }
 

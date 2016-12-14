@@ -51,15 +51,15 @@ function textBubble(msg,delay) {
             if (msg === 'rescue') {
                 var knight1 = document.createElement('p');
                     knight1.style.color = hero.knights[0].color;
-                    knight1.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    knight1.innerHTML = hero.knights[0].rescueText;
                     bubble.appendChild(knight1);
                 var knight2 = document.createElement('p');
                     knight2.style.color = hero.knights[1].color;
-                    knight2.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    knight2.innerHTML = hero.knights[1].rescueText;
                     bubble.appendChild(knight2);
                 var knight3 = document.createElement('p');
                     knight3.style.color = hero.knights[2].color;
-                    knight3.innerHTML = rescueText[randomNumber(0,rescueText.length - 1)];
+                    knight3.innerHTML = hero.knights[2].rescueText;
                     bubble.appendChild(knight3);
             }
             else {
