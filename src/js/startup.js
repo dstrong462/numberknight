@@ -32,7 +32,28 @@ if (localStorage.getItem('options') === null) {
         music: true,
         enemiesEncountered: [],
         newEnemies: 0,
-        gold: 0
+        gold: 0,
+        avatars: ['hero'],
+        storeItems: [
+            {
+                id: 'avatars-01',
+                type: 'avatars',
+                item: 'Elite Knights',
+                cost: 100,
+                imagePath: 'img/avatars/',
+                images: ['roman-gold','roman-silver'],
+                owned: false
+            },
+            {
+                id: 'avatars-02',
+                type: 'avatars',
+                item: 'Wolf Rangers',
+                cost: 100,
+                imagePath: 'img/avatars/',
+                images: ['wolf-grey','wolf-brown'],
+                owned: false
+            }
+        ]
     };
 }
 else {

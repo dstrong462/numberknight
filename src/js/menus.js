@@ -1,103 +1,146 @@
 /////////////// MENUS ///////////////
 
+var avatarSelection = 'hero';
+
 // Add functionality to title menu buttons
 function titleScreen() {
-document.body.style.height = '100vh';
-// When starting a new game, rotate the display
-var newGameButton = document.getElementById('btn-new-game');
-    newGameButton.addEventListener('click', function() {
-        var screen = document.querySelector('.flipper');
-            screen.style.transform = 'rotateY(-180deg)';
-        // Reset game modes
-        gameMode = ['multiples','factors','primes','equality'];
-        document.getElementById('multiples').checked = true;
-        document.getElementById('factors').checked = true;
-        document.getElementById('primes').checked = true;
-        document.getElementById('equality').checked = true;
-    });
-// To continue your progress in an existing game
-var continueButton = document.getElementById('btn-continue');
-    continueButton.addEventListener('click', function() {
-        // Retrieve saved game from local storage and parse it
-        var retrievedList = localStorage.getItem('savedGame');
-            hero = JSON.parse(retrievedList);
-            options.newgame = false;
-        startGame();
-    });
-var optionsButton = document.querySelectorAll('.btn-options');
-    for (var i = 0; i < optionsButton.length; i++) {
-        optionsButton[i].addEventListener('click', function(e) {
-            // Hide main menu button if needed
-            if (e.target.offsetParent.id === 'title-screen') {
-                document.querySelector('#options-menu .return-to-main-menu').style.display = 'none';
-            }
-            else if (e.target.parentElement.id === 'top-bar') {
-                document.querySelector('#options-menu .return-to-main-menu').style.display = 'inline-block';
-            }
-            // Open options menu
-            var menu = document.getElementById('options-menu');
-            if (optionsPosition === 'closed') {
-                hero.pause = true;
-                menu.style.transform = 'translateX(0)';
-                optionsPosition = 'open';
-            }
-            else {
-                hero.pause = false;
-                setOptions();
-                menu.style.transform = 'translateX(-100%)';
-                optionsPosition = 'closed';
-            }
+    document.body.style.height = '100vh';
+    // When starting a new game, rotate the display
+    var newGameButton = document.getElementById('btn-new-game');
+        newGameButton.addEventListener('click', function() {
+            var screen = document.querySelector('.flipper');
+                screen.style.transform = 'rotateY(-180deg)';
+            // Reset game modes
+            gameMode = ['multiples','factors','primes','equality'];
+            document.getElementById('multiples').checked = true;
+            document.getElementById('factors').checked = true;
+            document.getElementById('primes').checked = true;
+            document.getElementById('equality').checked = true;
+            // Check if player has unlocked avatars
+            var avatarSelector = document.getElementById('avatar-selector');
+                avatarSelector.style.display = 'none';
+            if (options.avatars.length > 1) {
+                avatarSelector.style.display = 'flex';
+                // Set buttons
+                var left = document.getElementById('avatar-left');
+                    left.addEventListener('click', function() {
+                        changeAvatar('left');
+                    });
+                var right = document.getElementById('avatar-right');
+                    right.addEventListener('click', function() {
+                        changeAvatar('right');
+                    });
+                var avatar = document.getElementById('selected-avatar');
+                    avatar.src = 'img/avatars/hero.gif';
+                    avatarSelection = 'hero';
 
+                // Use arrows to change to selected avatar
+                function changeAvatar(direction) {
+                    var position = options.avatars.indexOf(avatarSelection);
+                    // Loop back around
+                    if (position === 0 && direction === 'left') {
+                        position = options.avatars.length - 1;
+                    }
+                    else if (position === options.avatars.length - 1 && direction === 'right') {
+                        position = 0;
+                    }
+                    else if (position > 0 && direction === 'left') {
+                        position--;
+                    }
+                    else if (position < options.avatars.length - 1 && direction === 'right') {
+                        position++;
+                    }
+                    else {
+                        position = 0;
+                    }
+                    avatarSelection = options.avatars[position];
+                    avatar.src = 'img/avatars/' + avatarSelection + '.gif';
+                }
+            }
         });
-    }
-var gamemodesButton = document.getElementById('btn-gamemodes');
-    gamemodesButton.addEventListener('click', showGamemodes);
-
-// When returning to the main menu, rotate the display back
-var mainMenuButton = document.getElementById('btn-main-menu');
-    mainMenuButton.addEventListener('click', function() {
-        var screen = document.querySelector('.flipper');
-            screen.style.transform = 'rotateY(0deg)';
-    });
-// When ready to play, get the play name and selected difficulties
-var playButton = document.getElementById('btn-play');
-    playButton.addEventListener('click', function(e) {
-        delete hero;
-        hero = {};
-        hero.name = document.getElementById('name-input').value;
-        hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
-        hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
-        if (hero.name.length === 0) {
-            alert('Please name your character.');
-        }
-        else if (hero.name.length > 20) {
-            alert('In this world no name is longer than 20 characters long.');
-        }
-        else if (gameMode.length === 0) {
-            alert('That would be too easy. Select at least 1 game mode.');
-        }
-        else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
-            options.newgame = true;
+    // To continue your progress in an existing game
+    var continueButton = document.getElementById('btn-continue');
+        continueButton.addEventListener('click', function() {
+            // Retrieve saved game from local storage and parse it
+            var retrievedList = localStorage.getItem('savedGame');
+                hero = JSON.parse(retrievedList);
+                options.newgame = false;
             startGame();
+        });
+    var optionsButton = document.querySelectorAll('.btn-options');
+        for (var i = 0; i < optionsButton.length; i++) {
+            optionsButton[i].addEventListener('click', function(e) {
+                // Hide main menu button if needed
+                if (e.target.offsetParent.id === 'title-screen') {
+                    document.querySelector('#options-menu .return-to-main-menu').style.display = 'none';
+                }
+                else if (e.target.parentElement.id === 'top-bar') {
+                    document.querySelector('#options-menu .return-to-main-menu').style.display = 'inline-block';
+                }
+                // Open options menu
+                var menu = document.getElementById('options-menu');
+                if (optionsPosition === 'closed') {
+                    hero.pause = true;
+                    menu.style.transform = 'translateX(0)';
+                    optionsPosition = 'open';
+                }
+                else {
+                    hero.pause = false;
+                    setOptions();
+                    menu.style.transform = 'translateX(-100%)';
+                    optionsPosition = 'closed';
+                }
+
+            });
         }
-    });
+    var gamemodesButton = document.getElementById('btn-gamemodes');
+        gamemodesButton.addEventListener('click', showGamemodes);
 
-// Allow selecting different game modes to update array
-var modeMultiples = document.getElementById('multiples');
-    modeMultiples.addEventListener('click', adjustGameMode);
-var modeFactors = document.getElementById('factors');
-    modeFactors.addEventListener('click', adjustGameMode);
-var modePrimes = document.getElementById('primes');
-    modePrimes.addEventListener('click', adjustGameMode);
-var modeEquality = document.getElementById('equality');
-    modeEquality.addEventListener('click', adjustGameMode);
+    // When returning to the main menu, rotate the display back
+    var mainMenuButton = document.getElementById('btn-main-menu');
+        mainMenuButton.addEventListener('click', function() {
+            var screen = document.querySelector('.flipper');
+                screen.style.transform = 'rotateY(0deg)';
+        });
+    // When ready to play, get the play name and selected difficulties
+    var playButton = document.getElementById('btn-play');
+        playButton.addEventListener('click', function(e) {
+            delete hero;
+            hero = {};
+            hero.name = document.getElementById('name-input').value;
+            hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
+            hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
+            if (hero.name.length === 0) {
+                alert('Please name your character.');
+            }
+            else if (hero.name.length > 20) {
+                alert('In this world no name is longer than 20 characters long.');
+            }
+            else if (gameMode.length === 0) {
+                alert('That would be too easy. Select at least 1 game mode.');
+            }
+            else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
+                options.newgame = true;
+                startGame();
+            }
+        });
 
-var returnToMainMenu = document.querySelector('.return-to-main-menu');
-    returnToMainMenu.addEventListener('click', function() {
-        fadeToMainMenu(fadeIn);
-    });
+    // Allow selecting different game modes to update array
+    var modeMultiples = document.getElementById('multiples');
+        modeMultiples.addEventListener('click', adjustGameMode);
+    var modeFactors = document.getElementById('factors');
+        modeFactors.addEventListener('click', adjustGameMode);
+    var modePrimes = document.getElementById('primes');
+        modePrimes.addEventListener('click', adjustGameMode);
+    var modeEquality = document.getElementById('equality');
+        modeEquality.addEventListener('click', adjustGameMode);
 
-titleButtons();
+    var returnToMainMenu = document.querySelector('.return-to-main-menu');
+        returnToMainMenu.addEventListener('click', function() {
+            fadeToMainMenu(fadeIn);
+        });
+
+    titleButtons();
 }
 
 titleScreen();
@@ -139,7 +182,7 @@ function titleButtons() {
     }
     // Display gold total
     if (options.gold > 0) {
-        var goldTotal = document.querySelector('#gold-total span');
+        var goldTotal = document.querySelector('.gold-total span');
             goldTotal.parentElement.style.display = 'flex';
             goldTotal.innerHTML = options.gold.toLocaleString();
     }

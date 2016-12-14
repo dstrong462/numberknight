@@ -95,7 +95,7 @@
                         <button id="btn-fallen-heroes"></button>
                         <button class="btn-options"></button>
                     </div>
-                    <div id="gold-total" class="row">
+                    <div class="gold-total row">
                         <img src="img/loot/gold-5.gif" alt="Gold Total"><span></span>
                     </div>
                 </div>
@@ -104,6 +104,11 @@
                 <h5>New Game</h5>
                 <div>
                     <input id="name-input" type="text" placeholder="What is your name?" onfocus="this.placeholder=''" onblur="this.placeholder='What is your name?'" />
+                </div>
+                <div id="avatar-selector">
+                    <img id="avatar-left" src="img/gui/triangle.svg">
+                    <img id="selected-avatar" src="img/avatars/hero.gif">
+                    <img id="avatar-right" src="img/gui/triangle.svg">
                 </div>
                 <div>
                     <h6>Game Modes</h6>
@@ -162,7 +167,7 @@
                 <div class="hero-spacer"></div>
 
                 <div id="move-left"><img src="img/gui/arrow.svg"></div>
-                <div id="hero"><span class="message">miss</span><img src="img/hero.gif"><span id="hero-status"></span></div>
+                <div id="hero"><span class="message">miss</span><img src="img/avatars/hero.gif"><span id="hero-status"></span></div>
                 <div id="move-right"><img src="img/gui/arrow.svg"></div>
 
                 <div class="hero-spacer"></div>
@@ -185,6 +190,7 @@
     </div>
 
     <div id="game-over"></div>
+    <div id="store"></div>
     <div id="bestiary"></div>
     <div id="tutorial"></div>
     <div id="level-splash"></div>

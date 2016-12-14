@@ -196,6 +196,7 @@ function listFallenStats(hero,view) {
         gameOverScreen.innerHTML = '';
         gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     var stats = '<h5>' + hero.name + '</h5>';
+        stats += '<img src="img/avatars/' + hero.avatar + '.gif">';
         stats += '<p>Level: <span>' + hero.level + '</span></p>';
         stats += '<p>strength: <span>' + hero.strength + '</span></p>';
         stats += '<p>Dexterity: <span>' + hero.dexterity + '</span></p>';
@@ -245,4 +246,147 @@ function listFallenStats(hero,view) {
     }
     gameOverScreen.appendChild(button);
     gameOverScreen.style.height = 'auto';
+}
+
+
+// Display character store
+var goldButton = document.querySelector('.gold-total');
+    goldButton.addEventListener('click', openStore);
+
+function openStore() {
+    var storeScreen = document.getElementById('store');
+        storeScreen.innerHTML = '';
+        storeScreen.style.opacity = '0';
+        storeScreen.style.display = 'none';
+        storeScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+
+    var store = '<h5>- Ye Olde Store -</h5><br />';
+        store += '<p>Put your hard earned gold to good use with these unlockable items!</p><p>Or don&apos;t. It&apos;s your gold.</p><br />';
+        storeScreen.innerHTML = store;
+
+    // Loop through all items
+    for (var i = 0; i < options.storeItems.length; i++) {
+
+        var div = document.createElement('div');
+            div.id = options.storeItems[i].id;
+            div.classList.add('store-item');
+        var title = document.createElement('h6');
+            title.innerHTML = options.storeItems[i].item;
+            div.appendChild(title);
+
+        for (var j = 0; j < options.storeItems[i].images.length; j++) {
+            var image = document.createElement('img');
+                image.src = options.storeItems[i].imagePath + options.storeItems[i].images[j] + '.gif';
+                div.appendChild(image);
+        }
+        var br = document.createElement('br');
+            div.appendChild(br);
+        // If already owned
+        if (options.storeItems[i].owned) {
+            var button = document.createElement('span');
+                button.classList.add('purchased');
+                button.innerHTML = 'owned';
+        }
+        else {
+            var button = document.createElement('span');
+                button.classList.add('store-button');
+                button.innerHTML = '<img src="img/loot/gold-2.gif">' + options.storeItems[i].cost;
+                button.addEventListener('click', makeSelection);
+        }
+        div.appendChild(button);
+        storeScreen.appendChild(div);
+    }
+
+    var selection;
+
+    function makeSelection() {
+        selection = this.parentElement.id;
+        makePurchase();
+    }
+
+    setTimeout(function() {
+        storeScreen.style.display = 'flex';
+        storeScreen.style.opacity = '1';
+    }, 200);
+
+    var buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('row');
+        buttonContainer.style.marginTop = '50px';
+        buttonContainer.style.marginBottom = '50px';
+    var button = document.createElement('button');
+        button.classList.add('btn-back');
+        button.addEventListener('click', function() {
+            storeScreen.style.display = 'none';
+            storeScreen.innerHTML = '';
+        });
+        buttonContainer.appendChild(button);
+        storeScreen.appendChild(buttonContainer);
+
+        var gold = document.createElement('div');
+            gold.classList.add('gold-total');
+            gold.classList.add('gold-bottom');
+            gold.innerHTML = '<img src="img/loot/gold-5.gif" alt="Gold Total"><span></span>';
+        storeScreen.appendChild(gold);
+        storeScreen.style.height = 'auto';
+
+    // Show gold total
+    var goldTotal = document.querySelectorAll('.gold-total span');
+    for (var i = 0; i < goldTotal.length; i++) {
+        goldTotal[i].parentElement.style.display = 'flex';
+        goldTotal[i].innerHTML = options.gold.toLocaleString();
+    }
+
+
+    // Purchase items
+    function makePurchase() {
+        // Get the item from the store
+        var item = options.storeItems.filter(function(item) {
+            return item.id === selection;
+        })[0];
+        // Do you even have the money for this?
+        if (options.gold >= item.cost) {
+            if (confirm('Ready to buy?')) {
+                item.owned = true;
+                completePurchase(item);
+            }
+        }
+        else {
+            alert('Come back when you have enough gold!');
+        }
+    }
+
+    // Add item to player data
+    function completePurchase(item) {
+        if (item.type === 'avatars') {
+            for (var i = 0; i < item.images.length; i++) {
+                options.avatars.push(item.images[i]);
+            }
+        }
+        // Gray out button
+        var button = document.querySelector('#' + selection + ' .store-button');
+            button.classList.add('purchased');
+            button.classList.remove('store-button');
+            button.innerHTML = 'owned';
+            button.removeEventListener('click', makeSelection);
+        // Update gold total and save
+        var newTotal = options.gold - item.cost;
+        setTimeout(function() {
+            var interval = setInterval(function() {
+                if (options.gold > newTotal) {
+                    options.gold -= 10;
+                    for (var i = 0; i < goldTotal.length; i++) {
+                        goldTotal[i].innerHTML = options.gold.toLocaleString();
+                    }
+                }
+                else {
+                    clearInterval(interval);
+                    options.gold = newTotal;
+                    for (var i = 0; i < goldTotal.length; i++) {
+                        goldTotal.innerHTML = options.gold.toLocaleString();
+                    }
+                }
+            }, 50);
+            localStorage.setItem('options', JSON.stringify(options));
+        }, 1000);
+    }
 }

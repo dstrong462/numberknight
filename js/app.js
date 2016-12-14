@@ -1,6 +1,6 @@
 /////////////// CUSTOMIZATION ///////////////
 
-var maxScreenWidth = 700;
+var maxScreenWidth = 768;
 var numberOfColumns = 5;
 var maxColumns = 7;
 var maxRows = 9;
@@ -104,7 +104,28 @@ if (localStorage.getItem('options') === null) {
         music: true,
         enemiesEncountered: [],
         newEnemies: 0,
-        gold: 0
+        gold: 0,
+        avatars: ['hero'],
+        storeItems: [
+            {
+                id: 'avatars-01',
+                type: 'avatars',
+                item: 'Elite Knights',
+                cost: 100,
+                imagePath: 'img/avatars/',
+                images: ['roman-gold','roman-silver'],
+                owned: false
+            },
+            {
+                id: 'avatars-02',
+                type: 'avatars',
+                item: 'Wolf Rangers',
+                cost: 100,
+                imagePath: 'img/avatars/',
+                images: ['wolf-grey','wolf-brown'],
+                owned: false
+            }
+        ]
     };
 }
 else {
@@ -169,104 +190,147 @@ var timeBar = document.getElementById('time');
 var xpBar = document.getElementById('xp');
 /////////////// MENUS ///////////////
 
+var avatarSelection = 'hero';
+
 // Add functionality to title menu buttons
 function titleScreen() {
-document.body.style.height = '100vh';
-// When starting a new game, rotate the display
-var newGameButton = document.getElementById('btn-new-game');
-    newGameButton.addEventListener('click', function() {
-        var screen = document.querySelector('.flipper');
-            screen.style.transform = 'rotateY(-180deg)';
-        // Reset game modes
-        gameMode = ['multiples','factors','primes','equality'];
-        document.getElementById('multiples').checked = true;
-        document.getElementById('factors').checked = true;
-        document.getElementById('primes').checked = true;
-        document.getElementById('equality').checked = true;
-    });
-// To continue your progress in an existing game
-var continueButton = document.getElementById('btn-continue');
-    continueButton.addEventListener('click', function() {
-        // Retrieve saved game from local storage and parse it
-        var retrievedList = localStorage.getItem('savedGame');
-            hero = JSON.parse(retrievedList);
-            options.newgame = false;
-        startGame();
-    });
-var optionsButton = document.querySelectorAll('.btn-options');
-    for (var i = 0; i < optionsButton.length; i++) {
-        optionsButton[i].addEventListener('click', function(e) {
-            // Hide main menu button if needed
-            if (e.target.offsetParent.id === 'title-screen') {
-                document.querySelector('#options-menu .return-to-main-menu').style.display = 'none';
-            }
-            else if (e.target.parentElement.id === 'top-bar') {
-                document.querySelector('#options-menu .return-to-main-menu').style.display = 'inline-block';
-            }
-            // Open options menu
-            var menu = document.getElementById('options-menu');
-            if (optionsPosition === 'closed') {
-                hero.pause = true;
-                menu.style.transform = 'translateX(0)';
-                optionsPosition = 'open';
-            }
-            else {
-                hero.pause = false;
-                setOptions();
-                menu.style.transform = 'translateX(-100%)';
-                optionsPosition = 'closed';
-            }
+    document.body.style.height = '100vh';
+    // When starting a new game, rotate the display
+    var newGameButton = document.getElementById('btn-new-game');
+        newGameButton.addEventListener('click', function() {
+            var screen = document.querySelector('.flipper');
+                screen.style.transform = 'rotateY(-180deg)';
+            // Reset game modes
+            gameMode = ['multiples','factors','primes','equality'];
+            document.getElementById('multiples').checked = true;
+            document.getElementById('factors').checked = true;
+            document.getElementById('primes').checked = true;
+            document.getElementById('equality').checked = true;
+            // Check if player has unlocked avatars
+            var avatarSelector = document.getElementById('avatar-selector');
+                avatarSelector.style.display = 'none';
+            if (options.avatars.length > 1) {
+                avatarSelector.style.display = 'flex';
+                // Set buttons
+                var left = document.getElementById('avatar-left');
+                    left.addEventListener('click', function() {
+                        changeAvatar('left');
+                    });
+                var right = document.getElementById('avatar-right');
+                    right.addEventListener('click', function() {
+                        changeAvatar('right');
+                    });
+                var avatar = document.getElementById('selected-avatar');
+                    avatar.src = 'img/avatars/hero.gif';
+                    avatarSelection = 'hero';
 
+                // Use arrows to change to selected avatar
+                function changeAvatar(direction) {
+                    var position = options.avatars.indexOf(avatarSelection);
+                    // Loop back around
+                    if (position === 0 && direction === 'left') {
+                        position = options.avatars.length - 1;
+                    }
+                    else if (position === options.avatars.length - 1 && direction === 'right') {
+                        position = 0;
+                    }
+                    else if (position > 0 && direction === 'left') {
+                        position--;
+                    }
+                    else if (position < options.avatars.length - 1 && direction === 'right') {
+                        position++;
+                    }
+                    else {
+                        position = 0;
+                    }
+                    avatarSelection = options.avatars[position];
+                    avatar.src = 'img/avatars/' + avatarSelection + '.gif';
+                }
+            }
         });
-    }
-var gamemodesButton = document.getElementById('btn-gamemodes');
-    gamemodesButton.addEventListener('click', showGamemodes);
-
-// When returning to the main menu, rotate the display back
-var mainMenuButton = document.getElementById('btn-main-menu');
-    mainMenuButton.addEventListener('click', function() {
-        var screen = document.querySelector('.flipper');
-            screen.style.transform = 'rotateY(0deg)';
-    });
-// When ready to play, get the play name and selected difficulties
-var playButton = document.getElementById('btn-play');
-    playButton.addEventListener('click', function(e) {
-        delete hero;
-        hero = {};
-        hero.name = document.getElementById('name-input').value;
-        hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
-        hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
-        if (hero.name.length === 0) {
-            alert('Please name your character.');
-        }
-        else if (hero.name.length > 20) {
-            alert('In this world no name is longer than 20 characters long.');
-        }
-        else if (gameMode.length === 0) {
-            alert('That would be too easy. Select at least 1 game mode.');
-        }
-        else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
-            options.newgame = true;
+    // To continue your progress in an existing game
+    var continueButton = document.getElementById('btn-continue');
+        continueButton.addEventListener('click', function() {
+            // Retrieve saved game from local storage and parse it
+            var retrievedList = localStorage.getItem('savedGame');
+                hero = JSON.parse(retrievedList);
+                options.newgame = false;
             startGame();
+        });
+    var optionsButton = document.querySelectorAll('.btn-options');
+        for (var i = 0; i < optionsButton.length; i++) {
+            optionsButton[i].addEventListener('click', function(e) {
+                // Hide main menu button if needed
+                if (e.target.offsetParent.id === 'title-screen') {
+                    document.querySelector('#options-menu .return-to-main-menu').style.display = 'none';
+                }
+                else if (e.target.parentElement.id === 'top-bar') {
+                    document.querySelector('#options-menu .return-to-main-menu').style.display = 'inline-block';
+                }
+                // Open options menu
+                var menu = document.getElementById('options-menu');
+                if (optionsPosition === 'closed') {
+                    hero.pause = true;
+                    menu.style.transform = 'translateX(0)';
+                    optionsPosition = 'open';
+                }
+                else {
+                    hero.pause = false;
+                    setOptions();
+                    menu.style.transform = 'translateX(-100%)';
+                    optionsPosition = 'closed';
+                }
+
+            });
         }
-    });
+    var gamemodesButton = document.getElementById('btn-gamemodes');
+        gamemodesButton.addEventListener('click', showGamemodes);
 
-// Allow selecting different game modes to update array
-var modeMultiples = document.getElementById('multiples');
-    modeMultiples.addEventListener('click', adjustGameMode);
-var modeFactors = document.getElementById('factors');
-    modeFactors.addEventListener('click', adjustGameMode);
-var modePrimes = document.getElementById('primes');
-    modePrimes.addEventListener('click', adjustGameMode);
-var modeEquality = document.getElementById('equality');
-    modeEquality.addEventListener('click', adjustGameMode);
+    // When returning to the main menu, rotate the display back
+    var mainMenuButton = document.getElementById('btn-main-menu');
+        mainMenuButton.addEventListener('click', function() {
+            var screen = document.querySelector('.flipper');
+                screen.style.transform = 'rotateY(0deg)';
+        });
+    // When ready to play, get the play name and selected difficulties
+    var playButton = document.getElementById('btn-play');
+        playButton.addEventListener('click', function(e) {
+            delete hero;
+            hero = {};
+            hero.name = document.getElementById('name-input').value;
+            hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
+            hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
+            if (hero.name.length === 0) {
+                alert('Please name your character.');
+            }
+            else if (hero.name.length > 20) {
+                alert('In this world no name is longer than 20 characters long.');
+            }
+            else if (gameMode.length === 0) {
+                alert('That would be too easy. Select at least 1 game mode.');
+            }
+            else if (hero.name.length > 0 && hero.name.length <= 20 && hero.difficultyMath && hero.difficultyMonster && gameMode.length >= 1) {
+                options.newgame = true;
+                startGame();
+            }
+        });
 
-var returnToMainMenu = document.querySelector('.return-to-main-menu');
-    returnToMainMenu.addEventListener('click', function() {
-        fadeToMainMenu(fadeIn);
-    });
+    // Allow selecting different game modes to update array
+    var modeMultiples = document.getElementById('multiples');
+        modeMultiples.addEventListener('click', adjustGameMode);
+    var modeFactors = document.getElementById('factors');
+        modeFactors.addEventListener('click', adjustGameMode);
+    var modePrimes = document.getElementById('primes');
+        modePrimes.addEventListener('click', adjustGameMode);
+    var modeEquality = document.getElementById('equality');
+        modeEquality.addEventListener('click', adjustGameMode);
 
-titleButtons();
+    var returnToMainMenu = document.querySelector('.return-to-main-menu');
+        returnToMainMenu.addEventListener('click', function() {
+            fadeToMainMenu(fadeIn);
+        });
+
+    titleButtons();
 }
 
 titleScreen();
@@ -308,7 +372,7 @@ function titleButtons() {
     }
     // Display gold total
     if (options.gold > 0) {
-        var goldTotal = document.querySelector('#gold-total span');
+        var goldTotal = document.querySelector('.gold-total span');
             goldTotal.parentElement.style.display = 'flex';
             goldTotal.innerHTML = options.gold.toLocaleString();
     }
@@ -591,6 +655,7 @@ function listFallenStats(hero,view) {
         gameOverScreen.innerHTML = '';
         gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     var stats = '<h5>' + hero.name + '</h5>';
+        stats += '<img src="img/avatars/' + hero.avatar + '.gif">';
         stats += '<p>Level: <span>' + hero.level + '</span></p>';
         stats += '<p>strength: <span>' + hero.strength + '</span></p>';
         stats += '<p>Dexterity: <span>' + hero.dexterity + '</span></p>';
@@ -640,6 +705,149 @@ function listFallenStats(hero,view) {
     }
     gameOverScreen.appendChild(button);
     gameOverScreen.style.height = 'auto';
+}
+
+
+// Display character store
+var goldButton = document.querySelector('.gold-total');
+    goldButton.addEventListener('click', openStore);
+
+function openStore() {
+    var storeScreen = document.getElementById('store');
+        storeScreen.innerHTML = '';
+        storeScreen.style.opacity = '0';
+        storeScreen.style.display = 'none';
+        storeScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+
+    var store = '<h5>- Ye Olde Store -</h5><br />';
+        store += '<p>Put your hard earned gold to good use with these unlockable items!</p><p>Or don&apos;t. It&apos;s your gold.</p><br />';
+        storeScreen.innerHTML = store;
+
+    // Loop through all items
+    for (var i = 0; i < options.storeItems.length; i++) {
+
+        var div = document.createElement('div');
+            div.id = options.storeItems[i].id;
+            div.classList.add('store-item');
+        var title = document.createElement('h6');
+            title.innerHTML = options.storeItems[i].item;
+            div.appendChild(title);
+
+        for (var j = 0; j < options.storeItems[i].images.length; j++) {
+            var image = document.createElement('img');
+                image.src = options.storeItems[i].imagePath + options.storeItems[i].images[j] + '.gif';
+                div.appendChild(image);
+        }
+        var br = document.createElement('br');
+            div.appendChild(br);
+        // If already owned
+        if (options.storeItems[i].owned) {
+            var button = document.createElement('span');
+                button.classList.add('purchased');
+                button.innerHTML = 'owned';
+        }
+        else {
+            var button = document.createElement('span');
+                button.classList.add('store-button');
+                button.innerHTML = '<img src="img/loot/gold-2.gif">' + options.storeItems[i].cost;
+                button.addEventListener('click', makeSelection);
+        }
+        div.appendChild(button);
+        storeScreen.appendChild(div);
+    }
+
+    var selection;
+
+    function makeSelection() {
+        selection = this.parentElement.id;
+        makePurchase();
+    }
+
+    setTimeout(function() {
+        storeScreen.style.display = 'flex';
+        storeScreen.style.opacity = '1';
+    }, 200);
+
+    var buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('row');
+        buttonContainer.style.marginTop = '50px';
+        buttonContainer.style.marginBottom = '50px';
+    var button = document.createElement('button');
+        button.classList.add('btn-back');
+        button.addEventListener('click', function() {
+            storeScreen.style.display = 'none';
+            storeScreen.innerHTML = '';
+        });
+        buttonContainer.appendChild(button);
+        storeScreen.appendChild(buttonContainer);
+
+        var gold = document.createElement('div');
+            gold.classList.add('gold-total');
+            gold.classList.add('gold-bottom');
+            gold.innerHTML = '<img src="img/loot/gold-5.gif" alt="Gold Total"><span></span>';
+        storeScreen.appendChild(gold);
+        storeScreen.style.height = 'auto';
+
+    // Show gold total
+    var goldTotal = document.querySelectorAll('.gold-total span');
+    for (var i = 0; i < goldTotal.length; i++) {
+        goldTotal[i].parentElement.style.display = 'flex';
+        goldTotal[i].innerHTML = options.gold.toLocaleString();
+    }
+
+
+    // Purchase items
+    function makePurchase() {
+        // Get the item from the store
+        var item = options.storeItems.filter(function(item) {
+            return item.id === selection;
+        })[0];
+        // Do you even have the money for this?
+        if (options.gold >= item.cost) {
+            if (confirm('Ready to buy?')) {
+                item.owned = true;
+                completePurchase(item);
+            }
+        }
+        else {
+            alert('Come back when you have enough gold!');
+        }
+    }
+
+    // Add item to player data
+    function completePurchase(item) {
+        if (item.type === 'avatars') {
+            for (var i = 0; i < item.images.length; i++) {
+                options.avatars.push(item.images[i]);
+            }
+        }
+        // Gray out button
+        var button = document.querySelector('#' + selection + ' .store-button');
+            button.classList.add('purchased');
+            button.classList.remove('store-button');
+            button.innerHTML = 'owned';
+            button.removeEventListener('click', makeSelection);
+        // Update gold total and save
+        var newTotal = options.gold - item.cost;
+        setTimeout(function() {
+            var interval = setInterval(function() {
+                if (options.gold > newTotal) {
+                    options.gold -= 10;
+                    for (var i = 0; i < goldTotal.length; i++) {
+                        goldTotal[i].innerHTML = options.gold.toLocaleString();
+                    }
+                }
+                else {
+                    clearInterval(interval);
+                    options.gold = newTotal;
+                    for (var i = 0; i < goldTotal.length; i++) {
+                        goldTotal.innerHTML = options.gold.toLocaleString();
+                    }
+                }
+            }, 50);
+            localStorage.setItem('options', JSON.stringify(options));
+        }, 1000);
+    }
 }
 /////////////// BUILD_LEVELS ///////////////
 
@@ -783,6 +991,7 @@ function addHero() {
         hero.ascending = [];
         hero.attackRating = 1;
         hero.attacksEvaded = 0;
+        hero.avatar = avatarSelection;
         hero.baseDamage = heroBaseDamage;
         hero.bosses = ['Spider Queen','Vampire Lord','Red Knight'];
         hero.bossHasSpawned = false;
@@ -852,6 +1061,10 @@ function addHero() {
         heroGrid[i].style.width = cellSize + 'px';
         heroGrid[i].style.height = cellSize + 'px';
     }
+
+    // Apply selected hero avatar
+    var avatar = document.querySelector('#hero img');
+        avatar.src = 'img/avatars/' + hero.avatar + '.gif';
 
     var name = document.getElementById('player-name');
         name.innerHTML = 'Ser ' + hero.name;
@@ -2248,7 +2461,7 @@ function letTheGamesBegin() {
         maxEnemies += (hero.level / 2);
     }
     // If Boss Level
-    if (hero.bossLevel !== false || hero.challengeMode) {
+    if (hero.bossLevel !== false) {
         maxWeight *= 2;
         maxEnemies = 25;
     }
@@ -2422,15 +2635,15 @@ function addEnemy(row,col,monster) {
         // Apply boss scaling
         // If second boss fight
         if (hero.bosses.length === 2) {
-            enemy.startingHealth *= 1.5;
-            enemy.health *= 1.5;
-            enemy.attackRating += 0.5;
+            enemy.startingHealth *= 1.25;
+            enemy.health *= 1.25;
+            enemy.attackRating += 0.25;
         }
         // If third boss fight
         if (hero.bosses.length === 1) {
-            enemy.startingHealth *= 2;
-            enemy.health *= 2;
-            enemy.attackRating += 1;
+            enemy.startingHealth *= 1.5;
+            enemy.health *= 1.5;
+            enemy.attackRating += 0.5;
         }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
@@ -2508,7 +2721,6 @@ function addEnemy(row,col,monster) {
             if (keyboardPlayer && !enemy.boss) {
                 enemy.attackRating = keyboardDamageModifier;
             }
-console.log(enemy.attackRating);
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);
@@ -2655,6 +2867,11 @@ function turnInvisible(enemy,enemyContainer) {
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
+    // If it has a health bar
+    if (enemy.boss) {
+        var healthBar = document.getElementById('boss-health');
+            healthBar.style.opacity = '0';
+    }
     // Drain health if invisible and within range
     var interval = setInterval(function() {
         if (enemy.health <= 0) {
@@ -2673,6 +2890,9 @@ function turnInvisible(enemy,enemyContainer) {
         enemy.invisible = false;
         enemy.evasion = 0;
         enemyContainer.lastChild.style.opacity = '1';
+        if (enemy.boss) {
+            healthBar.style.opacity = '1';
+        }
     }, enemy.currentAbility.abilityDuration);
 }
 

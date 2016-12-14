@@ -26,6 +26,11 @@ function turnInvisible(enemy,enemyContainer) {
     enemy.invisible = true;
     enemy.evasion = 50;
     enemyContainer.lastChild.style.opacity = '0';
+    // If it has a health bar
+    if (enemy.boss) {
+        var healthBar = document.getElementById('boss-health');
+            healthBar.style.opacity = '0';
+    }
     // Drain health if invisible and within range
     var interval = setInterval(function() {
         if (enemy.health <= 0) {
@@ -44,6 +49,9 @@ function turnInvisible(enemy,enemyContainer) {
         enemy.invisible = false;
         enemy.evasion = 0;
         enemyContainer.lastChild.style.opacity = '1';
+        if (enemy.boss) {
+            healthBar.style.opacity = '1';
+        }
     }, enemy.currentAbility.abilityDuration);
 }
 

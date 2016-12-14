@@ -1,6 +1,6 @@
 /////////////// CUSTOMIZATION ///////////////
 
-var maxScreenWidth = 700;
+var maxScreenWidth = 768;
 var numberOfColumns = 5;
 var maxColumns = 7;
 var maxRows = 9;

@@ -58,7 +58,7 @@ img {
 #game-container {
     position: relative;
     width: 100vw;
-    max-width: 700px;
+    max-width: 768px;
     height: 100%;
     min-height: 100vh;
     overflow-y: auto;
@@ -276,18 +276,52 @@ button.main-menu-button {
     display: inline-block;
 }
 
-#gold-total {
+.gold-total {
+    cursor: pointer;
     display: none;
+    align-items: center;
     font-size: 1.25em;
     letter-spacing: -1px;
-    text-shadow: 2px 2px rgba(0,0,0,.9); 
+    text-align: center;
+    text-shadow: 2px 2px rgba(0,0,0,.9);
+    padding: 5px;
     margin-top: 25px;
 }
 
-#gold-total img {
-    width: auto;
+.gold-total img,
+#store .gold-total img {
+    width: 2em;
     height: 2em;
-    margin-right: 10px;
+    margin-right: 5px;
+}
+
+.gold-total span,
+#store .gold-total span {
+    color: #fff;
+}
+
+#avatar-selector {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: auto;
+}
+
+#avatar-left,
+#avatar-right {
+    width: 20px;
+    height: 20px;
+    margin: 10px 20px;
+}
+
+#avatar-right {
+    transform: rotate(180deg);
+}
+
+#selected-avatar {
+    width: 60px;
+    height: auto;
 }
 
 
@@ -716,6 +750,7 @@ img.wall {
 
 #level-up-menu span {
     font-size: .95em;
+    margin: 0 auto;
 }
 
 #add-str,
@@ -889,7 +924,8 @@ img.wall {
 
 #game-over,
 #tutorial,
-#bestiary {
+#bestiary,
+#store {
     position: absolute;
     top: 0;
     left: 0;
@@ -963,7 +999,8 @@ img.wall {
 }
 
 #game-over img {
-    max-width: 100px;
+    max-width: 60px;
+    margin-bottom: 20px;
 }
 
 #game-over button {
@@ -1026,6 +1063,91 @@ img.wall {
 #bestiary .bestiary div {
     text-align: left;
     margin-left: 15px;
+}
+
+#store {
+    align-items: flex-start;
+}
+
+.store-item {
+    margin-top: 40px;
+}
+
+#store h6 {
+    color: #149ce0;
+    margin-bottom: 0;
+}
+
+#store h5 {
+    align-self: center;
+    color: #24e35a;
+}
+
+#store p {
+    color: #bbb;
+    line-height: 1.1em;
+    text-align: left;
+}
+
+.store-item img {
+    width: 25%;
+    max-width: 100px;
+    margin: 10px 20px;
+}
+
+#store .store-button,
+#store .purchased {
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 250px;
+  height: 40px;
+  color: #fff;
+  font-size: 1.25em;
+  text-shadow: 2px 2px rgba(0,0,0,.9);
+  background-color: #555;
+  border: 4px solid rgba(0,0,0,.25);
+  border-top-color: rgba(255,255,255,0.4);
+  border-left-color: rgba(255,255,255,0.4);
+  border-radius: 6px;
+  padding-right: 10px;
+  margin-top: 20px;
+}
+
+#store .store-button:hover {
+  background-color: #24e35a;
+}
+
+#store .store-button img {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  margin-right: 5px;
+}
+
+#store .purchased {
+    cursor: default;
+  color: rgba(255,255,255,0.5);
+  background-color: #444;
+}
+
+.gold-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 768px;
+    background-color: rgba(0,0,0,0.7);
+    padding: 5px;
+    margin: auto;
 }
 
 
@@ -1156,7 +1278,7 @@ img.knight {
 /* DESKTOP SIZING
 ================================== */
 
-@media (min-width: 700px) {
+@media (min-width: 768px) {
 
     .flip-container,
     #title-screen,
@@ -1168,8 +1290,9 @@ img.knight {
     #main-container,
     #level-up-menu,
     #level-splash,
-    #game-over {
-        max-width: 700px;
+    #game-over,
+    #store {
+        max-width: 768px;
         height: 100vh;
         min-height: 100%;
         margin: 0 auto;

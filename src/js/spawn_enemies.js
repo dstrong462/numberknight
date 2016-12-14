@@ -61,7 +61,7 @@ function letTheGamesBegin() {
         maxEnemies += (hero.level / 2);
     }
     // If Boss Level
-    if (hero.bossLevel !== false || hero.challengeMode) {
+    if (hero.bossLevel !== false) {
         maxWeight *= 2;
         maxEnemies = 25;
     }
@@ -235,15 +235,15 @@ function addEnemy(row,col,monster) {
         // Apply boss scaling
         // If second boss fight
         if (hero.bosses.length === 2) {
-            enemy.startingHealth *= 1.5;
-            enemy.health *= 1.5;
-            enemy.attackRating += 0.5;
+            enemy.startingHealth *= 1.25;
+            enemy.health *= 1.25;
+            enemy.attackRating += 0.25;
         }
         // If third boss fight
         if (hero.bosses.length === 1) {
-            enemy.startingHealth *= 2;
-            enemy.health *= 2;
-            enemy.attackRating += 1;
+            enemy.startingHealth *= 1.5;
+            enemy.health *= 1.5;
+            enemy.attackRating += 0.5;
         }
         enemy.startingHealth *= hero.difficultyMonster;
         enemy.health *= hero.difficultyMonster;
@@ -321,7 +321,6 @@ function addEnemy(row,col,monster) {
             if (keyboardPlayer && !enemy.boss) {
                 enemy.attackRating = keyboardDamageModifier;
             }
-console.log(enemy.attackRating);
             // Destroy any stowaways trying to sneak into the next level
             if (enemy.gameLevel !== hero.gameLevel) {
                 clearTimeout(actionInterval);

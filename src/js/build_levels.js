@@ -140,6 +140,7 @@ function addHero() {
         hero.ascending = [];
         hero.attackRating = 1;
         hero.attacksEvaded = 0;
+        hero.avatar = avatarSelection;
         hero.baseDamage = heroBaseDamage;
         hero.bosses = ['Spider Queen','Vampire Lord','Red Knight'];
         hero.bossHasSpawned = false;
@@ -209,6 +210,10 @@ function addHero() {
         heroGrid[i].style.width = cellSize + 'px';
         heroGrid[i].style.height = cellSize + 'px';
     }
+
+    // Apply selected hero avatar
+    var avatar = document.querySelector('#hero img');
+        avatar.src = 'img/avatars/' + hero.avatar + '.gif';
 
     var name = document.getElementById('player-name');
         name.innerHTML = 'Ser ' + hero.name;
