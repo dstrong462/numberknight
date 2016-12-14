@@ -97,6 +97,7 @@ var enemies = [];
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
+        version: 20161213,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -2186,7 +2187,7 @@ var bestiary = [
         image: 'number-mage.gif',
         baseDamage: 5,
         health: 85,
-        weight: 15,
+        weight: 20,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 0.5,
@@ -2207,7 +2208,7 @@ var bestiary = [
         image: 'oculord.gif',
         baseDamage: 15,
         health: 100,
-        weight: 50,
+        weight: 60,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 2.5,
@@ -2231,7 +2232,7 @@ var bestiary = [
         image: 'vampire.gif',
         baseDamage: 15,
         health: 125,
-        weight: 50,
+        weight: 60,
         evasion: 10,
         moveInterval: 3000,
         moveSpeed: 1,
@@ -2442,16 +2443,16 @@ function letTheGamesBegin() {
     }, timerInterval);
 
     if (hero.difficultyMonster == 1) {
-        maxWeight = 60;
+        maxWeight = 50;
         maxEnemies = 5;
     }
     else if (hero.difficultyMonster == 2) {
-        maxWeight = 120;
+        maxWeight = 100;
         maxEnemies = 10;
     }
     else if (hero.difficultyMonster == 3) {
         maxWeight = 200;
-        maxEnemies = 20;
+        maxEnemies = 15;
     }
     levelData = { redKnight: false, blueKnight: false, yellowKnight: false };
     // Gaining levels increases max weight
@@ -4834,5 +4835,6 @@ loadingStage.innerHTML = '';
 function cheat() {
     hero.answers = hero.answersNeeded - 1;
     hero.gameLevel = 5;
+    options.gold += 350;
 }
 //# sourceMappingURL=app.js.map

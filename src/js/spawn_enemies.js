@@ -42,16 +42,16 @@ function letTheGamesBegin() {
     }, timerInterval);
 
     if (hero.difficultyMonster == 1) {
-        maxWeight = 60;
+        maxWeight = 50;
         maxEnemies = 5;
     }
     else if (hero.difficultyMonster == 2) {
-        maxWeight = 120;
+        maxWeight = 100;
         maxEnemies = 10;
     }
     else if (hero.difficultyMonster == 3) {
         maxWeight = 200;
-        maxEnemies = 20;
+        maxEnemies = 15;
     }
     levelData = { redKnight: false, blueKnight: false, yellowKnight: false };
     // Gaining levels increases max weight

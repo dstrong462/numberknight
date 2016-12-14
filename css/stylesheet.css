@@ -927,6 +927,7 @@ button.main-menu-button {
     justify-content: space-between;
     align-items: center;
     width: auto;
+    margin: 15px 0;
 }
 
 #avatar-left,
@@ -1936,5 +1937,30 @@ img.knight {
         line-height: 30px;
     }
     
+}
+
+/* SMALL SCREENS
+================================== */
+
+@media (max-height: 500px) {
+
+    .flip-container label {
+        margin: 0;
+    }
+    #new-game input,
+    #new-game .row:last-of-type {
+        transform: scale(0.8,0.8);
+    }
+    #new-game button {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    #new-game h5 {
+        font-size: 1.2em;
+    }
+    #new-game h6 {
+        font-size: 1em;
+    }
+
 }
 /*# sourceMappingURL=stylesheet.css.map */
