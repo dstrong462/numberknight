@@ -48,10 +48,7 @@ function fadeToMainMenu(callback) {
             setTimeout(function() {
                 callback();
             }, 500);
-        } catch(e) {
-            console.log(e);
-            console.log('fadeToMainMenu ERROR');
-        }
+        } catch(e) {}
     }, 1000);
 }
 

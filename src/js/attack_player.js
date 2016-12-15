@@ -124,7 +124,6 @@ function checkForAttack(direction,victim,attacker) {
 function flashMessage(person,message,time) {
     var msg = document.querySelector('#' + person.id + ' .message');
     if (msg === null || hero.health <= 0) {
-        console.log('message error fixed');
         return;
     }
     else {

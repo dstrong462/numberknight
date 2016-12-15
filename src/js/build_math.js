@@ -2,9 +2,8 @@
 
 // Reset variables and route to the selected game mode
 function addMath() {
-    console.log('addMath');
     if (hero.bossLevel) {
-        var mode = gameMode[randomNumber(0,gameMode.length - 1)];
+        var mode = hero.selectedGameModes[randomNumber(0,hero.selectedGameModes.length - 1)];
         hero.bossLevel = hero.bosses[randomNumber(0,hero.bosses.length - 1)];
     }
     if (hero.challengeMode) {
@@ -18,7 +17,7 @@ function addMath() {
         document.getElementById('xpbar').style.opacity = 0;
     }
     else {
-        var mode = gameMode[randomNumber(0,gameMode.length - 1)];
+        var mode = hero.selectedGameModes[randomNumber(0,hero.selectedGameModes.length - 1)];
     }
 
     hero.gameMode = mode;
@@ -226,7 +225,7 @@ function primes(total,correct,incorrect,callback) {
     for (var i = 0; i < total; i++) {
         answer = { number: nonPrimes[randomNumber(0,nonPrimes.length - 1)], answer: false };
         if (correctArray.length < correct) {
-            answer = { number: primes[randomNumber(0,primes.length - 1)], answer: true };
+            answer = { number: primeNumbers[randomNumber(0,primeNumbers.length - 1)], answer: true };
             correctArray.push(answer);
         }
         else if (incorrectArray.length < incorrect) {
@@ -252,19 +251,19 @@ function primes(total,correct,incorrect,callback) {
 function generatePrimeNumbers(max) {
 
     var numbers = [];
-    primes = [];
+    primeNumbers = [];
     nonPrimes = [];
 
     for (var i = 2; i <= max; i++) {
         numbers.push(i);   
     }
     while (numbers.length) {
-        primes.push(numbers.shift());
+        primeNumbers.push(numbers.shift());
         numbers = numbers.filter(function(i) {
-            if (i % primes[primes.length - 1] === 0) {
+            if (i % primeNumbers[primeNumbers.length - 1] === 0) {
                 nonPrimes.push(i);
             }
-            return i % primes[primes.length - 1] != 0;
+            return i % primeNumbers[primeNumbers.length - 1] != 0;
         });
     }
 }
@@ -497,7 +496,6 @@ function shuffle(array) {
 
 // Place all of the math formulas into the grid
 function displayMath(finalArray,callback) {
-    console.log('displayMath');
     var i = 0;
     var safety = 0;
     for (var r = 0; r < numberOfRows; r++) {
@@ -517,7 +515,6 @@ function displayMath(finalArray,callback) {
                     i++;
                 }
                 else if (safety > 100) {
-                    console.log('STOP!! displayMath');
                     break;
                 }
                 else {

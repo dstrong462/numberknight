@@ -272,6 +272,10 @@ button.main-menu-button {
     transform: rotateY(-180deg);
 }
 
+#new-game input {
+    max-width: 500px;
+}
+
 #new-game label {
     display: inline-block;
 }
@@ -531,7 +535,7 @@ button.main-menu-button {
     align-items: center;
     width: 100%;
     color: #fff;
-    font-size: 1.25em;
+    font-size: 1em;
     padding: 0 10px;
     transition: .5s;
     z-index: 20;
@@ -1306,8 +1310,8 @@ img.knight {
         margin-left: auto;
         margin-right: auto;
     }
-    #new-game input {
-        width: 60%;
+    #top-bar {
+        font-size: 1.25em;
     }
     #health,
     #time,
@@ -1326,6 +1330,7 @@ img.knight {
     .flip-container label {
         margin: 0;
     }
+    #title-screen div,
     #new-game input,
     #new-game .row:last-of-type {
         transform: scale(0.8,0.8);
@@ -1340,5 +1345,4 @@ img.knight {
     #new-game h6 {
         font-size: 1em;
     }
-
 }

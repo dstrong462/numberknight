@@ -15,7 +15,6 @@ function startGame() {
 
 // Reset anything from the previous level
 function resetAll(callback) {
-    console.log('resetAll');
     map = null;
     enemies = null;
     numberOfEnemies = 0;
@@ -79,7 +78,6 @@ function fadeIn() {
 
 // Build an array of objects for the grid. This will store the column, row, its contents, etc.
 function buildMap(callback) {
-    console.log('buildMap');
     // Set Challenge Level
     if (hero.gameLevel % 8 === 0) {
         hero.challengeMode = true;
@@ -128,7 +126,6 @@ function buildMap(callback) {
 
 // Place the hero on the map in a set position
 function addHero() {
-    console.log('addHero');
     if (hero.health) {
 
     }
@@ -163,6 +160,7 @@ function addHero() {
         hero.fastTravel = false;
         hero.frozen = false;
         hero.gameLevel = 1;
+        hero.selectedGameModes = gameMode;
         hero.health = 100;
         hero.hero = true;
         hero.id = 'hero-container';
@@ -268,7 +266,6 @@ function Cell(location,row,col,tile) {
 
 // Build array of safe locations to spawn traps, columns, and debris
 function getObjectLocations() {
-    console.log('getObjectLocations');
     debrisToBuild = randomNumber(3,5);
     columnsToBuild = randomNumber(1,3);
     trapsToBuild = [randomNumber(2,4),randomNumber(5,6),randomNumber(7,8)];
@@ -317,7 +314,6 @@ function randomCell() {
 
 // Randomize breakable debris
 function randomizeDebris() {
-    console.log('randomizeDebris');
     var objectTheme = themes[randomNumber(0,themes.length - 1)];
     if (options.tutorial && options.newgame) {
         var number = tutorialData.numDebris;
@@ -355,7 +351,6 @@ function randomizeDebris() {
 
 // Randomize columns
 function randomizeColumns() {
-    console.log('randomizeColumns');
     columnArray = [];
     wallTileset = randomNumber(1,walls);
     if (options.endgame || options.tutorial && options.newgame) {
@@ -395,7 +390,6 @@ function randomizeColumns() {
 
 // Percentage chance to spawn a trap
 function randomizeTraps() {
-    console.log('randomizeTraps');
     trapArray = [];
     if (options.tutorial && options.newgame) {
         var totalTraps = tutorialData.numTraps;
@@ -412,7 +406,6 @@ function randomizeTraps() {
     for (var i = 0; i < totalTraps; i++) {
         var cell = locationArray[0];
         if (safety > 25) {
-            console.log('/// STOP randomizeTraps ///');
             break;
         }
         if (cell === undefined) {
@@ -441,7 +434,6 @@ function randomizeTraps() {
 
 // Build grid one row at a time
 function buildGrid() {
-    console.log('buildGrid');
     // Select a random level template style
     levelTemplates = ['single','dual','corners','tri-corners'];
     template = levelTemplates[randomNumber(0,levelTemplates.length - 1)];

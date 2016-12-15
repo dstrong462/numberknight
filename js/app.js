@@ -97,7 +97,7 @@ var enemies = [];
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161213,
+        version: 20161214,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -867,7 +867,6 @@ function startGame() {
 
 // Reset anything from the previous level
 function resetAll(callback) {
-    console.log('resetAll');
     map = null;
     enemies = null;
     numberOfEnemies = 0;
@@ -931,7 +930,6 @@ function fadeIn() {
 
 // Build an array of objects for the grid. This will store the column, row, its contents, etc.
 function buildMap(callback) {
-    console.log('buildMap');
     // Set Challenge Level
     if (hero.gameLevel % 8 === 0) {
         hero.challengeMode = true;
@@ -980,7 +978,6 @@ function buildMap(callback) {
 
 // Place the hero on the map in a set position
 function addHero() {
-    console.log('addHero');
     if (hero.health) {
 
     }
@@ -1015,6 +1012,7 @@ function addHero() {
         hero.fastTravel = false;
         hero.frozen = false;
         hero.gameLevel = 1;
+        hero.selectedGameModes = gameMode;
         hero.health = 100;
         hero.hero = true;
         hero.id = 'hero-container';
@@ -1120,7 +1118,6 @@ function Cell(location,row,col,tile) {
 
 // Build array of safe locations to spawn traps, columns, and debris
 function getObjectLocations() {
-    console.log('getObjectLocations');
     debrisToBuild = randomNumber(3,5);
     columnsToBuild = randomNumber(1,3);
     trapsToBuild = [randomNumber(2,4),randomNumber(5,6),randomNumber(7,8)];
@@ -1169,7 +1166,6 @@ function randomCell() {
 
 // Randomize breakable debris
 function randomizeDebris() {
-    console.log('randomizeDebris');
     var objectTheme = themes[randomNumber(0,themes.length - 1)];
     if (options.tutorial && options.newgame) {
         var number = tutorialData.numDebris;
@@ -1207,7 +1203,6 @@ function randomizeDebris() {
 
 // Randomize columns
 function randomizeColumns() {
-    console.log('randomizeColumns');
     columnArray = [];
     wallTileset = randomNumber(1,walls);
     if (options.endgame || options.tutorial && options.newgame) {
@@ -1247,7 +1242,6 @@ function randomizeColumns() {
 
 // Percentage chance to spawn a trap
 function randomizeTraps() {
-    console.log('randomizeTraps');
     trapArray = [];
     if (options.tutorial && options.newgame) {
         var totalTraps = tutorialData.numTraps;
@@ -1264,7 +1258,6 @@ function randomizeTraps() {
     for (var i = 0; i < totalTraps; i++) {
         var cell = locationArray[0];
         if (safety > 25) {
-            console.log('/// STOP randomizeTraps ///');
             break;
         }
         if (cell === undefined) {
@@ -1293,7 +1286,6 @@ function randomizeTraps() {
 
 // Build grid one row at a time
 function buildGrid() {
-    console.log('buildGrid');
     // Select a random level template style
     levelTemplates = ['single','dual','corners','tri-corners'];
     template = levelTemplates[randomNumber(0,levelTemplates.length - 1)];
@@ -1483,9 +1475,8 @@ function handleTraps() {
 
 // Reset variables and route to the selected game mode
 function addMath() {
-    console.log('addMath');
     if (hero.bossLevel) {
-        var mode = gameMode[randomNumber(0,gameMode.length - 1)];
+        var mode = hero.selectedGameModes[randomNumber(0,hero.selectedGameModes.length - 1)];
         hero.bossLevel = hero.bosses[randomNumber(0,hero.bosses.length - 1)];
     }
     if (hero.challengeMode) {
@@ -1499,7 +1490,7 @@ function addMath() {
         document.getElementById('xpbar').style.opacity = 0;
     }
     else {
-        var mode = gameMode[randomNumber(0,gameMode.length - 1)];
+        var mode = hero.selectedGameModes[randomNumber(0,hero.selectedGameModes.length - 1)];
     }
 
     hero.gameMode = mode;
@@ -1707,7 +1698,7 @@ function primes(total,correct,incorrect,callback) {
     for (var i = 0; i < total; i++) {
         answer = { number: nonPrimes[randomNumber(0,nonPrimes.length - 1)], answer: false };
         if (correctArray.length < correct) {
-            answer = { number: primes[randomNumber(0,primes.length - 1)], answer: true };
+            answer = { number: primeNumbers[randomNumber(0,primeNumbers.length - 1)], answer: true };
             correctArray.push(answer);
         }
         else if (incorrectArray.length < incorrect) {
@@ -1733,19 +1724,19 @@ function primes(total,correct,incorrect,callback) {
 function generatePrimeNumbers(max) {
 
     var numbers = [];
-    primes = [];
+    primeNumbers = [];
     nonPrimes = [];
 
     for (var i = 2; i <= max; i++) {
         numbers.push(i);   
     }
     while (numbers.length) {
-        primes.push(numbers.shift());
+        primeNumbers.push(numbers.shift());
         numbers = numbers.filter(function(i) {
-            if (i % primes[primes.length - 1] === 0) {
+            if (i % primeNumbers[primeNumbers.length - 1] === 0) {
                 nonPrimes.push(i);
             }
-            return i % primes[primes.length - 1] != 0;
+            return i % primeNumbers[primeNumbers.length - 1] != 0;
         });
     }
 }
@@ -1978,7 +1969,6 @@ function shuffle(array) {
 
 // Place all of the math formulas into the grid
 function displayMath(finalArray,callback) {
-    console.log('displayMath');
     var i = 0;
     var safety = 0;
     for (var r = 0; r < numberOfRows; r++) {
@@ -1998,7 +1988,6 @@ function displayMath(finalArray,callback) {
                     i++;
                 }
                 else if (safety > 100) {
-                    console.log('STOP!! displayMath');
                     break;
                 }
                 else {
@@ -2498,7 +2487,6 @@ function letTheGamesBegin() {
         var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
         getEnemy(spawn.row,spawn.col);
     } catch(e) {
-        console.log('letTheGamesBegin ERROR');
     }
     // Start spawning enemies at an interval
     if (options.tutorial === false) {
@@ -3930,7 +3918,6 @@ function checkForAttack(direction,victim,attacker) {
 function flashMessage(person,message,time) {
     var msg = document.querySelector('#' + person.id + ' .message');
     if (msg === null || hero.health <= 0) {
-        console.log('message error fixed');
         return;
     }
     else {
@@ -4405,10 +4392,7 @@ function fadeToMainMenu(callback) {
             setTimeout(function() {
                 callback();
             }, 500);
-        } catch(e) {
-            console.log(e);
-            console.log('fadeToMainMenu ERROR');
-        }
+        } catch(e) {}
     }, 1000);
 }
 
@@ -4838,6 +4822,7 @@ for (var i = 1; i <= tilesets; i++) {
     }
 }
 loadingStage.innerHTML = '';
+// You filthy cheater
 function cheat() {
     hero.answers = hero.answersNeeded - 1;
     hero.gameLevel = 5;

@@ -91,7 +91,6 @@ function letTheGamesBegin() {
         var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
         getEnemy(spawn.row,spawn.col);
     } catch(e) {
-        console.log('letTheGamesBegin ERROR');
     }
     // Start spawning enemies at an interval
     if (options.tutorial === false) {

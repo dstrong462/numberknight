@@ -25,7 +25,7 @@
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161213,
+        version: 20161214,
         newgame: true,
         tutorial: true,
         endgame: false,
