@@ -97,7 +97,7 @@ var enemies = [];
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161214,
+        version: 20161215,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -2112,8 +2112,15 @@ function checkMath() {
             hero.equalsWrong++;
         }
         hero.timer -= timeLostFromWrongAnswer;
-        flashHitImage(hero,player);
         dealDamage(damageFromWrongAnswer,'wrong answer');
+        // Flash tile
+        var square = document.querySelector('#' + munchLocation.location + ' p');
+        var flash = document.createElement('span');
+            flash.classList.add('flash-wrong');
+            square.parentElement.appendChild(flash);
+        setTimeout(function() {
+            flash.remove();
+        }, 600);
     }
 }
 /////////////// MONSTER_MANUAL ///////////////
@@ -3348,17 +3355,17 @@ function checkKey(e) {
     if (hero.canMove) {
         e = e || window.event;
         var move = false;
-        // Assign movement direction
-        if (e.keyCode == '37') {
+        // Assign movement direction for arrow keys and WASD
+        if (e.keyCode == '37' || e.keyCode == '65') {
             move = 'move-left';
         }
-        else if (e.keyCode == '38') {
+        else if (e.keyCode == '38' || e.keyCode == '87') {
             move = 'move-up';
         }
-        else if (e.keyCode == '39') {
+        else if (e.keyCode == '39' || e.keyCode == '68') {
             move = 'move-right';
         }
-        else if (e.keyCode == '40') {
+        else if (e.keyCode == '40' || e.keyCode == '83') {
             move = 'move-down';
         }
         else if (e.keyCode == '32') {
@@ -4075,7 +4082,7 @@ function textBubble(msg,delay) {
 
         // Close message after clicking on it
         setTimeout(function() {
-            bubble.addEventListener('click', function() {
+            overlay.addEventListener('click', function() {
                 overlay.style.animation = 'fade-in 1s 1 forwards';
                 setTimeout(function() {
                     tutorialData.proceed = true;

@@ -45,17 +45,17 @@ function checkKey(e) {
     if (hero.canMove) {
         e = e || window.event;
         var move = false;
-        // Assign movement direction
-        if (e.keyCode == '37') {
+        // Assign movement direction for arrow keys and WASD
+        if (e.keyCode == '37' || e.keyCode == '65') {
             move = 'move-left';
         }
-        else if (e.keyCode == '38') {
+        else if (e.keyCode == '38' || e.keyCode == '87') {
             move = 'move-up';
         }
-        else if (e.keyCode == '39') {
+        else if (e.keyCode == '39' || e.keyCode == '68') {
             move = 'move-right';
         }
-        else if (e.keyCode == '40') {
+        else if (e.keyCode == '40' || e.keyCode == '83') {
             move = 'move-down';
         }
         else if (e.keyCode == '32') {

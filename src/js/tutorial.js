@@ -69,7 +69,7 @@ function textBubble(msg,delay) {
 
         // Close message after clicking on it
         setTimeout(function() {
-            bubble.addEventListener('click', function() {
+            overlay.addEventListener('click', function() {
                 overlay.style.animation = 'fade-in 1s 1 forwards';
                 setTimeout(function() {
                     tutorialData.proceed = true;

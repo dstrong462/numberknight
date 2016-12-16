@@ -639,7 +639,14 @@ function checkMath() {
             hero.equalsWrong++;
         }
         hero.timer -= timeLostFromWrongAnswer;
-        flashHitImage(hero,player);
         dealDamage(damageFromWrongAnswer,'wrong answer');
+        // Flash tile
+        var square = document.querySelector('#' + munchLocation.location + ' p');
+        var flash = document.createElement('span');
+            flash.classList.add('flash-wrong');
+            square.parentElement.appendChild(flash);
+        setTimeout(function() {
+            flash.remove();
+        }, 600);
     }
 }

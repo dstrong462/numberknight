@@ -1274,7 +1274,8 @@ img.wall {
     z-index: 10;
 }
 
-.flash {
+.flash,
+.flash-wrong {
     position: absolute;
     top: 0;
     right: 0;
@@ -1289,9 +1290,18 @@ img.wall {
     margin: auto;
 }
 
+.flash-wrong {
+    background-color: #E22727;
+    animation: capture-wrong .6s 1 forwards;
+}
+
 @keyframes capture {
-    15%  { opacity: .6; width: 85%; height: 85%; transform: rotate(0deg);}
+    15%  { opacity: .6; width: 85%; height: 85%; transform: rotate(0deg); }
     100% { opacity: 0; width: 10%; height: 10%; transform: rotate(-90deg); }
+}
+@keyframes capture-wrong {
+    15%  { opacity: .75; width: 85%; height: 85%; }
+    100% { opacity: 0; width: 75%; height: 75%; }
 }
 
 #level-container .row div:first-child {
