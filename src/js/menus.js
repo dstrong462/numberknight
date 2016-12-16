@@ -93,6 +93,24 @@ function titleScreen() {
 
             });
         }
+
+    // Allow user to disable tutorial from showing on starting a new game
+    var tutorialCheckbox = document.getElementById('enable-tutorial');
+    if (options.tutorial) {
+        tutorialCheckbox.checked = true;
+    }
+    else {
+        tutorialCheckbox.checked = false;
+    }
+    tutorialCheckbox.addEventListener('click', function(e) {
+        if (e.target.checked) {
+            options.tutorial = true;
+        }
+        else if (!e.target.checked) {
+            options.tutorial = false;
+        }
+    });
+
     var gamemodesButton = document.getElementById('btn-gamemodes');
         gamemodesButton.addEventListener('click', showGamemodes);
 

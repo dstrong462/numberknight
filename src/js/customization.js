@@ -14,7 +14,7 @@ var correctMaxThreshold = 60;
 
 // Customize variables for restoration
 var healthRestoreFromCapture = 1;
-var timeRestoreFromCapture = 4;
+var timeRestoreFromCapture = 3;
 var timeLostFromWrongAnswer = 0;
 var defaultTimer = 60;
 

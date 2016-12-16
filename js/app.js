@@ -14,7 +14,7 @@ var correctMaxThreshold = 60;
 
 // Customize variables for restoration
 var healthRestoreFromCapture = 1;
-var timeRestoreFromCapture = 4;
+var timeRestoreFromCapture = 3;
 var timeLostFromWrongAnswer = 0;
 var defaultTimer = 60;
 
@@ -284,6 +284,24 @@ function titleScreen() {
 
             });
         }
+
+    // Allow user to disable tutorial from showing on starting a new game
+    var tutorialCheckbox = document.getElementById('enable-tutorial');
+    if (options.tutorial) {
+        tutorialCheckbox.checked = true;
+    }
+    else {
+        tutorialCheckbox.checked = false;
+    }
+    tutorialCheckbox.addEventListener('click', function(e) {
+        if (e.target.checked) {
+            options.tutorial = true;
+        }
+        else if (!e.target.checked) {
+            options.tutorial = false;
+        }
+    });
+
     var gamemodesButton = document.getElementById('btn-gamemodes');
         gamemodesButton.addEventListener('click', showGamemodes);
 
@@ -572,7 +590,6 @@ function showGamemodes(e) {
         list += '<p>Capture the tiles in ascending order from lowest number to highest.</p>';
         list += '<h6>Descending Order</h6>'
         list += '<p>Capture the tiles in descending order from highest number to lowest.</p>';
-        list += '<br /><input type="checkbox" name="enable-tutorial" id="enable-tutorial" checked /><label for="enable-tutorial"><span></span>Show Tutorial Next Time</label>'
         list += '<div class="row"><button class="btn-back"></button></div>';
 
         tutorial.innerHTML = list;
@@ -587,23 +604,6 @@ function showGamemodes(e) {
 
         tutorial.style.display = 'flex';
         tutorial.style.opacity = '1';
-
-    // Allow user to disable tutorial from showing on starting a new game
-    var tutorialCheckbox = document.querySelector('#tutorial input');
-    if (options.tutorial) {
-        tutorialCheckbox.checked = true;
-    }
-    else {
-        tutorialCheckbox.checked = false;
-    }
-        tutorialCheckbox.addEventListener('click', function(e) {
-            if (e.target.checked) {
-                options.tutorial = true;
-            }
-            else if (!e.target.checked) {
-                options.tutorial = false;
-            }
-        });
 }
 
 
@@ -2430,6 +2430,9 @@ function letTheGamesBegin() {
 
         }
         else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
+            clearInterval(timerInterval);
+        }
+        else if (hero.answers >= hero.answersNeeded) {
             clearInterval(timerInterval);
         }
         else {

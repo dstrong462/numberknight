@@ -29,6 +29,9 @@ function letTheGamesBegin() {
         else if (currentLevel !== hero.gameLevel || map === null || hero === null || hero.bossLevel || hero.challengeMode || options.tutorial || options.endgame) {
             clearInterval(timerInterval);
         }
+        else if (hero.answers >= hero.answersNeeded) {
+            clearInterval(timerInterval);
+        }
         else {
             hero.timer -= timerIncrement;
             if (hero.timer <= 0 ) {
