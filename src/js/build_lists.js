@@ -5,12 +5,32 @@ var fallenButton = document.getElementById('btn-fallen-heroes');
 
 // Display fallen heroes
 function displayHeroes() {
-    var listDisplay = document.createElement('div');
-        listDisplay.id = 'fallen-heroes';
-    document.body.appendChild(listDisplay);
     var container = document.getElementById('fallen-heroes');
-    var title = '<h5>Fallen Heroes</h5><br />';
-        container.innerHTML = title;
+        container.innerHTML = '';
+    var scroll = document.createElement('div');
+        scroll.classList.add('scroll');
+        container.appendChild(scroll);
+    var list = '<h5>Fallen Heroes</h5><br />';
+        scroll.innerHTML = list;
+        container.style.display = 'flex';
+        container.scroll(0,0);
+        container.style.opacity = 1;
+
+    var footer = document.createElement('div');
+        footer.innerHTML = '<button></button><button id="clearlist"></button>';
+        container.appendChild(footer);
+
+    var button = document.querySelector('#fallen-heroes button');
+        button.addEventListener('click', function() {
+            scroll.remove();
+            container.innerHTML = '';
+            container.style.display = 'none';
+        });
+    var trash = document.getElementById('clearlist');
+        trash.addEventListener('click', clearList);
+    if (fallenHeroes.length === 0) {
+        trash.style.display = 'none';
+    }
 
     var i = 0;
     createList();
@@ -30,13 +50,13 @@ function displayHeroes() {
                     entry += '<p>' + fallenHeroes[i].death + '</p>';
                 }
                 row.innerHTML = entry;
-                container.appendChild(row);
+                scroll.appendChild(row);
             var button = document.getElementById(row.id);
                 button.addEventListener('click', function() {
                     var item = button.id.split('-').pop();
                     listFallenStats(fallenHeroes[item],'fallen-heroes');
                 });
-                row = container.lastChild;
+                row = scroll.lastChild;
                 row.style.transition = 'opacity .5s';
                 setTimeout(function() {
                     row.style.opacity = '1';
@@ -44,29 +64,6 @@ function displayHeroes() {
                 i++;
                 if (i < fallenHeroes.length) {
                     createList();
-                }
-                else {
-                    appendButtons();
-                }
-            }
-            else {
-                appendButtons();
-            }
-
-            function appendButtons() {
-                var footer = document.createElement('div');
-                    footer.style.paddingBottom = '25px';
-                    footer.innerHTML = '<button></button><button id="clearlist"></button>';
-                    container.appendChild(footer);
-
-                var button = document.querySelector('#fallen-heroes button');
-                    button.addEventListener('click', function() {
-                        container.remove();
-                    });
-                var trash = document.getElementById('clearlist');
-                    trash.addEventListener('click', clearList);
-                if (fallenHeroes.length === 0) {
-                    trash.style.display = 'none';
                 }
             }
         }, 100);
@@ -93,6 +90,8 @@ function showGamemodes(e) {
     var tutorial = document.getElementById('tutorial');
         tutorial.innerHTML = '';
         tutorial.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    var scroll = document.createElement('div');
+        scroll.classList.add('scroll');
     
     var list = '<h5>Game Modes</h5>';
         list += '<br />';
@@ -114,8 +113,8 @@ function showGamemodes(e) {
         list += '<p>Capture the tiles in descending order from highest number to lowest.</p>';
         list += '<div class="row"><button class="btn-back"></button></div>';
 
-        tutorial.innerHTML = list;
-        tutorial.style.height = 'auto';
+        scroll.innerHTML = list;
+        tutorial.appendChild(scroll);
 
     var backButton = document.querySelector('#tutorial .btn-back');
         backButton.addEventListener('click', function() {
@@ -125,6 +124,7 @@ function showGamemodes(e) {
         });
 
         tutorial.style.display = 'flex';
+        tutorial.scroll(0,0);
         tutorial.style.opacity = '1';
 }
 
@@ -135,7 +135,7 @@ function displayBestiary() {
         bestiaryScreen.innerHTML = '';
         bestiaryScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
     
-    var list = '<h5>Monster Manual</h5>';
+    var list = '<div class="scroll"><h5>Monster Manual</h5>';
 
     for (var i = 0; i < options.enemiesEncountered.length; i++) {
         var monster = bestiary.filter(function(monster) {
@@ -152,12 +152,11 @@ function displayBestiary() {
         list += '<p>' + monster.info + '</p></div></div>';  
     }
 
+    list += '<button class="btn-back"></button></div>';
     bestiaryScreen.innerHTML = list;
     bestiaryScreen.style.height = 'auto';
 
-    var button = document.createElement('button');
-        button.className = 'btn-back';
-        bestiaryScreen.appendChild(button);
+    var button = document.querySelector('#bestiary button');
         button.addEventListener('click', function() {
             bestiaryScreen.style.display = 'none';
             bestiaryScreen.innerHTML = '';
@@ -165,6 +164,7 @@ function displayBestiary() {
 
     bestiaryScreen.style.display = 'flex';
     bestiaryScreen.style.opacity = '1';
+    bestiaryScreen.scroll(0,0);
 
     options.newEnemies = 0;
     localStorage.setItem('options', JSON.stringify(options));
@@ -177,6 +177,9 @@ function listFallenStats(hero,view) {
     var gameOverScreen = document.getElementById('game-over');
         gameOverScreen.innerHTML = '';
         gameOverScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    var scroll = document.createElement('div');
+        scroll.classList.add('scroll');
+
     var stats = '<h5>' + hero.name + '</h5>';
         stats += '<img src="img/avatars/' + hero.avatar + '.gif">';
         stats += '<p>Level: <span>' + hero.level + '</span></p>';
@@ -205,12 +208,10 @@ function listFallenStats(hero,view) {
         stats += '<p>Times Frozen: <span>' + hero.timesFrozen + '</span></p>';
         stats += '<p>Times Spider Webbed: <span>' + hero.timesWebbed + '</span></p>';
         stats += '<p>Times Poisoned: <span>' + hero.timesPoisoned + '</span></p>';
-        gameOverScreen.innerHTML = stats;
+        scroll.innerHTML = stats;
+        gameOverScreen.appendChild(scroll);
         gameOverScreen.style.opacity = '0';
         gameOverScreen.style.display = 'flex';
-        setTimeout(function() {
-            gameOverScreen.style.opacity = '1';
-        }, 200);
     if (view === 'game-over') {
         var button = document.createElement('button');
             button.classList.add('main-menu-button');
@@ -226,8 +227,12 @@ function listFallenStats(hero,view) {
                 gameOverScreen.style.display = 'none';
             });
     }
-    gameOverScreen.appendChild(button);
-    gameOverScreen.style.height = 'auto';
+    scroll.appendChild(button);
+    gameOverScreen.scroll(0,0);
+
+    setTimeout(function() {
+        gameOverScreen.style.opacity = '1';
+    }, 200);
 }
 
 
@@ -241,10 +246,12 @@ function openStore() {
         storeScreen.style.opacity = '0';
         storeScreen.style.display = 'none';
         storeScreen.style.backgroundImage = 'url("img/backgrounds/background-0' + randomNumber(1,backgrounds) + '.gif")';
+    var scroll = document.createElement('div');
+        scroll.classList.add('scroll');
 
     var store = '<h5>- Ye Olde Store -</h5><br />';
         store += '<p>Put your hard earned gold to good use with these unlockable items!</p><p>Or don&apos;t. It&apos;s your gold.</p><br />';
-        storeScreen.innerHTML = store;
+        scroll.innerHTML = store;
 
     // Loop through all items
     for (var i = 0; i < options.storeItems.length; i++) {
@@ -276,8 +283,15 @@ function openStore() {
                 button.addEventListener('click', makeSelection);
         }
         div.appendChild(button);
-        storeScreen.appendChild(div);
+        scroll.appendChild(div);
+        storeScreen.appendChild(scroll);
     }
+
+    setTimeout(function() {
+        storeScreen.style.display = 'flex';
+        storeScreen.scroll(0,0);
+        storeScreen.style.opacity = '1';
+    }, 200);
 
     var selection;
 
@@ -285,11 +299,6 @@ function openStore() {
         selection = this.parentElement.id;
         makePurchase();
     }
-
-    setTimeout(function() {
-        storeScreen.style.display = 'flex';
-        storeScreen.style.opacity = '1';
-    }, 200);
 
     var buttonContainer = document.createElement('div');
         buttonContainer.classList.add('row');
@@ -302,14 +311,13 @@ function openStore() {
             storeScreen.innerHTML = '';
         });
         buttonContainer.appendChild(button);
-        storeScreen.appendChild(buttonContainer);
+        scroll.appendChild(buttonContainer);
 
         var gold = document.createElement('div');
             gold.classList.add('gold-total');
             gold.classList.add('gold-bottom');
             gold.innerHTML = '<img src="img/loot/gold-5.gif" alt="Gold Total"><span></span>';
         storeScreen.appendChild(gold);
-        storeScreen.style.height = 'auto';
 
     // Show gold total
     var goldTotal = document.querySelectorAll('.gold-total span');

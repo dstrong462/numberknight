@@ -333,24 +333,6 @@ button.main-menu-button {
 /*  FALLEN HEROES LIST
 ================================== */
 
-#fallen-heroes {
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 100vh;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    color: #fff;
-    text-align: center;
-    background-color: #262626;
-    padding: 25px 15px;
-    overflow-y: auto;
-    z-index: 60;
-}
-
 #fallen-heroes h5 {
     color: #149ce0;
 }
@@ -399,14 +381,13 @@ button.main-menu-button {
     font-weight: bold;
 }
 
-#fallen-heroes div:last-child {
-    padding-top: 25px;
-    margin-bottom: 0;
-    margin-top: auto;
-}
-
 #clearlist {
     background-image: url('../img/gui/button-trash.svg') !important;
+}
+
+#fallen-heroes div:last-child {
+    margin-bottom: 25px;
+    margin-top: auto;
 }
 
 
@@ -937,28 +918,35 @@ img.wall {
 /* PLAYER STATS SCREEN
 ================================== */
 
+#fallen-heroes,
 #game-over,
-#tutorial,
 #bestiary,
+#tutorial,
 #store {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100%;
-    min-height: 100vh;
+    right: 0;
+    bottom: 0;
     display: none;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    align-content: center;
     text-align: center;
     background-image: url('../img/backgrounds/background-02.gif');
-    overflow-y: auto;
     opacity: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
     transition: 1s;
-    padding: 25px;
+    padding: 0;
+    margin: 0;
     z-index: 100;
+}
+
+.scroll {
+    width: 100%;
+    max-width: 768px;
+    padding: 25px;
 }
 
 #game-over .row:first-of-type {
@@ -1078,10 +1066,6 @@ img.wall {
 #bestiary .bestiary div {
     text-align: left;
     margin-left: 15px;
-}
-
-#store {
-    align-items: flex-start;
 }
 
 .store-item {
@@ -1298,15 +1282,10 @@ img.knight {
     .flip-container,
     #title-screen,
     #new-game,
-    #fallen-heroes,
     #options-menu,
-    #tutorial,
-    #bestiary,
     #main-container,
     #level-up-menu,
-    #level-splash,
-    #game-over,
-    #store {
+    #level-splash {
         max-width: 768px;
         height: 100vh;
         min-height: 100%;

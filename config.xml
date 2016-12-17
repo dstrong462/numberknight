@@ -2,7 +2,7 @@
 
 <widget 
     id="com.vermiliongiant.numberknight" 
-    version="1.0.20161215" 
+    version="1.0.20161216" 
     xmlns="http://www.w3.org/ns/widgets"
     xmlns:gap="http://phonegap.com/ns/1.0">
 
