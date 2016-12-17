@@ -491,7 +491,7 @@ function displayHeroes() {
     var list = '<h5>Fallen Heroes</h5><br />';
         scroll.innerHTML = list;
         container.style.display = 'flex';
-        container.scroll(0,0);
+        window.scroll(0,0);
         container.style.opacity = 1;
 
     var footer = document.createElement('div');
@@ -602,7 +602,7 @@ function showGamemodes(e) {
         });
 
         tutorial.style.display = 'flex';
-        tutorial.scroll(0,0);
+        window.scroll(0,0);
         tutorial.style.opacity = '1';
 }
 
@@ -642,7 +642,7 @@ function displayBestiary() {
 
     bestiaryScreen.style.display = 'flex';
     bestiaryScreen.style.opacity = '1';
-    bestiaryScreen.scroll(0,0);
+    window.scroll(0,0);
 
     options.newEnemies = 0;
     localStorage.setItem('options', JSON.stringify(options));
@@ -706,7 +706,7 @@ function listFallenStats(hero,view) {
             });
     }
     scroll.appendChild(button);
-    gameOverScreen.scroll(0,0);
+    window.scroll(0,0);
 
     setTimeout(function() {
         gameOverScreen.style.opacity = '1';
@@ -767,7 +767,7 @@ function openStore() {
 
     setTimeout(function() {
         storeScreen.style.display = 'flex';
-        storeScreen.scroll(0,0);
+        window.scroll(0,0);
         storeScreen.style.opacity = '1';
     }, 200);
 
@@ -1007,6 +1007,7 @@ function addHero() {
         hero.canMove = true;
         hero.challengeMode = false;
         hero.cooldownTimer = 200;
+        hero.cooldownAttackTimer = 500;
         hero.dexterity = 1;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
         hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
@@ -3323,44 +3324,48 @@ function moveEnemy(enemy,enemyContainer,directions) {
 
 // Add event listeners for the 4 movement buttons
 var moveUp = document.getElementById('move-up');
-    moveUp.addEventListener('click', function(e) {
+    moveUp.addEventListener('mousedown', function(e) {
         if (hero.fastTravel) {
             hero.fastTravel = false;
         }
         else {
             moveHero('move-up');
         }
+        keyboardPlayer = false;
     });
 var moveDown = document.getElementById('move-down');
-    moveDown.addEventListener('click', function(e) {
+    moveDown.addEventListener('mousedown', function(e) {
         if (hero.fastTravel) {
             hero.fastTravel = false;
         }
         else {
             moveHero('move-down');
         }
+        keyboardPlayer = false;
     });
 var moveLeft = document.getElementById('move-left');
-    moveLeft.addEventListener('click', function(e) {
+    moveLeft.addEventListener('mousedown', function(e) {
         if (hero.fastTravel) {
             hero.fastTravel = false;
         }
         else {
             moveHero('move-left');
         }
+        keyboardPlayer = false;
     });
 var moveRight = document.getElementById('move-right');
-    moveRight.addEventListener('click', function(e) {
+    moveRight.addEventListener('mousedown', function(e) {
         if (hero.fastTravel) {
             hero.fastTravel = false;
         }
         else {
             moveHero('move-right');
         }
+        keyboardPlayer = false;
     });
 
 // Listen for keyboard events for desktop users that like to kick it oldschool
-document.onkeyup = checkKey;
+document.onkeydown = checkKey;
 
 function checkKey(e) {
     if (hero.canMove) {
@@ -3369,22 +3374,23 @@ function checkKey(e) {
         // Assign movement direction for arrow keys and WASD
         if (e.keyCode == '37' || e.keyCode == '65') {
             move = 'move-left';
+            keyboardPlayer = true;
         }
         else if (e.keyCode == '38' || e.keyCode == '87') {
             move = 'move-up';
+            keyboardPlayer = true;
         }
         else if (e.keyCode == '39' || e.keyCode == '68') {
             move = 'move-right';
+            keyboardPlayer = true;
         }
         else if (e.keyCode == '40' || e.keyCode == '83') {
             move = 'move-down';
+            keyboardPlayer = true;
         }
         else if (e.keyCode == '32') {
             hero.fastTravel = false;
             checkMath();
-        }
-        if (e.keyCode == '37' || e.keyCode == '38' || e.keyCode == '39' || e.keyCode == '40') {
-            keyboardPlayer = true;
         }
         // Pass movement direction to movement function
         if (move !== false) {
@@ -3668,7 +3674,6 @@ function fastTravelPathing(square) {
 // Check collision of movement, and move accordingly
 function moveHero(move) {
     if (hero.canMove && hero.health > 0 && hero !== null) {
-        cooldown(hero,hero.cooldownTimer);
         var munchLocation = map[hero.row - 1][hero.col - 1];
         hero.lastLocation = munchLocation;
         hero.lastLocation.lastMove = move;
@@ -3686,6 +3691,7 @@ function moveHero(move) {
                     checkForAttack('up',target,hero);
                 }
                 else if (hero.top >= cellSize && mapLocation.contents !== 'blocked') {
+                    cooldown(hero,hero.cooldownTimer);
                     map[hero.row - 1][hero.col - 1].hero = false;
                     hero.top -= cellSize;
                     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
@@ -3711,9 +3717,11 @@ function moveHero(move) {
                     var target = enemies.filter(function(target) {
                         return target.id === name;
                     })[0];
+                    cooldown(hero,hero.cooldownAttackTimer);
                     checkForAttack('down',target,hero);
                 }
                 else if (hero.top <= (numberOfRows - 2) * cellSize && mapLocation.contents !== 'blocked') {
+                    cooldown(hero,hero.cooldownTimer);
                     map[hero.row - 1][hero.col - 1].hero = false;
                     hero.top += cellSize;
                     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
@@ -3742,6 +3750,7 @@ function moveHero(move) {
                     checkForAttack('left',target,hero);
                 }
                 else if (hero.left >= cellSize && mapLocation.contents !== 'blocked') {
+                    cooldown(hero,hero.cooldownTimer);
                     map[hero.row - 1][hero.col - 1].hero = false;
                     hero.left -= cellSize;
                     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
@@ -3769,6 +3778,7 @@ function moveHero(move) {
                     checkForAttack('right',target,hero);
                 }
                 else if (hero.left <= (numberOfColumns - 2) * cellSize && mapLocation.contents !== 'blocked') {
+                    cooldown(hero,hero.cooldownTimer);
                     map[hero.row - 1][hero.col - 1].hero = false;
                     hero.left += cellSize;
                     heroContainer.style.transform = 'translate(' + hero.left + 'px, ' + hero.top + 'px)';
@@ -3832,6 +3842,15 @@ function flashHitImage(victim,victimContainer,direction) {
 
 // Attack depending on what direction you are attacking from
 function checkForAttack(direction,victim,attacker) {
+    // Because attacking too fast is OP
+    if (attacker === hero) {
+        if (keyboardPlayer) {
+            cooldown(hero,hero.cooldownAttackTimer);
+        }
+        else {
+            cooldown(hero,hero.cooldownTimer);
+        }
+    }
     if (victim.hasOwnProperty('health')) {
         // Check if evasion stops attack
         if (randomNumber(1,100) > victim.evasion) {

@@ -20,6 +20,15 @@ function flashHitImage(victim,victimContainer,direction) {
 
 // Attack depending on what direction you are attacking from
 function checkForAttack(direction,victim,attacker) {
+    // Because attacking too fast is OP
+    if (attacker === hero) {
+        if (keyboardPlayer) {
+            cooldown(hero,hero.cooldownAttackTimer);
+        }
+        else {
+            cooldown(hero,hero.cooldownTimer);
+        }
+    }
     if (victim.hasOwnProperty('health')) {
         // Check if evasion stops attack
         if (randomNumber(1,100) > victim.evasion) {

@@ -13,7 +13,7 @@ function displayHeroes() {
     var list = '<h5>Fallen Heroes</h5><br />';
         scroll.innerHTML = list;
         container.style.display = 'flex';
-        container.scroll(0,0);
+        window.scroll(0,0);
         container.style.opacity = 1;
 
     var footer = document.createElement('div');
@@ -124,7 +124,7 @@ function showGamemodes(e) {
         });
 
         tutorial.style.display = 'flex';
-        tutorial.scroll(0,0);
+        window.scroll(0,0);
         tutorial.style.opacity = '1';
 }
 
@@ -164,7 +164,7 @@ function displayBestiary() {
 
     bestiaryScreen.style.display = 'flex';
     bestiaryScreen.style.opacity = '1';
-    bestiaryScreen.scroll(0,0);
+    window.scroll(0,0);
 
     options.newEnemies = 0;
     localStorage.setItem('options', JSON.stringify(options));
@@ -228,7 +228,7 @@ function listFallenStats(hero,view) {
             });
     }
     scroll.appendChild(button);
-    gameOverScreen.scroll(0,0);
+    window.scroll(0,0);
 
     setTimeout(function() {
         gameOverScreen.style.opacity = '1';
@@ -289,7 +289,7 @@ function openStore() {
 
     setTimeout(function() {
         storeScreen.style.display = 'flex';
-        storeScreen.scroll(0,0);
+        window.scroll(0,0);
         storeScreen.style.opacity = '1';
     }, 200);
 

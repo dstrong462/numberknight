@@ -147,6 +147,7 @@ function addHero() {
         hero.canMove = true;
         hero.challengeMode = false;
         hero.cooldownTimer = 200;
+        hero.cooldownAttackTimer = 500;
         hero.dexterity = 1;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
         hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
