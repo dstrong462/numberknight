@@ -1,13 +1,20 @@
 /////////////// ATTACK_PLAYER ///////////////
 
 // Flash hit image on character
-function flashHitImage(victim,victimContainer) {
-    if (victim.hasOwnProperty('id')) {
-        victimContainer.classList.add('hit');
-        setTimeout(function() {
-            victimContainer.classList.remove('hit');
-        }, 350);
+function flashHitImage(victim,victimContainer,direction) {
+    if (victim === hero) {
+        victimContainer = player;
     }
+    else {
+        victimContainer = document.querySelector('#' + victim.location);
+    }
+    var slash = document.createElement('img');
+        slash.src = 'img/hit.gif';
+        slash.classList.add('hit');
+        victimContainer.appendChild(slash);
+    setTimeout(function() {
+        slash.remove();
+    }, 350);
 }
 
 
@@ -21,7 +28,7 @@ function checkForAttack(direction,victim,attacker) {
                 if (victim.hero) {
                     victimContainer = player;
                 }
-                flashHitImage(victim,victimContainer);
+                flashHitImage(victim,victimContainer,direction);
                 // Move attacker for attack animation
                 var attackerContainer = document.getElementById(attacker.id);
                 var attackerTop = attacker.top;
