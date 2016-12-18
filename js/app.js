@@ -1,3 +1,64 @@
+var newestVersion = 20161218;
+
+// Check version number and allow adding in new data or wiping stats as needed
+(function updateGameData() {
+
+    if (localStorage.getItem('options') !== null) {
+        var retrievedOptions = localStorage.getItem('options');
+            options = JSON.parse(retrievedOptions);
+
+        if (options.version === newestVersion) {
+            console.log('you have the newest version');
+        }
+        else if (options.version < 20161216) {
+            console.log('data wipe needed');
+            dataWipe();
+        }
+        else if (options.version !== newestVersion) {
+            console.log('update needed');
+            gameUpdates();
+        }
+    }
+    else {
+        console.log('NO OPTIONS');
+    }
+
+    // Update game data with any new data
+    function gameUpdates() {
+        // Make updates to saved game
+        if (localStorage.getItem('savedGame') !== null) {
+            var retrievedSave = localStorage.getItem('savedGame');
+            var newHero = JSON.parse(retrievedSave);
+
+            ////////// CHANGES HERE //////////
+
+            newHero.cooldownCaptureTimer = 1000;
+
+            //////////////////////////////////
+
+            localStorage.setItem('savedGame', JSON.stringify(newHero));
+        }
+        else {
+            console.log('NO SAVED GAME');
+        }
+
+        options.version = newestVersion;
+        localStorage.setItem('options', JSON.stringify(options));
+    }
+
+    // Wipe all data if needed
+    function dataWipe() {
+        if (localStorage.getItem('options') !== null) {
+            console.log('wiping options');
+            localStorage.removeItem('options');
+        }
+        if (localStorage.getItem('savedGame') !== null) {
+            console.log('wiping savedGame');
+            localStorage.removeItem('savedGame');
+        }
+    }
+
+}());
 /////////////// CUSTOMIZATION ///////////////
 
 var maxScreenWidth = 768;
@@ -97,7 +158,7 @@ var enemies = [];
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161217,
+        version: newestVersion,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -128,6 +189,7 @@ if (localStorage.getItem('options') === null) {
             }
         ]
     };
+    localStorage.setItem('options', JSON.stringify(options));
 }
 else {
     // Otherwise, retrieve and parse it
@@ -1008,6 +1070,7 @@ function addHero() {
         hero.challengeMode = false;
         hero.cooldownTimer = 200;
         hero.cooldownAttackTimer = 333;
+        hero.cooldownCaptureTimer = 1000;
         hero.dexterity = 1;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
         hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
@@ -2130,6 +2193,11 @@ function checkMath() {
         setTimeout(function() {
             flash.remove();
         }, 600);
+        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
+        hero.canCapture = false;
+        setTimeout(function() {
+            hero.canCapture = true;
+        }, hero.cooldownCaptureTimer);
     }
 }
 /////////////// MONSTER_MANUAL ///////////////
@@ -3850,6 +3918,11 @@ function checkForAttack(direction,victim,attacker) {
         else {
             cooldown(hero,hero.cooldownTimer);
         }
+        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
+        hero.canCapture = false;
+        setTimeout(function() {
+            hero.canCapture = true;
+        }, hero.cooldownCaptureTimer);
     }
     if (victim.hasOwnProperty('health')) {
         if (victim.health > 0) {

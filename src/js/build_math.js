@@ -648,5 +648,10 @@ function checkMath() {
         setTimeout(function() {
             flash.remove();
         }, 600);
+        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
+        hero.canCapture = false;
+        setTimeout(function() {
+            hero.canCapture = true;
+        }, hero.cooldownCaptureTimer);
     }
 }

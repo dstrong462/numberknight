@@ -25,7 +25,7 @@
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161217,
+        version: newestVersion,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -56,6 +56,7 @@ if (localStorage.getItem('options') === null) {
             }
         ]
     };
+    localStorage.setItem('options', JSON.stringify(options));
 }
 else {
     // Otherwise, retrieve and parse it

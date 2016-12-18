@@ -14,6 +14,7 @@ var gulp = require('gulp'),
 // Concat Scripts
 gulp.task('concat-scripts', function() {
     return gulp.src([
+        'src/js/update_data.js',
         'src/js/customization.js',
         'src/js/startup.js',
         'src/js/menus.js',

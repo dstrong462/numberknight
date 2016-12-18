@@ -28,6 +28,11 @@ function checkForAttack(direction,victim,attacker) {
         else {
             cooldown(hero,hero.cooldownTimer);
         }
+        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
+        hero.canCapture = false;
+        setTimeout(function() {
+            hero.canCapture = true;
+        }, hero.cooldownCaptureTimer);
     }
     if (victim.hasOwnProperty('health')) {
         if (victim.health > 0) {
