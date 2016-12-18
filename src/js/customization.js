@@ -13,7 +13,7 @@ var correctMinThreshold = 25;
 var correctMaxThreshold = 60;
 
 // Customize variables for restoration
-var healthRestoreFromCapture = 1;
+var healthRestoreFromCapture = 2;
 var timeRestoreFromCapture = 3;
 var timeLostFromWrongAnswer = 0;
 var defaultTimer = 60;
@@ -24,7 +24,7 @@ var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
 // Playing with a keyboard is much easier, so if they use a keyboard, make enemies harder
 var keyboardPlayer = false;
-var keyboardDamageModifier = 1.5;
+var keyboardDamageModifier = 1.25;
 
 var chanceToSpawnTrap = 80;
 var backgrounds = 2;

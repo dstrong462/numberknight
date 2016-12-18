@@ -30,47 +30,48 @@ function checkForAttack(direction,victim,attacker) {
         }
     }
     if (victim.hasOwnProperty('health')) {
-        // Check if evasion stops attack
-        if (randomNumber(1,100) > victim.evasion) {
-            if (victim.health > 0) {
-                var victimContainer = document.getElementById(victim.id);
-                if (victim.hero) {
-                    victimContainer = player;
-                }
+        if (victim.health > 0) {
+            var victimContainer = document.getElementById(victim.id);
+            if (victim.hero) {
+                victimContainer = player;
+            }
+            // Move attacker for attack animation
+            var attackerContainer = document.getElementById(attacker.id);
+            var attackerTop = attacker.top;
+            var attackerLeft = attacker.left;
+            if (direction === 'up') {
+                var original = attackerContainer.style.zIndex;
+                attackerContainer.style.zIndex = 25;
+                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    setTimeout(function() {
+                        attackerContainer.style.zIndex = original;
+                    }, 200);
+                }, 200);
+            }
+            else if (direction === 'down') {
+                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+            else if (direction === 'left') {
+                attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+            else if (direction === 'right') {
+                attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+
+            // Check if evasion stops attack
+            if (randomNumber(1,100) > victim.evasion) {
                 flashHitImage(victim,victimContainer,direction);
-                // Move attacker for attack animation
-                var attackerContainer = document.getElementById(attacker.id);
-                var attackerTop = attacker.top;
-                var attackerLeft = attacker.left;
-                if (direction === 'up') {
-                    var original = attackerContainer.style.zIndex;
-                    attackerContainer.style.zIndex = 25;
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                        setTimeout(function() {
-                            attackerContainer.style.zIndex = original;
-                        }, 200);
-                    }, 200);
-                }
-                else if (direction === 'down') {
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
-                else if (direction === 'left') {
-                    attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
-                else if (direction === 'right') {
-                    attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
                 if (victim === hero) {
                     dealDamage(attacker.baseDamage,attacker);
                 }
@@ -122,14 +123,14 @@ function checkForAttack(direction,victim,attacker) {
                     }
                 }
             }
-        }
-        else {
-            if (victim === hero) {
-                hero.attacksEvaded++;
-                flashMessage(victim,'evaded!');
-            }
             else {
-                flashMessage(victim,'miss!');
+                if (victim === hero) {
+                    hero.attacksEvaded++;
+                    flashMessage(victim,'evaded!');
+                }
+                else {
+                    flashMessage(victim,'miss!');
+                }
             }
         }
     }

@@ -174,9 +174,9 @@ var bosses = [
         abilities: [
             {
                 ability: 'invisibility',
-                abilityDamge: 0.9,
+                abilityDamge: 0.8,
                 abilityDuration: 7000,
-                abilityChance: 70
+                abilityChance: 50
             },
             {
                 ability: 'projectile',

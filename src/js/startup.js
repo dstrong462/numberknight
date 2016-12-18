@@ -25,7 +25,7 @@
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161216,
+        version: 20161217,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -40,7 +40,7 @@ if (localStorage.getItem('options') === null) {
                 id: 'avatars-01',
                 type: 'avatars',
                 item: 'Elite Knights',
-                cost: 100,
+                cost: 300,
                 imagePath: 'img/avatars/',
                 images: ['roman-gold','roman-silver'],
                 owned: false
@@ -49,7 +49,7 @@ if (localStorage.getItem('options') === null) {
                 id: 'avatars-02',
                 type: 'avatars',
                 item: 'Wolf Rangers',
-                cost: 100,
+                cost: 150,
                 imagePath: 'img/avatars/',
                 images: ['wolf-grey','wolf-brown'],
                 owned: false

@@ -13,7 +13,7 @@ var correctMinThreshold = 25;
 var correctMaxThreshold = 60;
 
 // Customize variables for restoration
-var healthRestoreFromCapture = 1;
+var healthRestoreFromCapture = 2;
 var timeRestoreFromCapture = 3;
 var timeLostFromWrongAnswer = 0;
 var defaultTimer = 60;
@@ -24,7 +24,7 @@ var damageFromWrongAnswer = 20;
 var damageFromTraps = 15;
 // Playing with a keyboard is much easier, so if they use a keyboard, make enemies harder
 var keyboardPlayer = false;
-var keyboardDamageModifier = 1.5;
+var keyboardDamageModifier = 1.25;
 
 var chanceToSpawnTrap = 80;
 var backgrounds = 2;
@@ -97,7 +97,7 @@ var enemies = [];
 if (localStorage.getItem('options') === null) {
     // If not, then create a blank one
     options = {
-        version: 20161216,
+        version: 20161217,
         newgame: true,
         tutorial: true,
         endgame: false,
@@ -112,7 +112,7 @@ if (localStorage.getItem('options') === null) {
                 id: 'avatars-01',
                 type: 'avatars',
                 item: 'Elite Knights',
-                cost: 100,
+                cost: 300,
                 imagePath: 'img/avatars/',
                 images: ['roman-gold','roman-silver'],
                 owned: false
@@ -121,7 +121,7 @@ if (localStorage.getItem('options') === null) {
                 id: 'avatars-02',
                 type: 'avatars',
                 item: 'Wolf Rangers',
-                cost: 100,
+                cost: 150,
                 imagePath: 'img/avatars/',
                 images: ['wolf-grey','wolf-brown'],
                 owned: false
@@ -1007,7 +1007,7 @@ function addHero() {
         hero.canMove = true;
         hero.challengeMode = false;
         hero.cooldownTimer = 200;
-        hero.cooldownAttackTimer = 500;
+        hero.cooldownAttackTimer = 333;
         hero.dexterity = 1;
         hero.difficultyMath = document.querySelector('input[name="mathradio"]:checked').value;
         hero.difficultyMonster = document.querySelector('input[name="monsterradio"]:checked').value;
@@ -2308,9 +2308,9 @@ var bosses = [
         abilities: [
             {
                 ability: 'invisibility',
-                abilityDamge: 0.9,
+                abilityDamge: 0.8,
                 abilityDuration: 7000,
-                abilityChance: 70
+                abilityChance: 50
             },
             {
                 ability: 'projectile',
@@ -3852,47 +3852,48 @@ function checkForAttack(direction,victim,attacker) {
         }
     }
     if (victim.hasOwnProperty('health')) {
-        // Check if evasion stops attack
-        if (randomNumber(1,100) > victim.evasion) {
-            if (victim.health > 0) {
-                var victimContainer = document.getElementById(victim.id);
-                if (victim.hero) {
-                    victimContainer = player;
-                }
+        if (victim.health > 0) {
+            var victimContainer = document.getElementById(victim.id);
+            if (victim.hero) {
+                victimContainer = player;
+            }
+            // Move attacker for attack animation
+            var attackerContainer = document.getElementById(attacker.id);
+            var attackerTop = attacker.top;
+            var attackerLeft = attacker.left;
+            if (direction === 'up') {
+                var original = attackerContainer.style.zIndex;
+                attackerContainer.style.zIndex = 25;
+                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                    setTimeout(function() {
+                        attackerContainer.style.zIndex = original;
+                    }, 200);
+                }, 200);
+            }
+            else if (direction === 'down') {
+                attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+            else if (direction === 'left') {
+                attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+            else if (direction === 'right') {
+                attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
+                setTimeout(function() { 
+                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
+                }, 200);
+            }
+
+            // Check if evasion stops attack
+            if (randomNumber(1,100) > victim.evasion) {
                 flashHitImage(victim,victimContainer,direction);
-                // Move attacker for attack animation
-                var attackerContainer = document.getElementById(attacker.id);
-                var attackerTop = attacker.top;
-                var attackerLeft = attacker.left;
-                if (direction === 'up') {
-                    var original = attackerContainer.style.zIndex;
-                    attackerContainer.style.zIndex = 25;
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top - (cellSize / 2)) + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                        setTimeout(function() {
-                            attackerContainer.style.zIndex = original;
-                        }, 200);
-                    }, 200);
-                }
-                else if (direction === 'down') {
-                    attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + (attacker.top + (cellSize / 2)) + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
-                else if (direction === 'left') {
-                    attackerContainer.style.transform = 'translate(' + (attacker.left - (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
-                else if (direction === 'right') {
-                    attackerContainer.style.transform = 'translate(' + (attacker.left + (cellSize / 2)) + 'px, ' + attacker.top + 'px)';
-                    setTimeout(function() { 
-                        attackerContainer.style.transform = 'translate(' + attacker.left + 'px, ' + attackerTop + 'px)';
-                    }, 200);
-                }
                 if (victim === hero) {
                     dealDamage(attacker.baseDamage,attacker);
                 }
@@ -3944,14 +3945,14 @@ function checkForAttack(direction,victim,attacker) {
                     }
                 }
             }
-        }
-        else {
-            if (victim === hero) {
-                hero.attacksEvaded++;
-                flashMessage(victim,'evaded!');
-            }
             else {
-                flashMessage(victim,'miss!');
+                if (victim === hero) {
+                    hero.attacksEvaded++;
+                    flashMessage(victim,'evaded!');
+                }
+                else {
+                    flashMessage(victim,'miss!');
+                }
             }
         }
     }
