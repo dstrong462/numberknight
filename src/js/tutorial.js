@@ -91,30 +91,6 @@ function textBubble(msg,delay) {
     }, delay);
 }
 
-
-// Settings for tutorial
-var tutorialData = {
-    proceed: false,
-    tilesetOutside: 9,
-    tilesetInside: 6,
-    exitLocation: [numberOfRows - 1, 2],
-    numDebris: 2,
-    numColumns: 2,
-    numTraps: 2,
-    objectTheme: themes[1],
-    wallTileset: 5,
-    wallLocation: [[1,1],[1,numberOfColumns - 2]],
-    trapLocation: [[numberOfRows - 2,1],[numberOfRows - 2,numberOfColumns - 2]],
-    heroTop: cellSize * 3,
-    heroLeft: cellSize * 2,
-    heroRow: 4,
-    heroCol: 3,
-    heroLocation: 'r4c3',
-    gameMode: 'multiples',
-    target: 10,
-};
-
-
 // Run the tutorial level for new players
 function startTutorial() {
 

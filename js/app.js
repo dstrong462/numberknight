@@ -8,19 +8,14 @@ var newestVersion = 20161218;
             options = JSON.parse(retrievedOptions);
 
         if (options.version === newestVersion) {
-            console.log('you have the newest version');
+            
         }
         else if (options.version < 20161216) {
-            console.log('data wipe needed');
             dataWipe();
         }
         else if (options.version !== newestVersion) {
-            console.log('update needed');
             gameUpdates();
         }
-    }
-    else {
-        console.log('NO OPTIONS');
     }
 
     // Update game data with any new data
@@ -38,9 +33,6 @@ var newestVersion = 20161218;
 
             localStorage.setItem('savedGame', JSON.stringify(newHero));
         }
-        else {
-            console.log('NO SAVED GAME');
-        }
 
         options.version = newestVersion;
         localStorage.setItem('options', JSON.stringify(options));
@@ -49,11 +41,9 @@ var newestVersion = 20161218;
     // Wipe all data if needed
     function dataWipe() {
         if (localStorage.getItem('options') !== null) {
-            console.log('wiping options');
             localStorage.removeItem('options');
         }
         if (localStorage.getItem('savedGame') !== null) {
-            console.log('wiping savedGame');
             localStorage.removeItem('savedGame');
         }
     }
@@ -208,49 +198,81 @@ else {
         fallenHeroes = JSON.parse(retrievedList);
 }
 
-// Get display width
-var screenWidth = window.innerWidth
-|| document.documentElement.clientWidth
-|| document.body.clientWidth;
+// Prevent dimensions from being retrieved before the window has loaded
+var screenInterval = setInterval(function() {
+    if (document.readyState === "complete") {
+        clearInterval(screenInterval);
+        getDimensions();
+    }
+}, 500);
 
-// Max screen width for desktop viewing
-if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
+function getDimensions() {
+    // Get display width
+    screenWidth = window.innerWidth
+    || document.documentElement.clientWidth
+    || document.body.clientWidth;
 
-// Allow more columns for larger screen sizes
-if (screenWidth >= maxScreenWidth) {
-    numberOfColumns = maxColumns;
-}
+    // Max screen width for desktop viewing
+    if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
 
-// Get display height
-var screenHeight = window.innerHeight
-|| document.documentElement.clientHeight
-|| document.body.clientHeight;
+    // Allow more columns for larger screen sizes
+    if (screenWidth >= maxScreenWidth) {
+        numberOfColumns = maxColumns;
+    }
 
-screenWidth = screenWidth - (reservedSides * 2);
+    // Get display height
+    screenHeight = window.innerHeight
+    || document.documentElement.clientHeight
+    || document.body.clientHeight;
 
-var cellSize = Math.floor(screenWidth / numberOfColumns);
+    screenWidth = screenWidth - (reservedSides * 2);
 
-var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
-if (numberOfRows > maxRows) { numberOfRows = maxRows; }
-var totalCells = numberOfColumns * numberOfRows;
+    cellSize = Math.floor(screenWidth / numberOfColumns);
 
-// Resize UI to match grid size
-var cellFontSize = cellSize / 5 + 'px';
-var uiWidth = (numberOfColumns * cellSize) + 'px';
-var topBar = document.getElementById('top-bar');
+    numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
+    if (numberOfRows > maxRows) { numberOfRows = maxRows; }
+    totalCells = numberOfColumns * numberOfRows;
+
+    // Resize UI to match grid size
+    cellFontSize = cellSize / 5 + 'px';
+    uiWidth = (numberOfColumns * cellSize) + 'px';
+    topBar = document.getElementById('top-bar');
     topBar.style.width = uiWidth;
-var bottomBar = document.getElementById('bottom-bar');
+    bottomBar = document.getElementById('bottom-bar');
     bottomBar.style.width = uiWidth;
 
-var optionsPosition = 'closed';
-var levelContainer = document.getElementById('level-container');
+    optionsPosition = 'closed';
+    levelContainer = document.getElementById('level-container');
     levelContainer.style.width = numberOfColumns * cellSize + 'px';
-var heroContainer = document.getElementById('hero-container');
-var player = document.getElementById('hero');
+    heroContainer = document.getElementById('hero-container');
+    player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
-var healthBar = document.getElementById('health');
-var timeBar = document.getElementById('time');
-var xpBar = document.getElementById('xp');
+    healthBar = document.getElementById('health');
+    timeBar = document.getElementById('time');
+    xpBar = document.getElementById('xp');
+
+    // Settings for tutorial
+    tutorialData = {
+        proceed: false,
+        tilesetOutside: 9,
+        tilesetInside: 6,
+        exitLocation: [numberOfRows - 1, 2],
+        numDebris: 2,
+        numColumns: 2,
+        numTraps: 2,
+        objectTheme: themes[1],
+        wallTileset: 5,
+        wallLocation: [[1,1],[1,numberOfColumns - 2]],
+        trapLocation: [[numberOfRows - 2,1],[numberOfRows - 2,numberOfColumns - 2]],
+        heroTop: cellSize * 3,
+        heroLeft: cellSize * 2,
+        heroRow: 4,
+        heroCol: 3,
+        heroLocation: 'r4c3',
+        gameMode: 'multiples',
+        target: 10,
+    };
+}
 /////////////// MENUS ///////////////
 
 var avatarSelection = 'hero';
@@ -376,6 +398,7 @@ function titleScreen() {
     // When ready to play, get the play name and selected difficulties
     var playButton = document.getElementById('btn-play');
         playButton.addEventListener('click', function(e) {
+            e.preventDefault();
             delete hero;
             hero = {};
             hero.name = document.getElementById('name-input').value;
@@ -2193,7 +2216,7 @@ function checkMath() {
         setTimeout(function() {
             flash.remove();
         }, 600);
-        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
+        // Add cooldown for capturing to avoid accidentally trying to capture tile too quickly after slaying an enemy
         hero.canCapture = false;
         setTimeout(function() {
             hero.canCapture = true;
@@ -3918,11 +3941,6 @@ function checkForAttack(direction,victim,attacker) {
         else {
             cooldown(hero,hero.cooldownTimer);
         }
-        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
-        hero.canCapture = false;
-        setTimeout(function() {
-            hero.canCapture = true;
-        }, hero.cooldownCaptureTimer);
     }
     if (victim.hasOwnProperty('health')) {
         if (victim.health > 0) {
@@ -4007,6 +4025,11 @@ function checkForAttack(direction,victim,attacker) {
                             }
                         }
                         else {
+                            // Add cooldown for capturing to avoid accidentally trying to capture tile too quickly after slaying an enemy
+                            hero.canCapture = false;
+                            setTimeout(function() {
+                                hero.canCapture = true;
+                            }, hero.cooldownCaptureTimer);
                             map[victim.row - 1][victim.col - 1].enemy.splice(0,1);
                             var enemyIndex = enemies.map(function(e) { return e.id; }).indexOf(victim.id);
                             enemies.splice(enemyIndex,1);
@@ -4214,30 +4237,6 @@ function textBubble(msg,delay) {
         overlay.style.animation = 'fade-out 1s 1 forwards';
     }, delay);
 }
-
-
-// Settings for tutorial
-var tutorialData = {
-    proceed: false,
-    tilesetOutside: 9,
-    tilesetInside: 6,
-    exitLocation: [numberOfRows - 1, 2],
-    numDebris: 2,
-    numColumns: 2,
-    numTraps: 2,
-    objectTheme: themes[1],
-    wallTileset: 5,
-    wallLocation: [[1,1],[1,numberOfColumns - 2]],
-    trapLocation: [[numberOfRows - 2,1],[numberOfRows - 2,numberOfColumns - 2]],
-    heroTop: cellSize * 3,
-    heroLeft: cellSize * 2,
-    heroRow: 4,
-    heroCol: 3,
-    heroLocation: 'r4c3',
-    gameMode: 'multiples',
-    target: 10,
-};
-
 
 // Run the tutorial level for new players
 function startTutorial() {

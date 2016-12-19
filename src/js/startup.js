@@ -75,46 +75,78 @@ else {
         fallenHeroes = JSON.parse(retrievedList);
 }
 
-// Get display width
-var screenWidth = window.innerWidth
-|| document.documentElement.clientWidth
-|| document.body.clientWidth;
+// Prevent dimensions from being retrieved before the window has loaded
+var screenInterval = setInterval(function() {
+    if (document.readyState === "complete") {
+        clearInterval(screenInterval);
+        getDimensions();
+    }
+}, 500);
 
-// Max screen width for desktop viewing
-if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
+function getDimensions() {
+    // Get display width
+    screenWidth = window.innerWidth
+    || document.documentElement.clientWidth
+    || document.body.clientWidth;
 
-// Allow more columns for larger screen sizes
-if (screenWidth >= maxScreenWidth) {
-    numberOfColumns = maxColumns;
-}
+    // Max screen width for desktop viewing
+    if (screenWidth > maxScreenWidth) { screenWidth = maxScreenWidth; }
 
-// Get display height
-var screenHeight = window.innerHeight
-|| document.documentElement.clientHeight
-|| document.body.clientHeight;
+    // Allow more columns for larger screen sizes
+    if (screenWidth >= maxScreenWidth) {
+        numberOfColumns = maxColumns;
+    }
 
-screenWidth = screenWidth - (reservedSides * 2);
+    // Get display height
+    screenHeight = window.innerHeight
+    || document.documentElement.clientHeight
+    || document.body.clientHeight;
 
-var cellSize = Math.floor(screenWidth / numberOfColumns);
+    screenWidth = screenWidth - (reservedSides * 2);
 
-var numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
-if (numberOfRows > maxRows) { numberOfRows = maxRows; }
-var totalCells = numberOfColumns * numberOfRows;
+    cellSize = Math.floor(screenWidth / numberOfColumns);
 
-// Resize UI to match grid size
-var cellFontSize = cellSize / 5 + 'px';
-var uiWidth = (numberOfColumns * cellSize) + 'px';
-var topBar = document.getElementById('top-bar');
+    numberOfRows = Math.floor((screenHeight - reservedSpace) / cellSize);
+    if (numberOfRows > maxRows) { numberOfRows = maxRows; }
+    totalCells = numberOfColumns * numberOfRows;
+
+    // Resize UI to match grid size
+    cellFontSize = cellSize / 5 + 'px';
+    uiWidth = (numberOfColumns * cellSize) + 'px';
+    topBar = document.getElementById('top-bar');
     topBar.style.width = uiWidth;
-var bottomBar = document.getElementById('bottom-bar');
+    bottomBar = document.getElementById('bottom-bar');
     bottomBar.style.width = uiWidth;
 
-var optionsPosition = 'closed';
-var levelContainer = document.getElementById('level-container');
+    optionsPosition = 'closed';
+    levelContainer = document.getElementById('level-container');
     levelContainer.style.width = numberOfColumns * cellSize + 'px';
-var heroContainer = document.getElementById('hero-container');
-var player = document.getElementById('hero');
+    heroContainer = document.getElementById('hero-container');
+    player = document.getElementById('hero');
     player.addEventListener('click', checkMath);
-var healthBar = document.getElementById('health');
-var timeBar = document.getElementById('time');
-var xpBar = document.getElementById('xp');
+    healthBar = document.getElementById('health');
+    timeBar = document.getElementById('time');
+    xpBar = document.getElementById('xp');
+
+    // Settings for tutorial
+    tutorialData = {
+        proceed: false,
+        tilesetOutside: 9,
+        tilesetInside: 6,
+        exitLocation: [numberOfRows - 1, 2],
+        numDebris: 2,
+        numColumns: 2,
+        numTraps: 2,
+        objectTheme: themes[1],
+        wallTileset: 5,
+        wallLocation: [[1,1],[1,numberOfColumns - 2]],
+        trapLocation: [[numberOfRows - 2,1],[numberOfRows - 2,numberOfColumns - 2]],
+        heroTop: cellSize * 3,
+        heroLeft: cellSize * 2,
+        heroRow: 4,
+        heroCol: 3,
+        heroLocation: 'r4c3',
+        gameMode: 'multiples',
+        target: 10,
+    };
+}

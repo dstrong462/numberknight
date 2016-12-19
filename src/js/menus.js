@@ -123,6 +123,7 @@ function titleScreen() {
     // When ready to play, get the play name and selected difficulties
     var playButton = document.getElementById('btn-play');
         playButton.addEventListener('click', function(e) {
+            e.preventDefault();
             delete hero;
             hero = {};
             hero.name = document.getElementById('name-input').value;

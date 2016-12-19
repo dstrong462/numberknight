@@ -8,14 +8,12 @@ var newestVersion = 20161218;
             options = JSON.parse(retrievedOptions);
 
         if (options.version === newestVersion) {
-            console.log('you have the newest version');
+            
         }
         else if (options.version < 20161216) {
-            console.log('data wipe needed');
             dataWipe();
         }
         else if (options.version !== newestVersion) {
-            console.log('update needed');
             gameUpdates();
         }
     }

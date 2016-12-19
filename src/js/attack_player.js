@@ -28,11 +28,6 @@ function checkForAttack(direction,victim,attacker) {
         else {
             cooldown(hero,hero.cooldownTimer);
         }
-        // Add cooldown for capturing to avoid accidentally trying to capture tile after slaying an enemy
-        hero.canCapture = false;
-        setTimeout(function() {
-            hero.canCapture = true;
-        }, hero.cooldownCaptureTimer);
     }
     if (victim.hasOwnProperty('health')) {
         if (victim.health > 0) {
@@ -117,6 +112,11 @@ function checkForAttack(direction,victim,attacker) {
                             }
                         }
                         else {
+                            // Add cooldown for capturing to avoid accidentally trying to capture tile too quickly after slaying an enemy
+                            hero.canCapture = false;
+                            setTimeout(function() {
+                                hero.canCapture = true;
+                            }, hero.cooldownCaptureTimer);
                             map[victim.row - 1][victim.col - 1].enemy.splice(0,1);
                             var enemyIndex = enemies.map(function(e) { return e.id; }).indexOf(victim.id);
                             enemies.splice(enemyIndex,1);
