@@ -52,27 +52,31 @@ function fadeOut() {
 
 // Fade back in
 function fadeIn() {
-    var fade = document.getElementById('fade-to-black');
-        fade.style.animation = 'fade-in 1s 1 forwards';
-    var save = document.getElementById('warning');
-        save.src = 'img/gui/save.svg';
-        save.style.animation = 'saving 3s 1s 1';
     setTimeout(function() {
-        fade.style.display = 'none';
-        healthBar.style.transition = '.5s';
-        xpBar.style.transition = '.5s';
-    }, 950);
-    // Splash level text if necessary
-    if (hero.bossLevel) {
-        var levelSplash = document.getElementById('level-splash');
-            levelSplash.style.opacity = '0';
-            levelSplash.style.display = 'flex';
-            levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
-            levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
+        var fade = document.getElementById('fade-to-black');
+            fade.style.animation = 'fade-in 1s 1 forwards';
+        var save = document.getElementById('warning');
+            save.src = 'img/gui/save.svg';
+            save.style.animation = 'saving 3s 2s 1';
         setTimeout(function() {
-            levelSplash.style.display = 'none';
-        }, 3500);
-    }
+            fade.style.display = 'none';
+            healthBar.style.transition = '.5s';
+            xpBar.style.transition = '.5s';
+        }, 950);
+        // Splash level text if necessary
+        if (hero.bossLevel) {
+            var levelSplash = document.createElement('div');
+                levelSplash.id = 'level-splash';
+                levelSplash.style.opacity = '0';
+                levelSplash.style.display = 'flex';
+                levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
+                document.body.appendChild(levelSplash);
+                levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
+            setTimeout(function() {
+                levelSplash.remove();
+            }, 3500);
+        }
+    }, 250);
 }
 
 
@@ -113,14 +117,22 @@ function buildMap(callback) {
     }
     // Place exit in random cell
     var cell = randomCell();
-    if (options.tutorial && options.newgame) {
-        cell = tutorialData.exitLocation;
-    }
-    map[cell[0]][cell[1]].tile = 'exit';
-    map[cell[0]][cell[1]].contents = 'exit';
-    exit = map[cell[0]][cell[1]];
+    var cellInterval = setInterval(function() {
+        if (cell !== undefined && cell !== null) {
+            clearInterval(cellInterval);
+            if (options.tutorial && options.newgame) {
+                cell = tutorialData.exitLocation;
+            }
+            map[cell[0]][cell[1]].tile = 'exit';
+            map[cell[0]][cell[1]].contents = 'exit';
+            exit = map[cell[0]][cell[1]];
 
-    callback();
+            callback();
+        }
+        else {
+            console.log('GOTCHA!');
+        }
+    }, 100);
 }
 
 

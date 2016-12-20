@@ -29,8 +29,8 @@ function textBubble(msg,delay) {
     hero.canMove = false;
     tutorialData.proceed = false;
     setTimeout(function() {
-        var overlay = document.getElementById('level-splash');
-            overlay.innerHTML = '';
+        var overlay = document.createElement('div');
+            overlay.id = 'level-splash';
             overlay.style.opacity = '0';
             overlay.style.display = 'flex';
         var bubble = document.createElement('div');
@@ -67,6 +67,10 @@ function textBubble(msg,delay) {
             }
         }
 
+        overlay.appendChild(bubble);
+        document.body.appendChild(overlay);
+        overlay.style.animation = 'fade-out 1s 1 forwards';
+
         // Close message after clicking on it
         setTimeout(function() {
             overlay.addEventListener('click', function() {
@@ -75,7 +79,7 @@ function textBubble(msg,delay) {
                     tutorialData.proceed = true;
                     hero.canMove = true;
                     hero.pause = false;
-                    overlay.style.display = 'none';
+                    overlay.remove();
                     if (Array.isArray(msg) && multipart < msg.length) {
                         textBubble(msg,delay);
                     }
@@ -84,10 +88,7 @@ function textBubble(msg,delay) {
                     }
                 }, 1000);
             });
-        }, 1000);
-
-        overlay.appendChild(bubble);
-        overlay.style.animation = 'fade-out 1s 1 forwards';
+        }, 1500);
     }, delay);
 }
 

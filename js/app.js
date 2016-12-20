@@ -997,27 +997,31 @@ function fadeOut() {
 
 // Fade back in
 function fadeIn() {
-    var fade = document.getElementById('fade-to-black');
-        fade.style.animation = 'fade-in 1s 1 forwards';
-    var save = document.getElementById('warning');
-        save.src = 'img/gui/save.svg';
-        save.style.animation = 'saving 3s 1s 1';
     setTimeout(function() {
-        fade.style.display = 'none';
-        healthBar.style.transition = '.5s';
-        xpBar.style.transition = '.5s';
-    }, 950);
-    // Splash level text if necessary
-    if (hero.bossLevel) {
-        var levelSplash = document.getElementById('level-splash');
-            levelSplash.style.opacity = '0';
-            levelSplash.style.display = 'flex';
-            levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
-            levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
+        var fade = document.getElementById('fade-to-black');
+            fade.style.animation = 'fade-in 1s 1 forwards';
+        var save = document.getElementById('warning');
+            save.src = 'img/gui/save.svg';
+            save.style.animation = 'saving 3s 2s 1';
         setTimeout(function() {
-            levelSplash.style.display = 'none';
-        }, 3500);
-    }
+            fade.style.display = 'none';
+            healthBar.style.transition = '.5s';
+            xpBar.style.transition = '.5s';
+        }, 950);
+        // Splash level text if necessary
+        if (hero.bossLevel) {
+            var levelSplash = document.createElement('div');
+                levelSplash.id = 'level-splash';
+                levelSplash.style.opacity = '0';
+                levelSplash.style.display = 'flex';
+                levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
+                document.body.appendChild(levelSplash);
+                levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
+            setTimeout(function() {
+                levelSplash.remove();
+            }, 3500);
+        }
+    }, 250);
 }
 
 
@@ -1058,14 +1062,22 @@ function buildMap(callback) {
     }
     // Place exit in random cell
     var cell = randomCell();
-    if (options.tutorial && options.newgame) {
-        cell = tutorialData.exitLocation;
-    }
-    map[cell[0]][cell[1]].tile = 'exit';
-    map[cell[0]][cell[1]].contents = 'exit';
-    exit = map[cell[0]][cell[1]];
+    var cellInterval = setInterval(function() {
+        if (cell !== undefined && cell !== null) {
+            clearInterval(cellInterval);
+            if (options.tutorial && options.newgame) {
+                cell = tutorialData.exitLocation;
+            }
+            map[cell[0]][cell[1]].tile = 'exit';
+            map[cell[0]][cell[1]].contents = 'exit';
+            exit = map[cell[0]][cell[1]];
 
-    callback();
+            callback();
+        }
+        else {
+            console.log('GOTCHA!');
+        }
+    }, 100);
 }
 
 
@@ -2610,12 +2622,17 @@ function spawnEnemy() {
     var spawnLevel = hero.gameLevel;
     var spawnInterval = randomNumber(1000,3000);
     var interval = setInterval(function() {
-        if (map === null || map.length === 0 || hero.bossIsDead || spawnLevel !== hero.gameLevel) {
+        if (spawnLevel !== hero.gameLevel || hero === null || map === null || map.length === 0 || hero.bossIsDead) {
             clearInterval(interval);
         }
         else if (totalWeight < maxWeight && numberOfEnemies < maxEnemies) {
             var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
-            getEnemy(spawn.row,spawn.col);
+            if (spawn === undefined) {
+                clearInterval(interval);
+            }
+            else {
+                getEnemy(spawn.row,spawn.col);
+            }
         }
         else if (numberOfEnemies >= maxEnemies) {
             clearInterval(interval);
@@ -3497,6 +3514,9 @@ function fastTravel(e) {
     if (hero.fastTravel) {
         hero.fastTravel = false;
     }
+    else if (!hero.canMove) {
+        
+    }
     else {
         var mapCell;
         for (var r = 0; r < numberOfRows; r++) {
@@ -4176,8 +4196,8 @@ function textBubble(msg,delay) {
     hero.canMove = false;
     tutorialData.proceed = false;
     setTimeout(function() {
-        var overlay = document.getElementById('level-splash');
-            overlay.innerHTML = '';
+        var overlay = document.createElement('div');
+            overlay.id = 'level-splash';
             overlay.style.opacity = '0';
             overlay.style.display = 'flex';
         var bubble = document.createElement('div');
@@ -4214,6 +4234,10 @@ function textBubble(msg,delay) {
             }
         }
 
+        overlay.appendChild(bubble);
+        document.body.appendChild(overlay);
+        overlay.style.animation = 'fade-out 1s 1 forwards';
+
         // Close message after clicking on it
         setTimeout(function() {
             overlay.addEventListener('click', function() {
@@ -4222,7 +4246,7 @@ function textBubble(msg,delay) {
                     tutorialData.proceed = true;
                     hero.canMove = true;
                     hero.pause = false;
-                    overlay.style.display = 'none';
+                    overlay.remove();
                     if (Array.isArray(msg) && multipart < msg.length) {
                         textBubble(msg,delay);
                     }
@@ -4231,10 +4255,7 @@ function textBubble(msg,delay) {
                     }
                 }, 1000);
             });
-        }, 1000);
-
-        overlay.appendChild(bubble);
-        overlay.style.animation = 'fade-out 1s 1 forwards';
+        }, 1500);
     }, delay);
 }
 
@@ -4942,7 +4963,7 @@ loadingStage.innerHTML = '';
 // You filthy cheater
 function cheat() {
     hero.answers = hero.answersNeeded - 1;
-    hero.gameLevel = 5;
-    options.gold += 350;
+    // hero.gameLevel = 5;
+    // options.gold += 350;
 }
 //# sourceMappingURL=app.js.map

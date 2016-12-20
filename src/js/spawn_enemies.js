@@ -107,12 +107,17 @@ function spawnEnemy() {
     var spawnLevel = hero.gameLevel;
     var spawnInterval = randomNumber(1000,3000);
     var interval = setInterval(function() {
-        if (map === null || map.length === 0 || hero.bossIsDead || spawnLevel !== hero.gameLevel) {
+        if (spawnLevel !== hero.gameLevel || hero === null || map === null || map.length === 0 || hero.bossIsDead) {
             clearInterval(interval);
         }
         else if (totalWeight < maxWeight && numberOfEnemies < maxEnemies) {
             var spawn = spawnArray[randomNumber(0,spawnArray.length - 1)];
-            getEnemy(spawn.row,spawn.col);
+            if (spawn === undefined) {
+                clearInterval(interval);
+            }
+            else {
+                getEnemy(spawn.row,spawn.col);
+            }
         }
         else if (numberOfEnemies >= maxEnemies) {
             clearInterval(interval);

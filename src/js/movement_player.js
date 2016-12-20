@@ -84,6 +84,9 @@ function fastTravel(e) {
     if (hero.fastTravel) {
         hero.fastTravel = false;
     }
+    else if (!hero.canMove) {
+        
+    }
     else {
         var mapCell;
         for (var r = 0; r < numberOfRows; r++) {
