@@ -43,20 +43,45 @@ function addMath() {
 
     // Traditional Game Modes
     if (mode === 'multiples') {
-        multiples(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            multiples(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('MULTIPLES error');
+        }
     }
     else if (mode === 'factors') {
-        factors(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            factors(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('FACTORS error');
+        }
     }
     else if (mode === 'primes') {
-        primes(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            primes(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('PRIMES error');
+        }
     }
     else if (mode === 'equality') {
-        equality(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            equality(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('EQUALITY error');
+        }
     }
     // Challenge Modes
     else if (mode === 'ascending' || mode === 'descending') {
-        ascendingDescending(total,displayMath);
+        try {
+            ascendingDescending(total,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('ASCENDING / DESCENDING error');
+        }
     }
 }
 
@@ -130,7 +155,12 @@ function multiples(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -193,7 +223,12 @@ function factors(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -243,7 +278,12 @@ function primes(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -420,7 +460,12 @@ function equality(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Equals ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 // Generate list of ascending or descending random values
@@ -469,7 +514,12 @@ function ascendingDescending(total,callback) {
     hero.answersNeeded = total;
     document.getElementById('game-mode').innerHTML = modeText;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -505,6 +555,7 @@ function displayMath(finalArray,callback) {
                 map[r][c].answer = finalArray[i].answer;
                 var cell = document.getElementById(map[r][c].location);
                 var equation = document.createElement('p');
+                    equation.classList.add('equation');
                     equation.style.fontSize = cellFontSize;
                 if (options.tutorial && options.newgame) {
                     equation.style.opacity = '0';
@@ -534,18 +585,18 @@ function displayMath(finalArray,callback) {
 // Slide open exit cover
 function openExitCover() {
     if (hero.answers >= hero.answersNeeded && options.tutorial === false) {
-        var exitAnswer = document.querySelector('#' + levelExit.id + ' p');
+        var exitAnswer = document.querySelector('#' + levelExit.id + ' .equation');
         if (exitAnswer !== null) {
             exitAnswer.style.opacity = '0';
         }
         setTimeout(function() {
-            var exitCover = document.querySelector('#' + levelExit.id + ' img');
+            var exitCover = document.getElementById('exit-cover');
                 exitCover.style.transition = '2.25s ease-in-out';
                 exitCover.style.transform = 'translateY(-100%)';
             document.getElementById('game-mode').innerHTML = 'Level Complete!';
         }, 1500);
         // Fade out all incorrect answers
-        var maths = document.querySelectorAll('.cell p');
+        var maths = document.querySelectorAll('.equation');
         for (var i = 0; i < maths.length; i++) {
             maths[i].style.opacity = '0';
             hero.canCapture = false;
@@ -556,6 +607,9 @@ function openExitCover() {
 
 // When activating a square check if answer is correct
 function checkMath() {
+    if (hero.answers >= hero.answersNeeded) {
+        hero.canCapture = false;
+    }
     var correct = false;
     // Get the hero location so you can check the appropriate map data
     var munchLocation = map[hero.row - 1][hero.col - 1];
@@ -622,10 +676,7 @@ function checkMath() {
         }, 600);
         
     }
-    else if (!munchLocation.hasOwnProperty("answer")) {
-
-    }
-    else {
+    else if (!correct) {
         if (hero.gameMode === 'multiples') {
             hero.multiplesWrong++;
         }

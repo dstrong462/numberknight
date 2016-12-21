@@ -1,4 +1,4 @@
-var newestVersion = 20161218;
+var newestVersion = 20161220;
 
 // Check version number and allow adding in new data or wiping stats as needed
 (function updateGameData() {
@@ -13,9 +13,10 @@ var newestVersion = 20161218;
         else if (options.version < 20161216) {
             dataWipe();
         }
-        else if (options.version !== newestVersion) {
-            gameUpdates();
+        else if (options.version < 20161220) {
+            saveWipe();
         }
+        gameUpdates();
     }
 
     // Update game data with any new data
@@ -46,6 +47,13 @@ var newestVersion = 20161218;
         if (localStorage.getItem('savedGame') !== null) {
             localStorage.removeItem('savedGame');
         }
+    }
+    // Wipe saved game if needed
+    function saveWipe() {
+        if (localStorage.getItem('savedGame') !== null) {
+            localStorage.removeItem('savedGame');
+        }
+        alert('Sorry, but due to code changes saved games will need to be wiped for this update.');
     }
 
 }());

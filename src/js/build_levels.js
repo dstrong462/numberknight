@@ -39,7 +39,11 @@ function resetAll(callback) {
     var gameOver = document.getElementById('game-over');
         gameOver.style.display = 'none';
         gameOver.style.opacity = '0';
-    callback(addHero);
+    try {
+        callback(addHero);
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -127,7 +131,11 @@ function buildMap(callback) {
             map[cell[0]][cell[1]].contents = 'exit';
             exit = map[cell[0]][cell[1]];
 
-            callback();
+            try {
+                callback();
+            } catch(e) {
+                alert(e);
+            }
         }
         else {
             console.log('GOTCHA!');
@@ -139,7 +147,17 @@ function buildMap(callback) {
 // Place the hero on the map in a set position
 function addHero() {
     if (hero.health) {
-
+        // If continuing, make sure hero is placed correctly in case screen size changed
+        if (hero.row > numberOfRows || hero.col || numberOfColumns) {
+            hero.row = 1;
+            hero.col = 1;
+            hero.top = 0;
+            hero.left = 0;
+        }
+        else {
+            hero.top = (hero.row - 1) * cellSize;
+            hero.left = (hero.col - 1) * cellSize;
+        }
     }
     // If new game build new hero
     else {
@@ -262,7 +280,11 @@ function addHero() {
         hero.knights[i].rescueText = shuffledRescueText[i];
     }
 
-    getObjectLocations();
+    try {
+        getObjectLocations();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -308,7 +330,11 @@ function getObjectLocations() {
             locationArray.push(cell);
             fullArray.splice(index,1);
     }
-    randomizeDebris();
+    try {
+        randomizeDebris();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -359,7 +385,11 @@ function randomizeDebris() {
         locationArray.shift();
     }
 
-    randomizeColumns();
+    try {
+        randomizeColumns();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -398,7 +428,11 @@ function randomizeColumns() {
         locationArray.shift();
     }
 
-    randomizeTraps();
+    try {
+        randomizeTraps();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -443,7 +477,11 @@ function randomizeTraps() {
         }
     }
 
-    buildGrid();
+    try {
+        buildGrid();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 // Build grid one row at a time
@@ -469,6 +507,7 @@ function buildGrid() {
     levelExit.style.backgroundImage = 'url("img/exit.gif")'
     levelExit.style.overflow = 'hidden';
     var cover = document.createElement('img');
+        cover.id = 'exit-cover';
         cover.src = exitTileset;
         cover.style.width = '100%';
         cover.style.height = '100%';
@@ -482,7 +521,11 @@ function buildGrid() {
         theEnd();
     }
     else {
-        addMath();
+        try {
+            addMath();
+        } catch(e) {
+            alert(e);
+        }
     }
 }
 

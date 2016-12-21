@@ -499,4 +499,5 @@ function moveHero(move) {
             }
         }
     }
+    debugHero();
 }

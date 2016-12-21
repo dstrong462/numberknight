@@ -173,9 +173,9 @@ function dealDamage(amount,source) {
     }
     amount *= hero.armorRating;
     hero.health -= amount;
+    var location = map[hero.row -1][hero.col - 1];
     if (hero.health <= 0) {
         // Determine the cause of death
-        var location = map[hero.row -1][hero.col - 1];
         // If it was a trap
         if (source === 'trap') {
             if (location.object === 'spikes') {
@@ -231,4 +231,5 @@ function dealDamage(amount,source) {
     else {
         healthBar.style.width = hero.health + '%';
     }
+    debugDamage(amount,source,location);
 }

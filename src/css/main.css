@@ -1334,3 +1334,56 @@ img.knight {
         font-size: 1em;
     }
 }
+
+
+/* DEBUGGING
+================================== */
+
+#debug {
+  display: none;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 768px;
+  height: 100vh;
+  color: #262626;
+  font-family: 'Arial', sans-serif;
+  font-size: .9em;
+  background: rgba(255,255,255,0.8);
+  overflow-y: auto;
+  padding: 25px;
+  padding-bottom: 50px;
+  z-index: 10000000;
+}
+
+#debug p {
+  line-height: 1.05em;
+  margin-bottom: 0;
+}
+
+#debug p:last-child {
+    padding-bottom: 75px;
+}
+
+#btn-debug {
+  cursor: pointer;
+  position: fixed;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: green;
+  border-radius: 6px;
+  padding: 3px 9px;
+  z-index: 20000000;
+}
+
+#debug-hero {
+  border-bottom: 2px solid #555;
+  margin-bottom: 25px;
+}

@@ -1,4 +1,4 @@
-var newestVersion = 20161218;
+var newestVersion = 20161220;
 
 // Check version number and allow adding in new data or wiping stats as needed
 (function updateGameData() {
@@ -13,9 +13,10 @@ var newestVersion = 20161218;
         else if (options.version < 20161216) {
             dataWipe();
         }
-        else if (options.version !== newestVersion) {
-            gameUpdates();
+        else if (options.version < 20161220) {
+            saveWipe();
         }
+        gameUpdates();
     }
 
     // Update game data with any new data
@@ -46,6 +47,13 @@ var newestVersion = 20161218;
         if (localStorage.getItem('savedGame') !== null) {
             localStorage.removeItem('savedGame');
         }
+    }
+    // Wipe saved game if needed
+    function saveWipe() {
+        if (localStorage.getItem('savedGame') !== null) {
+            localStorage.removeItem('savedGame');
+        }
+        alert('Sorry, but due to code changes saved games will need to be wiped for this update.');
     }
 
 }());
@@ -984,7 +992,11 @@ function resetAll(callback) {
     var gameOver = document.getElementById('game-over');
         gameOver.style.display = 'none';
         gameOver.style.opacity = '0';
-    callback(addHero);
+    try {
+        callback(addHero);
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -1072,7 +1084,11 @@ function buildMap(callback) {
             map[cell[0]][cell[1]].contents = 'exit';
             exit = map[cell[0]][cell[1]];
 
-            callback();
+            try {
+                callback();
+            } catch(e) {
+                alert(e);
+            }
         }
         else {
             console.log('GOTCHA!');
@@ -1084,7 +1100,17 @@ function buildMap(callback) {
 // Place the hero on the map in a set position
 function addHero() {
     if (hero.health) {
-
+        // If continuing, make sure hero is placed correctly in case screen size changed
+        if (hero.row > numberOfRows || hero.col || numberOfColumns) {
+            hero.row = 1;
+            hero.col = 1;
+            hero.top = 0;
+            hero.left = 0;
+        }
+        else {
+            hero.top = (hero.row - 1) * cellSize;
+            hero.left = (hero.col - 1) * cellSize;
+        }
     }
     // If new game build new hero
     else {
@@ -1207,7 +1233,11 @@ function addHero() {
         hero.knights[i].rescueText = shuffledRescueText[i];
     }
 
-    getObjectLocations();
+    try {
+        getObjectLocations();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -1253,7 +1283,11 @@ function getObjectLocations() {
             locationArray.push(cell);
             fullArray.splice(index,1);
     }
-    randomizeDebris();
+    try {
+        randomizeDebris();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -1304,7 +1338,11 @@ function randomizeDebris() {
         locationArray.shift();
     }
 
-    randomizeColumns();
+    try {
+        randomizeColumns();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -1343,7 +1381,11 @@ function randomizeColumns() {
         locationArray.shift();
     }
 
-    randomizeTraps();
+    try {
+        randomizeTraps();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 
@@ -1388,7 +1430,11 @@ function randomizeTraps() {
         }
     }
 
-    buildGrid();
+    try {
+        buildGrid();
+    } catch(e) {
+        alert(e);
+    }
 }
 
 // Build grid one row at a time
@@ -1414,6 +1460,7 @@ function buildGrid() {
     levelExit.style.backgroundImage = 'url("img/exit.gif")'
     levelExit.style.overflow = 'hidden';
     var cover = document.createElement('img');
+        cover.id = 'exit-cover';
         cover.src = exitTileset;
         cover.style.width = '100%';
         cover.style.height = '100%';
@@ -1427,7 +1474,11 @@ function buildGrid() {
         theEnd();
     }
     else {
-        addMath();
+        try {
+            addMath();
+        } catch(e) {
+            alert(e);
+        }
     }
 }
 
@@ -1623,20 +1674,45 @@ function addMath() {
 
     // Traditional Game Modes
     if (mode === 'multiples') {
-        multiples(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            multiples(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('MULTIPLES error');
+        }
     }
     else if (mode === 'factors') {
-        factors(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            factors(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('FACTORS error');
+        }
     }
     else if (mode === 'primes') {
-        primes(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            primes(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('PRIMES error');
+        }
     }
     else if (mode === 'equality') {
-        equality(total,correctNeeded,incorrectNeeded,displayMath);
+        try {
+            equality(total,correctNeeded,incorrectNeeded,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('EQUALITY error');
+        }
     }
     // Challenge Modes
     else if (mode === 'ascending' || mode === 'descending') {
-        ascendingDescending(total,displayMath);
+        try {
+            ascendingDescending(total,displayMath);
+        } catch(e) {
+            alert(e);
+            alert('ASCENDING / DESCENDING error');
+        }
     }
 }
 
@@ -1710,7 +1786,12 @@ function multiples(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -1773,7 +1854,12 @@ function factors(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -1823,7 +1909,12 @@ function primes(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Prime Numbers';
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -2000,7 +2091,12 @@ function equality(total,correct,incorrect,callback) {
     finalArray = shuffle(finalArray);
     document.getElementById('game-mode').innerHTML = 'Equals ' + target;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 // Generate list of ascending or descending random values
@@ -2049,7 +2145,12 @@ function ascendingDescending(total,callback) {
     hero.answersNeeded = total;
     document.getElementById('game-mode').innerHTML = modeText;
     // Send to the display function
-    callback(finalArray,fadeIn);
+    try {
+        callback(finalArray,fadeIn);
+    } catch(e) {
+        alert(e);
+        alert('displayMath error');
+    }
 }
 
 
@@ -2085,6 +2186,7 @@ function displayMath(finalArray,callback) {
                 map[r][c].answer = finalArray[i].answer;
                 var cell = document.getElementById(map[r][c].location);
                 var equation = document.createElement('p');
+                    equation.classList.add('equation');
                     equation.style.fontSize = cellFontSize;
                 if (options.tutorial && options.newgame) {
                     equation.style.opacity = '0';
@@ -2114,18 +2216,18 @@ function displayMath(finalArray,callback) {
 // Slide open exit cover
 function openExitCover() {
     if (hero.answers >= hero.answersNeeded && options.tutorial === false) {
-        var exitAnswer = document.querySelector('#' + levelExit.id + ' p');
+        var exitAnswer = document.querySelector('#' + levelExit.id + ' .equation');
         if (exitAnswer !== null) {
             exitAnswer.style.opacity = '0';
         }
         setTimeout(function() {
-            var exitCover = document.querySelector('#' + levelExit.id + ' img');
+            var exitCover = document.getElementById('exit-cover');
                 exitCover.style.transition = '2.25s ease-in-out';
                 exitCover.style.transform = 'translateY(-100%)';
             document.getElementById('game-mode').innerHTML = 'Level Complete!';
         }, 1500);
         // Fade out all incorrect answers
-        var maths = document.querySelectorAll('.cell p');
+        var maths = document.querySelectorAll('.equation');
         for (var i = 0; i < maths.length; i++) {
             maths[i].style.opacity = '0';
             hero.canCapture = false;
@@ -2136,6 +2238,9 @@ function openExitCover() {
 
 // When activating a square check if answer is correct
 function checkMath() {
+    if (hero.answers >= hero.answersNeeded) {
+        hero.canCapture = false;
+    }
     var correct = false;
     // Get the hero location so you can check the appropriate map data
     var munchLocation = map[hero.row - 1][hero.col - 1];
@@ -2202,10 +2307,7 @@ function checkMath() {
         }, 600);
         
     }
-    else if (!munchLocation.hasOwnProperty("answer")) {
-
-    }
-    else {
+    else if (!correct) {
         if (hero.gameMode === 'multiples') {
             hero.multiplesWrong++;
         }
@@ -3051,7 +3153,7 @@ function enemyProjectile(enemy,enemyContainer) {
     var object = document.createElement('img');
     var type = enemy.currentAbility.abilityImage[randomNumber(0,enemy.currentAbility.abilityImage.length - 1)];
         object.src = 'img/enemies/' + type;
-        object.id = 'projectile' + randomNumber(1,1000);
+        object.id = 'projectile' + randomNumber(1,1000000);
         object.classList.add('projectile');
         object.style.width = cellSize + 'px';
         object.style.height = cellSize + 'px';
@@ -3929,6 +4031,7 @@ function moveHero(move) {
             }
         }
     }
+    debugHero();
 }
 
 /////////////// ATTACK_PLAYER ///////////////
@@ -4106,9 +4209,9 @@ function dealDamage(amount,source) {
     }
     amount *= hero.armorRating;
     hero.health -= amount;
+    var location = map[hero.row -1][hero.col - 1];
     if (hero.health <= 0) {
         // Determine the cause of death
-        var location = map[hero.row -1][hero.col - 1];
         // If it was a trap
         if (source === 'trap') {
             if (location.object === 'spikes') {
@@ -4164,6 +4267,7 @@ function dealDamage(amount,source) {
     else {
         healthBar.style.width = hero.health + '%';
     }
+    debugDamage(amount,source,location);
 }
 /////////////// TUTORIAL ///////////////
 
@@ -4965,5 +5069,62 @@ function cheat() {
     hero.answers = hero.answersNeeded - 1;
     // hero.gameLevel = 5;
     // options.gold += 350;
+}
+
+var debugMenu = document.getElementById('debug');
+var debugButton = document.getElementById('btn-debug');
+    debugButton.addEventListener('click', function() {
+        if (debugMenu.style.display === 'none') {
+            debugMenu.style.display = 'flex';
+            hero.pause = true;
+        }
+        else {
+            debugMenu.style.display = 'none';
+            hero.pause = false;
+        }
+    });
+
+function debugDamage(amount,source,location) {
+    var now = new Date();
+    var hours = now.getHours();
+    var minutes = now.getMinutes();
+    var seconds = now.getSeconds();
+    if (source === 'trap') {
+        if (location.object === 'spikes') {
+            source = 'spikes';
+        }
+        else if (location.object === 'fire-grate') {
+            source = 'fire-grate';
+        }
+        else if (location.trapType) {
+            source = location.trapType;
+        }
+    }
+    else if (source.enemy) {
+        source = source.type;
+    }
+    if (debugMenu.childElementCount > 25) {
+        var first = document.querySelector('#debug > p');
+            first.remove();
+    }
+    var entry = document.createElement('p');
+        entry.innerHTML = hours + ':' + minutes + ':' + seconds + ' - ' + amount  + ' dmg from ' + source;
+        debugMenu.appendChild(entry);
+}
+
+function debugHero() {
+    var box = document.getElementById('debug-hero');
+    var loc = map[hero.row - 1][hero.col - 1];
+    var stats = '<p><strong>Hero Data</strong></p>';
+    for (var key in hero) {
+        stats += '<p>' + key + ': ' + hero[key] + '</p>';
+    }
+        stats += '<br />';
+        stats += '<p><strong>Current Cell</strong></p>';
+    for (var key in loc) {
+        stats += '<p>' + key + ': ' + loc[key] + '</p>';
+    }
+    stats += '<br />'
+    box.innerHTML = stats;
 }
 //# sourceMappingURL=app.js.map

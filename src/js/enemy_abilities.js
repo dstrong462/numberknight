@@ -88,7 +88,7 @@ function enemyProjectile(enemy,enemyContainer) {
     var object = document.createElement('img');
     var type = enemy.currentAbility.abilityImage[randomNumber(0,enemy.currentAbility.abilityImage.length - 1)];
         object.src = 'img/enemies/' + type;
-        object.id = 'projectile' + randomNumber(1,1000);
+        object.id = 'projectile' + randomNumber(1,1000000);
         object.classList.add('projectile');
         object.style.width = cellSize + 'px';
         object.style.height = cellSize + 'px';
