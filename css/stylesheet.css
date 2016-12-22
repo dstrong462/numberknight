@@ -1058,6 +1058,11 @@ button.main-menu-button {
     margin: 0;
 }
 
+#version-number {
+  color: #777;
+  font-family: 'Ubuntu', 'Arial', 'sans-serif';
+}
+
 
 /* GAME LEVELS
 ================================== */

@@ -56,6 +56,9 @@ function fadeOut() {
 
 // Fade back in
 function fadeIn() {
+    if (hero.level % 2 === 0) {
+
+    }
     setTimeout(function() {
         var fade = document.getElementById('fade-to-black');
             fade.style.animation = 'fade-in 1s 1 forwards';
@@ -69,16 +72,7 @@ function fadeIn() {
         }, 950);
         // Splash level text if necessary
         if (hero.bossLevel) {
-            var levelSplash = document.createElement('div');
-                levelSplash.id = 'level-splash';
-                levelSplash.style.opacity = '0';
-                levelSplash.style.display = 'flex';
-                levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
-                document.body.appendChild(levelSplash);
-                levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
-            setTimeout(function() {
-                levelSplash.remove();
-            }, 3500);
+            textBubble('boss',1000);
         }
     }, 250);
 }

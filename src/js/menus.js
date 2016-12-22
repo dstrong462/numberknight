@@ -85,6 +85,7 @@ function titleScreen() {
                     optionsPosition = 'open';
                 }
                 else {
+                    this.blur();
                     hero.pause = false;
                     setOptions();
                     menu.style.transform = 'translateX(-100%)';
@@ -93,6 +94,8 @@ function titleScreen() {
 
             });
         }
+
+    document.getElementById('version-number').innerHTML = 'v.' + options.version;
 
     // Allow user to disable tutorial from showing on starting a new game
     var tutorialCheckbox = document.getElementById('enable-tutorial');

@@ -1,4 +1,4 @@
-var newestVersion = 20161220;
+var newestVersion = 20161221;
 
 // Check version number and allow adding in new data or wiping stats as needed
 (function updateGameData() {

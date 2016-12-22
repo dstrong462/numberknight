@@ -62,6 +62,11 @@ function textBubble(msg,delay) {
                     knight3.innerHTML = hero.knights[2].rescueText;
                     bubble.appendChild(knight3);
             }
+            else if (msg === 'boss') {
+                var text = '<h5>- BOSS LEVEL -</h5>';
+                    text += '<p>Defeat the boss to free the other knights!</p>';
+                bubble.innerHTML = text;
+            }
             else {
                 bubble.innerHTML = msg;
             }

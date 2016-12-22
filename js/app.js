@@ -1,4 +1,4 @@
-var newestVersion = 20161220;
+var newestVersion = 20161221;
 
 // Check version number and allow adding in new data or wiping stats as needed
 (function updateGameData() {
@@ -258,6 +258,7 @@ function getDimensions() {
     healthBar = document.getElementById('health');
     timeBar = document.getElementById('time');
     xpBar = document.getElementById('xp');
+    currentGameMode = document.getElementById('game-mode');
 
     // Settings for tutorial
     tutorialData = {
@@ -368,6 +369,7 @@ function titleScreen() {
                     optionsPosition = 'open';
                 }
                 else {
+                    this.blur();
                     hero.pause = false;
                     setOptions();
                     menu.style.transform = 'translateX(-100%)';
@@ -376,6 +378,8 @@ function titleScreen() {
 
             });
         }
+
+    document.getElementById('version-number').innerHTML = 'v.' + options.version;
 
     // Allow user to disable tutorial from showing on starting a new game
     var tutorialCheckbox = document.getElementById('enable-tutorial');
@@ -1009,6 +1013,9 @@ function fadeOut() {
 
 // Fade back in
 function fadeIn() {
+    if (hero.level % 2 === 0) {
+
+    }
     setTimeout(function() {
         var fade = document.getElementById('fade-to-black');
             fade.style.animation = 'fade-in 1s 1 forwards';
@@ -1022,16 +1029,7 @@ function fadeIn() {
         }, 950);
         // Splash level text if necessary
         if (hero.bossLevel) {
-            var levelSplash = document.createElement('div');
-                levelSplash.id = 'level-splash';
-                levelSplash.style.opacity = '0';
-                levelSplash.style.display = 'flex';
-                levelSplash.innerHTML = '<div><h5>- BOSS LEVEL -</h5></div>';
-                document.body.appendChild(levelSplash);
-                levelSplash.style.animation = 'warning 2.5s 1s 1 forwards';
-            setTimeout(function() {
-                levelSplash.remove();
-            }, 3500);
+            textBubble('boss',1000);
         }
     }, 250);
 }
@@ -1784,7 +1782,7 @@ function multiples(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
+    currentGameMode.innerHTML = 'Multiples of ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -1852,7 +1850,7 @@ function factors(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
+    currentGameMode.innerHTML = 'Factors of ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -1907,7 +1905,7 @@ function primes(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Prime Numbers';
+    currentGameMode.innerHTML = 'Prime Numbers';
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -2089,7 +2087,7 @@ function equality(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Equals ' + target;
+    currentGameMode.innerHTML = 'Equals ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -2143,7 +2141,7 @@ function ascendingDescending(total,callback) {
     }
     hero.ascending = numberArray;
     hero.answersNeeded = total;
-    document.getElementById('game-mode').innerHTML = modeText;
+    currentGameMode.innerHTML = modeText;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -2224,7 +2222,7 @@ function openExitCover() {
             var exitCover = document.getElementById('exit-cover');
                 exitCover.style.transition = '2.25s ease-in-out';
                 exitCover.style.transform = 'translateY(-100%)';
-            document.getElementById('game-mode').innerHTML = 'Level Complete!';
+            currentGameMode.innerHTML = 'Level Complete!';
         }, 1500);
         // Fade out all incorrect answers
         var maths = document.querySelectorAll('.equation');
@@ -4332,6 +4330,11 @@ function textBubble(msg,delay) {
                     knight3.style.color = hero.knights[2].color;
                     knight3.innerHTML = hero.knights[2].rescueText;
                     bubble.appendChild(knight3);
+            }
+            else if (msg === 'boss') {
+                var text = '<h5>- BOSS LEVEL -</h5>';
+                    text += '<p>Defeat the boss to free the other knights!</p>';
+                bubble.innerHTML = text;
             }
             else {
                 bubble.innerHTML = msg;

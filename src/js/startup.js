@@ -127,6 +127,7 @@ function getDimensions() {
     healthBar = document.getElementById('health');
     timeBar = document.getElementById('time');
     xpBar = document.getElementById('xp');
+    currentGameMode = document.getElementById('game-mode');
 
     // Settings for tutorial
     tutorialData = {

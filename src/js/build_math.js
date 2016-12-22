@@ -153,7 +153,7 @@ function multiples(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Multiples of ' + target;
+    currentGameMode.innerHTML = 'Multiples of ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -221,7 +221,7 @@ function factors(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Factors of ' + target;
+    currentGameMode.innerHTML = 'Factors of ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -276,7 +276,7 @@ function primes(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Prime Numbers';
+    currentGameMode.innerHTML = 'Prime Numbers';
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -458,7 +458,7 @@ function equality(total,correct,incorrect,callback) {
     // Concat both arrays together and then shuffle
     var finalArray = correctArray.concat(incorrectArray);
     finalArray = shuffle(finalArray);
-    document.getElementById('game-mode').innerHTML = 'Equals ' + target;
+    currentGameMode.innerHTML = 'Equals ' + target;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -512,7 +512,7 @@ function ascendingDescending(total,callback) {
     }
     hero.ascending = numberArray;
     hero.answersNeeded = total;
-    document.getElementById('game-mode').innerHTML = modeText;
+    currentGameMode.innerHTML = modeText;
     // Send to the display function
     try {
         callback(finalArray,fadeIn);
@@ -593,7 +593,7 @@ function openExitCover() {
             var exitCover = document.getElementById('exit-cover');
                 exitCover.style.transition = '2.25s ease-in-out';
                 exitCover.style.transform = 'translateY(-100%)';
-            document.getElementById('game-mode').innerHTML = 'Level Complete!';
+            currentGameMode.innerHTML = 'Level Complete!';
         }, 1500);
         // Fade out all incorrect answers
         var maths = document.querySelectorAll('.equation');
